@@ -1,0 +1,5 @@
+<mujoco model="photogrammetry_texturedMesh">
+  <compiler meshdir="." autolimits="true"/>
+  <asset><mesh name="texturedMesh" file="texturedMesh.obj" scale="0.001 0.001 0.001"/></asset>
+  <worldbody><body name="mesh_body" pos="0 0 0.1"><geom type="mesh" mesh="texturedMesh"/><joint type="free"/></body></worldbody>
+</mujoco>

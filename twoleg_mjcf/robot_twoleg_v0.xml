@@ -1,0 +1,150 @@
+<?xml version="1.0" ?>
+<!-- TwoLeg 15-DOF humanoid - assembled from robot_item/*.STL per install.pdf -->
+<!-- 15 actuated joints: 5 per leg (hip_yaw, hip_roll, hip_pitch, knee, ankle) + 2 per arm (shoulder_pitch, elbow) + 1 torso_yaw -->
+<mujoco model="twoleg">
+  <compiler angle="radian" meshdir="assets" autolimits="true"/>
+  <default>
+    <default class="twoleg">
+      <joint damping="0.05" frictionloss="0.02" armature="0.002"/>
+      <position kp="20" dampratio="1" forcerange="-3 3" ctrlrange="-1.5 1.5"/>
+      <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2"/></default>
+      <default class="collision"><geom group="3"/></default>
+    </default>
+  </default>
+  <asset>
+    <mesh name="foot" file="foot.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="shortU" file="shortU.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="longU" file="longU.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="multi" file="multi.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="straight" file="straight.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="L_bracket" file="L_bracket.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="U_beam" file="U_beam.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="slantU" file="slantU.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="servo" file="servo.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="horn" file="horn.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="bearing" file="bearing.STL" scale="0.001 0.001 0.001"/>
+    <material name="bracket" rgba="0.7 0.7 0.75 1"/>
+    <material name="servo" rgba="0.25 0.25 0.28 1"/>
+  </asset>
+  <worldbody>
+    <!-- Root: chest / U-beam (install.pdf p6-7) -->
+    <body name="torso" pos="0 0 0.22" childclass="twoleg">
+      <freejoint name="root_joint"/>
+      <inertial pos="0 0 0" mass="0.35" diaginertia="0.001 0.001 0.001"/>
+      <geom type="mesh" mesh="U_beam" material="bracket" class="visual"/>
+      <geom type="box" size="0.04 0.02 0.05" rgba="0.7 0.7 0.75 0.3" group="3"/>
+      <site name="imu" pos="0 0 0"/>
+
+      <!-- LEFT LEG CHAIN (install.pdf p11) -->
+      <body name="left_hip_yaw" pos="0 0.03 -0.02">
+        <joint name="left_hip_yaw" type="hinge" axis="0 0 1" range="-0.5 0.5"/>
+        <inertial pos="0 0 -0.01" mass="0.06" diaginertia="0.0001 0.0001 0.0001"/>
+        <geom type="mesh" mesh="multi" material="bracket" class="visual"/>
+        <geom type="mesh" mesh="servo" material="servo" class="visual"/>
+        <body name="left_hip_roll" pos="0 0.02 0">
+          <joint name="left_hip_roll" type="hinge" axis="1 0 0" range="-0.4 0.4"/>
+          <inertial pos="0 0 -0.02" mass="0.05" diaginertia="0.0001 0.0001 0.0001"/>
+          <geom type="mesh" mesh="shortU" material="bracket" class="visual"/>
+          <body name="left_hip_pitch" pos="0 0 -0.04">
+            <joint name="left_hip_pitch" type="hinge" axis="0 1 0" range="-1.2 1.2"/>
+            <inertial pos="0 0 -0.04" mass="0.08" diaginertia="0.0002 0.0002 0.0002"/>
+            <geom type="mesh" mesh="longU" material="bracket" class="visual"/>
+            <body name="left_knee" pos="0 0 -0.08">
+              <joint name="left_knee" type="hinge" axis="0 1 0" range="-1.5 0.2"/>
+              <inertial pos="0 0 -0.04" mass="0.07" diaginertia="0.0002 0.0002 0.0002"/>
+              <geom type="mesh" mesh="slantU" material="bracket" class="visual"/>
+              <body name="left_ankle" pos="0 0 -0.08">
+                <joint name="left_ankle" type="hinge" axis="0 1 0" range="-0.8 0.8"/>
+                <inertial pos="0 0 -0.02" mass="0.06" diaginertia="0.0001 0.0001 0.0001"/>
+                <geom type="mesh" mesh="shortU" material="bracket" class="visual"/>
+                <geom type="mesh" mesh="foot" pos="0 0 -0.03" material="bracket" class="visual"/>
+                <geom type="box" size="0.06 0.04 0.005" pos="0 0.02 -0.04" rgba="0.2 0.2 0.2 1" group="3" name="left_foot_collision"/>
+                <site name="left_foot" pos="0 0 -0.04"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <!-- RIGHT LEG (mirror) -->
+      <body name="right_hip_yaw" pos="0 -0.03 -0.02">
+        <joint name="right_hip_yaw" type="hinge" axis="0 0 1" range="-0.5 0.5"/>
+        <inertial pos="0 0 -0.01" mass="0.06" diaginertia="0.0001 0.0001 0.0001"/>
+        <geom type="mesh" mesh="multi" material="bracket" class="visual"/>
+        <body name="right_hip_roll" pos="0 -0.02 0">
+          <joint name="right_hip_roll" type="hinge" axis="1 0 0" range="-0.4 0.4"/>
+          <inertial pos="0 0 -0.02" mass="0.05" diaginertia="0.0001 0.0001 0.0001"/>
+          <geom type="mesh" mesh="shortU" material="bracket" class="visual"/>
+          <body name="right_hip_pitch" pos="0 0 -0.04">
+            <joint name="right_hip_pitch" type="hinge" axis="0 1 0" range="-1.2 1.2"/>
+            <inertial pos="0 0 -0.04" mass="0.08" diaginertia="0.0002 0.0002 0.0002"/>
+            <geom type="mesh" mesh="longU" material="bracket" class="visual"/>
+            <body name="right_knee" pos="0 0 -0.08">
+              <joint name="right_knee" type="hinge" axis="0 1 0" range="-1.5 0.2"/>
+              <inertial pos="0 0 -0.04" mass="0.07" diaginertia="0.0002 0.0002 0.0002"/>
+              <geom type="mesh" mesh="slantU" material="bracket" class="visual"/>
+              <body name="right_ankle" pos="0 0 -0.08">
+                <joint name="right_ankle" type="hinge" axis="0 1 0" range="-0.8 0.8"/>
+                <inertial pos="0 0 -0.02" mass="0.06" diaginertia="0.0001 0.0001 0.0001"/>
+                <geom type="mesh" mesh="shortU" material="bracket" class="visual"/>
+                <geom type="mesh" mesh="foot" pos="0 0 -0.03" material="bracket" class="visual"/>
+                <geom type="box" size="0.06 0.04 0.005" pos="0 -0.02 -0.04" rgba="0.2 0.2 0.2 1" group="3"/>
+                <site name="right_foot" pos="0 0 -0.04"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <!-- LEFT ARM (install.pdf p10-11) -->
+      <body name="left_shoulder" pos="0 0.06 0.03">
+        <joint name="left_shoulder_pitch" type="hinge" axis="0 1 0" range="-1.5 1.5"/>
+        <inertial pos="0 0 -0.03" mass="0.04" diaginertia="0.00005 0.00005 0.00005"/>
+        <geom type="mesh" mesh="L_bracket" material="bracket" class="visual"/>
+        <body name="left_elbow" pos="0 0 -0.06">
+          <joint name="left_elbow" type="hinge" axis="0 1 0" range="-1.5 0.2"/>
+          <inertial pos="0 0 -0.02" mass="0.03" diaginertia="0.00005 0.00005 0.00005"/>
+          <geom type="mesh" mesh="straight" material="bracket" class="visual"/>
+          <geom type="box" size="0.015 0.015 0.04" pos="0 0 -0.04" rgba="0.6 0.6 0.65 1" group="3"/>
+        </body>
+      </body>
+
+      <!-- RIGHT ARM -->
+      <body name="right_shoulder" pos="0 -0.06 0.03">
+        <joint name="right_shoulder_pitch" type="hinge" axis="0 1 0" range="-1.5 1.5"/>
+        <inertial pos="0 0 -0.03" mass="0.04" diaginertia="0.00005 0.00005 0.00005"/>
+        <geom type="mesh" mesh="L_bracket" material="bracket" class="visual"/>
+        <body name="right_elbow" pos="0 0 -0.06">
+          <joint name="right_elbow" type="hinge" axis="0 1 0" range="-1.5 0.2"/>
+          <inertial pos="0 0 -0.02" mass="0.03" diaginertia="0.00005 0.00005 0.00005"/>
+          <geom type="mesh" mesh="straight" material="bracket" class="visual"/>
+          <geom type="box" size="0.015 0.015 0.04" pos="0 0 -0.04" rgba="0.6 0.6 0.65 1" group="3"/>
+        </body>
+      </body>
+
+      <!-- HEAD / torso yaw (15th DOF) -->
+      <body name="head" pos="0 0 0.06">
+        <joint name="torso_yaw" type="hinge" axis="0 0 1" range="-1.0 1.0"/>
+        <inertial pos="0 0 0.02" mass="0.05" diaginertia="0.00005 0.00005 0.00005"/>
+        <geom type="box" size="0.03 0.03 0.03" rgba="0.8 0.8 0.85 1" group="3"/>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <position name="left_hip_yaw" joint="left_hip_yaw"/>
+    <position name="left_hip_roll" joint="left_hip_roll"/>
+    <position name="left_hip_pitch" joint="left_hip_pitch"/>
+    <position name="left_knee" joint="left_knee"/>
+    <position name="left_ankle" joint="left_ankle"/>
+    <position name="right_hip_yaw" joint="right_hip_yaw"/>
+    <position name="right_hip_roll" joint="right_hip_roll"/>
+    <position name="right_hip_pitch" joint="right_hip_pitch"/>
+    <position name="right_knee" joint="right_knee"/>
+    <position name="right_ankle" joint="right_ankle"/>
+    <position name="left_shoulder_pitch" joint="left_shoulder_pitch"/>
+    <position name="left_elbow" joint="left_elbow"/>
+    <position name="right_shoulder_pitch" joint="right_shoulder_pitch"/>
+    <position name="right_elbow" joint="right_elbow"/>
+    <position name="torso_yaw" joint="torso_yaw"/>
+  </actuator>
+</mujoco>

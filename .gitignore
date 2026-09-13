@@ -1,0 +1,6 @@
+.opencode/
+.opencode/node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/

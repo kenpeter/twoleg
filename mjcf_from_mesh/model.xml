@@ -1,0 +1,12 @@
+<mujoco model="from_mesh">
+  <compiler meshdir="." autolimits="true"/>
+  <asset>
+    <mesh name="mesh" file="mesh.obj" scale="0.001 0.001 0.001"/>
+  </asset>
+  <worldbody>
+    <body name="mesh_body" pos="0 0 0.1">
+      <geom type="mesh" mesh="mesh" contype="1" conaffinity="1"/>
+      <joint type="free"/>
+    </body>
+  </worldbody>
+</mujoco>
