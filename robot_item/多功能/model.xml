@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="part_multi">
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+  <visual>
+    <global offwidth="1024" offheight="1024"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3"/></default>
+  </default>
+  <asset>
+    <mesh name="multi" file="多功能支架.STL" scale="0.001 0.001 0.001"/>
+    <material name="bracket" rgba="0.75 0.75 0.78 1"/>
+  </asset>
+  <worldbody>
+    <!-- source 多功能支架.STL: bbox min 0.000000 0.000000 0.000000 max 58.000000 37.000000 25.000000 mm, size 58.000000 37.000000 25.000000 mm -->
+    <body name="multi">
+      <geom name="multi_visual" mesh="multi" class="visual" material="bracket" pos="-0.029000 -0.018500 -0.012500"/>
+      <geom name="multi_collision" mesh="multi" class="collision" pos="-0.029000 -0.018500 -0.012500" density="2700"/>
+    </body>
+  </worldbody>
+</mujoco>

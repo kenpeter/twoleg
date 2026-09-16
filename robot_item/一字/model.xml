@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="part_straight">
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+  <visual>
+    <global offwidth="1024" offheight="1024"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3"/></default>
+  </default>
+  <asset>
+    <mesh name="straight" file="一字支架.STL" scale="0.001 0.001 0.001"/>
+    <material name="bracket" rgba="0.75 0.75 0.78 1"/>
+  </asset>
+  <worldbody>
+    <!-- source 一字支架.STL: bbox min 0.000251 0.000251 0.001254 max 63.000256 25.000252 2.001254 mm, size 63.000005 25.000001 2.000000 mm -->
+    <body name="straight">
+      <geom name="straight_visual" mesh="straight" class="visual" material="bracket" pos="-0.031500 -0.012500 -0.001001"/>
+      <geom name="straight_collision" mesh="straight" class="collision" pos="-0.031500 -0.012500 -0.001001" density="2700"/>
+    </body>
+  </worldbody>
+</mujoco>

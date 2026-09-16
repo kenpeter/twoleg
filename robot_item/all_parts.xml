@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="robot_item_parts">
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+  <visual>
+    <global offwidth="1600" offheight="1200"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3" density="0"/></default>
+  </default>
+  <asset>
+    <mesh name="L_bracket" file="L型/L型支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="U_beam" file="U型梁/U梁支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="straight" file="一字/一字支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="multi" file="多功能/多功能支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="foot" file="大脚板/脚板支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="slantU" file="斜U/斜U支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="bearing" file="法兰轴承/法兰轴承.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="shortU" file="短U/短U支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="servo" file="舵机/舵机.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="horn" file="金属舵盘/金属舵盘.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="longU" file="长U/长U支架.STL" scale="0.001 0.001 0.001"/>
+    <material name="bracket" rgba="0.75 0.75 0.78 1"/>
+    <material name="dark" rgba="0.18 0.18 0.20 1"/>
+    <material name="steel" rgba="0.55 0.56 0.60 1"/>
+    <material name="horn" rgba="0.80 0.80 0.82 1"/>
+  </asset>
+  <worldbody>
+    <light pos="0 0 1.5" dir="0 0 -1" diffuse="0.5 0.5 0.5"/>
+['    <body name="L_bracket" pos="-0.3000 -0.4000 0">\n      <geom name="L_bracket_v" type="mesh" mesh="L_bracket" class="visual" material="bracket"/>\n      <geom name="L_bracket_c" type="mesh" mesh="L_bracket" class="collision" density="2700"/>\n    </body>', '    <body name="U_beam" pos="-0.1000 -0.4000 0">\n      <geom name="U_beam_v" type="mesh" mesh="U_beam" class="visual" material="bracket"/>\n      <geom name="U_beam_c" type="mesh" mesh="U_beam" class="collision" density="2700"/>\n    </body>', '    <body name="straight" pos="0.1000 -0.4000 0">\n      <geom name="straight_v" type="mesh" mesh="straight" class="visual" material="bracket"/>\n      <geom name="straight_c" type="mesh" mesh="straight" class="collision" density="2700"/>\n    </body>', '    <body name="multi" pos="0.3000 -0.4000 0">\n      <geom name="multi_v" type="mesh" mesh="multi" class="visual" material="bracket"/>\n      <geom name="multi_c" type="mesh" mesh="multi" class="collision" density="2700"/>\n    </body>', '    <body name="foot" pos="-0.3000 -0.2000 0">\n      <geom name="foot_v" type="mesh" mesh="foot" class="visual" material="bracket"/>\n      <geom name="foot_c" type="mesh" mesh="foot" class="collision" density="2700"/>\n    </body>', '    <body name="slantU" pos="-0.1000 -0.2000 0">\n      <geom name="slantU_v" type="mesh" mesh="slantU" class="visual" material="bracket"/>\n      <geom name="slantU_c" type="mesh" mesh="slantU" class="collision" density="2700"/>\n    </body>', '    <body name="bearing" pos="0.1000 -0.2000 0">\n      <geom name="bearing_v" type="mesh" mesh="bearing" class="visual" material="steel"/>\n      <geom name="bearing_c" type="mesh" mesh="bearing" class="collision" density="7800"/>\n    </body>', '    <body name="shortU" pos="0.3000 -0.2000 0">\n      <geom name="shortU_v" type="mesh" mesh="shortU" class="visual" material="bracket"/>\n      <geom name="shortU_c" type="mesh" mesh="shortU" class="collision" density="2700"/>\n    </body>', '    <body name="servo" pos="-0.3000 0.0000 0">\n      <geom name="servo_v" type="mesh" mesh="servo" class="visual" material="dark"/>\n      <geom name="servo_c" type="mesh" mesh="servo" class="collision" density="1600"/>\n    </body>', '    <body name="horn" pos="-0.1000 0.0000 0">\n      <geom name="horn_v" type="mesh" mesh="horn" class="visual" material="horn"/>\n      <geom name="horn_c" type="mesh" mesh="horn" class="collision" density="2700"/>\n    </body>', '    <body name="longU" pos="0.1000 0.0000 0">\n      <geom name="longU_v" type="mesh" mesh="longU" class="visual" material="bracket"/>\n      <geom name="longU_c" type="mesh" mesh="longU" class="collision" density="2700"/>\n    </body>']
+  </worldbody>
+</mujoco>

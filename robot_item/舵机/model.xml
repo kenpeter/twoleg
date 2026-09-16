@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="part_servo">
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+  <visual>
+    <global offwidth="1024" offheight="1024"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3"/></default>
+  </default>
+  <asset>
+    <mesh name="servo" file="舵机.STL" scale="0.001 0.001 0.001"/>
+    <material name="dark" rgba="0.18 0.18 0.20 1"/>
+  </asset>
+  <worldbody>
+    <!-- source 舵机.STL: bbox min 0.001878 0.000025 0.000000 max 19.501879 54.000023 43.000000 mm, size 19.500001 53.999998 43.000000 mm -->
+    <body name="servo">
+      <geom name="servo_visual" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027000 -0.021500"/>
+      <geom name="servo_collision" mesh="servo" class="collision" pos="-0.009752 -0.027000 -0.021500" density="1600"/>
+    </body>
+  </worldbody>
+</mujoco>

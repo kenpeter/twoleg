@@ -1,0 +1,332 @@
+[
+  {
+    "slug": "L_bracket",
+    "folder": "robot_item/L型",
+    "stl": "L型支架.STL",
+    "model": "robot_item/L型/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.001,
+        0.001,
+        0.001
+      ],
+      "max": [
+        28.489,
+        36.989,
+        25.001
+      ],
+      "size": [
+        28.487,
+        36.987,
+        25.0
+      ]
+    },
+    "center_mm": [
+      14.245,
+      18.495,
+      12.501
+    ],
+    "material": "bracket",
+    "density": 2700
+  },
+  {
+    "slug": "U_beam",
+    "folder": "robot_item/U型梁",
+    "stl": "U梁支架.STL",
+    "model": "robot_item/U型梁/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.0,
+        0.0,
+        0.001
+      ],
+      "max": [
+        29.0,
+        44.0,
+        90.001
+      ],
+      "size": [
+        29.0,
+        44.0,
+        90.0
+      ]
+    },
+    "center_mm": [
+      14.5,
+      22.0,
+      45.001
+    ],
+    "material": "bracket",
+    "density": 2700
+  },
+  {
+    "slug": "straight",
+    "folder": "robot_item/一字",
+    "stl": "一字支架.STL",
+    "model": "robot_item/一字/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.0,
+        0.0,
+        0.001
+      ],
+      "max": [
+        63.0,
+        25.0,
+        2.001
+      ],
+      "size": [
+        63.0,
+        25.0,
+        2.0
+      ]
+    },
+    "center_mm": [
+      31.5,
+      12.5,
+      1.001
+    ],
+    "material": "bracket",
+    "density": 2700
+  },
+  {
+    "slug": "multi",
+    "folder": "robot_item/多功能",
+    "stl": "多功能支架.STL",
+    "model": "robot_item/多功能/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "max": [
+        58.0,
+        37.0,
+        25.0
+      ],
+      "size": [
+        58.0,
+        37.0,
+        25.0
+      ]
+    },
+    "center_mm": [
+      29.0,
+      18.5,
+      12.5
+    ],
+    "material": "bracket",
+    "density": 2700
+  },
+  {
+    "slug": "foot",
+    "folder": "robot_item/大脚板",
+    "stl": "脚板支架.STL",
+    "model": "robot_item/大脚板/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "max": [
+        123.5,
+        63.5,
+        2.0
+      ],
+      "size": [
+        123.5,
+        63.5,
+        2.0
+      ]
+    },
+    "center_mm": [
+      61.75,
+      31.75,
+      1.0
+    ],
+    "material": "bracket",
+    "density": 2700
+  },
+  {
+    "slug": "slantU",
+    "folder": "robot_item/斜U",
+    "stl": "斜U支架.STL",
+    "model": "robot_item/斜U/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.0,
+        0.031,
+        0.035
+      ],
+      "max": [
+        56.489,
+        26.341,
+        54.035
+      ],
+      "size": [
+        56.488,
+        26.311,
+        54.0
+      ]
+    },
+    "center_mm": [
+      28.244,
+      13.186,
+      27.035
+    ],
+    "material": "bracket",
+    "density": 2700
+  },
+  {
+    "slug": "bearing",
+    "folder": "robot_item/法兰轴承",
+    "stl": "法兰轴承.STL",
+    "model": "robot_item/法兰轴承/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "max": [
+        9.5,
+        3.0,
+        9.5
+      ],
+      "size": [
+        9.5,
+        3.0,
+        9.5
+      ]
+    },
+    "center_mm": [
+      4.75,
+      1.5,
+      4.75
+    ],
+    "material": "steel",
+    "density": 7800
+  },
+  {
+    "slug": "shortU",
+    "folder": "robot_item/短U",
+    "stl": "短U支架.STL",
+    "model": "robot_item/短U/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.001,
+        0.0,
+        0.001
+      ],
+      "max": [
+        54.001,
+        44.5,
+        25.001
+      ],
+      "size": [
+        54.0,
+        44.5,
+        25.0
+      ]
+    },
+    "center_mm": [
+      27.001,
+      22.25,
+      12.501
+    ],
+    "material": "bracket",
+    "density": 2700
+  },
+  {
+    "slug": "servo",
+    "folder": "robot_item/舵机",
+    "stl": "舵机.STL",
+    "model": "robot_item/舵机/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.002,
+        0.0,
+        0.0
+      ],
+      "max": [
+        19.502,
+        54.0,
+        43.0
+      ],
+      "size": [
+        19.5,
+        54.0,
+        43.0
+      ]
+    },
+    "center_mm": [
+      9.752,
+      27.0,
+      21.5
+    ],
+    "material": "dark",
+    "density": 1600
+  },
+  {
+    "slug": "horn",
+    "folder": "robot_item/金属舵盘",
+    "stl": "金属舵盘.STL",
+    "model": "robot_item/金属舵盘/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.0,
+        0.1,
+        0.0
+      ],
+      "max": [
+        20.0,
+        5.1,
+        20.0
+      ],
+      "size": [
+        20.0,
+        5.0,
+        20.0
+      ]
+    },
+    "center_mm": [
+      10.0,
+      2.6,
+      10.0
+    ],
+    "material": "horn",
+    "density": 2700
+  },
+  {
+    "slug": "longU",
+    "folder": "robot_item/长U",
+    "stl": "长U支架.STL",
+    "model": "robot_item/长U/model.xml",
+    "bbox_mm": {
+      "min": [
+        0.0,
+        0.0,
+        0.001
+      ],
+      "max": [
+        54.0,
+        64.5,
+        25.001
+      ],
+      "size": [
+        54.0,
+        64.5,
+        25.0
+      ]
+    },
+    "center_mm": [
+      27.0,
+      32.25,
+      12.501
+    ],
+    "material": "bracket",
+    "density": 2700
+  }
+]

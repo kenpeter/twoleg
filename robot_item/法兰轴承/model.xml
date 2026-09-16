@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="part_bearing">
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+  <visual>
+    <global offwidth="1024" offheight="1024"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3"/></default>
+  </default>
+  <asset>
+    <mesh name="bearing" file="法兰轴承.STL" scale="0.001 0.001 0.001"/>
+    <material name="steel" rgba="0.55 0.56 0.60 1"/>
+  </asset>
+  <worldbody>
+    <!-- source 法兰轴承.STL: bbox min 0.000000 0.000000 0.000000 max 9.500000 3.000000 9.500000 mm, size 9.500000 3.000000 9.500000 mm -->
+    <body name="bearing">
+      <geom name="bearing_visual" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750"/>
+      <geom name="bearing_collision" mesh="bearing" class="collision" pos="-0.004750 -0.001500 -0.004750" density="7800"/>
+    </body>
+  </worldbody>
+</mujoco>

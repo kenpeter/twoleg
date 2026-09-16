@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="part_U_beam">
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+  <visual>
+    <global offwidth="1024" offheight="1024"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3"/></default>
+  </default>
+  <asset>
+    <mesh name="U_beam" file="U梁支架.STL" scale="0.001 0.001 0.001"/>
+    <material name="bracket" rgba="0.75 0.75 0.78 1"/>
+  </asset>
+  <worldbody>
+    <!-- source U梁支架.STL: bbox min 0.000000 0.000000 0.001490 max 29.000000 44.000000 90.001495 mm, size 29.000000 44.000000 90.000006 mm -->
+    <body name="U_beam">
+      <geom name="U_beam_visual" mesh="U_beam" class="visual" material="bracket" pos="-0.014500 -0.022000 -0.045001"/>
+      <geom name="U_beam_collision" mesh="U_beam" class="collision" pos="-0.014500 -0.022000 -0.045001" density="2700"/>
+    </body>
+  </worldbody>
+</mujoco>
