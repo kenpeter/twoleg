@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="xiaou_assembly">
+  <!-- Manual p.3 "2. 小U 小U 支架的垂直安装": two 短U (small U) brackets bolted base-to-base,
+       one opening up, the other opening down AND rotated 90 deg about the vertical, so the two
+       brackets are perpendicular (their walls form a cross).
+       配件：小U支架 2 个、圆头 M3*7 螺丝 8 个、M3 螺母 8 个。 -->
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+  <visual>
+    <global offwidth="1024" offheight="1024"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3"/></default>
+  </default>
+  <asset>
+    <mesh name="shortU" file="短U/短U支架.STL" scale="0.001 0.001 0.001"/>
+    <material name="bracket" rgba="0.75 0.75 0.78 1"/>
+    <material name="dark" rgba="0.18 0.18 0.20 1"/>
+  </asset>
+  <worldbody>
+    <!-- Upper 短U: opening up. raw bbox 0..54(X) x 0..44.5(Y height) x 0..25(Z depth). -->
+    <body name="shortU_up" pos="0 0 0.02225" quat="0.7071068 0.7071068 0 0">
+      <geom name="shortU_up_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125"/>
+      <geom name="shortU_up_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700"/>
+    </body>
+
+    <!-- Lower 短U: opening down, rotated 90 deg about the vertical -> perpendicular to upper. -->
+    <body name="shortU_down" pos="0 0 -0.02025" quat="0.5 -0.5 -0.5 0.5">
+      <geom name="shortU_down_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125"/>
+      <geom name="shortU_down_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700"/>
+    </body>
+
+    <!-- M3 screws through the overlapping base holes (visual only). -->
+    <geom name="screw_1" type="cylinder" size="0.0016 0.004" pos="0.007 0 0.0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+    <geom name="screw_2" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0.0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+    <geom name="screw_3" type="cylinder" size="0.0016 0.004" pos="0 0.007 0.0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+    <geom name="screw_4" type="cylinder" size="0.0016 0.004" pos="0 -0.007 0.0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+    <geom name="nut_1" type="cylinder" size="0.003 0.0012" pos="0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+    <geom name="nut_2" type="cylinder" size="0.003 0.0012" pos="-0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+    <geom name="nut_3" type="cylinder" size="0.003 0.0012" pos="0 0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+    <geom name="nut_4" type="cylinder" size="0.003 0.0012" pos="0 -0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+  </worldbody>
+</mujoco>

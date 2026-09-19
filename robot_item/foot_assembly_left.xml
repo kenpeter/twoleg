@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="foot_assembly_left">
+  <!-- Left/right foot bracket per install manual p.3:
+       大脚板 (foot) + 多功能支架 (multi), M3x6 screws + M3 nuts.
+       Part meshes are recentered (body origin = bbox centre); geom pos
+       below shifts the raw STL so that origin sits at the part centre. -->
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+  <visual>
+    <global offwidth="1024" offheight="1024"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3"/></default>
+  </default>
+  <asset>
+    <mesh name="foot" file="大脚板/脚板支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="multi" file="多功能/多功能支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="servo" file="舵机/舵机.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="horn" file="金属舵盘/金属舵盘.STL" scale="0.001 0.001 0.001"/>
+    <material name="bracket" rgba="0.75 0.75 0.78 1"/>
+    <material name="dark" rgba="0.18 0.18 0.20 1"/>
+    <material name="horn" rgba="0.80 0.80 0.82 1"/>
+  </asset>
+  <worldbody>
+    <body name="foot" pos="0 0 0">
+      <!-- raw foot bbox 0..123.5 x 0..63.5 x 0..2 mm -->
+      <geom name="foot_visual" mesh="foot" class="visual" material="bracket" pos="-0.06175 -0.03175 -0.001"/>
+      <geom name="foot_collision" mesh="foot" class="collision" pos="-0.06175 -0.03175 -0.001" density="2700"/>
+
+      <body name="multi" pos="0.022 0 0.0135" quat="0.70710678 0 0 0.70710678">
+        <!-- raw multi bbox 0..58 x 0..37 x 0..25 mm; main plate face at Z=0 rests on foot top -->
+        <geom name="multi_visual" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125"/>
+        <geom name="multi_collision" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700"/>
+      </body>
+
+      <body name="ankle_servo" pos="0.017 0 0.01275" quat="0 -0.7071068 0 0.7071068">
+        <!-- manual p.8 左右脚板舵机: servo lies flat/sideways in the multi bracket, output
+             shaft horizontal pointing out the open front (-X), disc/horn outside the front
+             tabs.  Quat = RotZ(180)*RotY(90): raw +Z shaft -> -X, raw 19.5(X) -> Z height
+             (lies flat, 19.5 tall), raw 54(Y ears) -> Y across the foot, raw 43(Z) -> X depth.
+             Origin is the bbox centre: bottom sits on the multi base plate top (z = 0.003)
+             => centre z = 0.003 + 0.00975.  Body back (x = 0.0385) meets the multi grid-wall
+             inner face; the output flange (x = -0.0045) and disc sit over the front of the
+             foot, flush with the two front tabs. -->
+        <geom name="servo_visual" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215"/>
+        <geom name="servo_collision" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="1600"/>
+      </body>
+
+      <body name="horn" pos="-0.007 0.010 0.01275" quat="0.5 0.5 0.5 -0.5">
+        <!-- 金属舵盘 (metal horn disc) on the servo output shaft: disc plane in world Y-Z,
+             axis along -X (out the front), raised hub (raw +Y) faces the servo, flat 4-hole
+             face outward.  Raw bbox 0..20 x 0.1..5.1 x 0..20 mm, centre (10, 2.6, 10). -->
+        <geom name="horn_visual" mesh="horn" class="visual" material="horn" pos="-0.010 -0.0026 -0.010"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>
