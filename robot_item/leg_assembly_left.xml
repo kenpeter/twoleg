@@ -102,7 +102,7 @@
     <body name="ankle_pivot_shaft" pos="0.041500 0.010000 0.016750">
       <geom name="ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 0.7071068 0" material="steel" contype="0" conaffinity="0" group="2"/>
     </body>
-    <body name="ankle_pivot_bearing" pos="0.044500 0.010000 0.016750" quat="0 0 0.7071068 0.7071068">
+    <body name="ankle_pivot_bearing" pos="0.044500 0.010000 0.016750" quat="0.7071068 0 0 0.7071068">
       <geom name="ankle_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750"/>
     </body>
   </worldbody>
