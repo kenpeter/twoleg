@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<mujoco model="xiaou_assembly">
+<mujoco model="xiaou_assembly_left">
   <!-- Manual p.3 "2. 小U 小U 支架的垂直安装": two 短U (small U) brackets bolted base-to-base,
        one opening up, the other opening down AND rotated 90 deg about the vertical, so the two
        brackets are perpendicular (their walls form a cross).
