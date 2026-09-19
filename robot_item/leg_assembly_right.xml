@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="leg_assembly_right">
+  <!-- Manual p.11 "左腿" ankle = foot_assembly_left + xiaou_assembly_left:
+       大脚板 + 多功能支架 + 舵机 + 金属舵盘 with the two perpendicular 短U brackets on top.
+       The xiaou is shifted so the lower 短U big hole is concentric with the servo shaft /
+       horn centre hole (Y = 0.010, Z = 0.01275), so a screw locks them together. -->
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+  <visual>
+    <global offwidth="1024" offheight="1024"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3"/></default>
+  </default>
+  <asset>
+    <mesh name="foot" file="大脚板/脚板支架.STL" scale="0.001 -0.001 0.001"/>
+    <mesh name="multi" file="多功能/多功能支架.STL" scale="0.001 -0.001 0.001"/>
+    <mesh name="shortU" file="短U/短U支架.STL" scale="0.001 -0.001 0.001"/>
+    <mesh name="servo" file="舵机/舵机.STL" scale="0.001 -0.001 0.001"/>
+    <mesh name="horn" file="金属舵盘/金属舵盘.STL" scale="0.001 -0.001 0.001"/>
+    <material name="bracket" rgba="0.75 0.75 0.78 1"/>
+    <material name="dark" rgba="0.18 0.18 0.20 1"/>
+    <material name="horn" rgba="0.80 0.80 0.82 1"/>
+  </asset>
+  <worldbody>
+    <body name="foot" pos="0.000000 -0.000000 0.000000">
+      <geom name="foot_visual" mesh="foot" class="visual" material="bracket" pos="-0.061750 0.031750 -0.001000"/>
+      <geom name="foot_collision" mesh="foot" class="collision" pos="-0.061750 0.031750 -0.001000" density="2700"/>
+
+      <body name="multi" pos="0.022000 -0.000000 0.013500" quat="0.707107 -0.000000 0.000000 -0.707107">
+        <geom name="multi_visual" mesh="multi" class="visual" material="bracket" pos="-0.029000 0.018500 -0.012500"/>
+        <geom name="multi_collision" mesh="multi" class="collision" pos="-0.029000 0.018500 -0.012500" density="2700"/>
+      </body>
+
+      <body name="ankle_servo" pos="0.017000 -0.000000 0.012750" quat="0.000000 0.707107 0.000000 -0.707107">
+        <geom name="servo_visual" mesh="servo" class="visual" material="dark" pos="-0.009752 0.027000 -0.021500"/>
+        <geom name="servo_collision" mesh="servo" class="collision" pos="-0.009752 0.027000 -0.021500" density="1600"/>
+      </body>
+
+      <body name="horn" pos="-0.007000 -0.010000 0.012750" quat="0.500000 -0.500000 0.500000 0.500000">
+        <geom name="horn_visual" mesh="horn" class="visual" material="horn" pos="-0.010000 0.002600 -0.010000"/>
+      </body>
+
+      <!-- xiaou_assembly_left, rotated 90 deg about Z and shifted so its lower big hole
+           lines up with the servo shaft / horn centre. -->
+      <body name="shortU_up" pos="0.017500 -0.010000 0.065000" quat="0.500000 -0.500000 0.500000 -0.500000">
+        <geom name="shortU_up_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027000 0.022250 -0.012500"/>
+        <geom name="shortU_up_collision" mesh="shortU" class="collision" pos="-0.027000 0.022250 -0.012500" density="2700"/>
+      </body>
+
+      <body name="shortU_down" pos="0.017500 -0.010000 0.022500" quat="0.000000 -0.000000 -0.707107 -0.707107">
+        <geom name="shortU_down_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027000 0.022250 -0.012500"/>
+        <geom name="shortU_down_collision" mesh="shortU" class="collision" pos="-0.027000 0.022250 -0.012500" density="2700"/>
+      </body>
+
+      <geom name="screw_1" type="cylinder" size="0.0016 0.004" pos="0.017500 -0.017000 0.042750" quat="0.500000 -0.500000 0.500000 -0.500000" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="screw_2" type="cylinder" size="0.0016 0.004" pos="0.017500 -0.003000 0.042750" quat="0.500000 -0.500000 0.500000 -0.500000" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="screw_3" type="cylinder" size="0.0016 0.004" pos="0.010500 -0.010000 0.042750" quat="0.500000 -0.500000 0.500000 -0.500000" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="screw_4" type="cylinder" size="0.0016 0.004" pos="0.024500 -0.010000 0.042750" quat="0.500000 -0.500000 0.500000 -0.500000" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="nut_1" type="cylinder" size="0.003 0.0012" pos="0.017500 -0.017000 0.047950" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="nut_2" type="cylinder" size="0.003 0.0012" pos="0.017500 -0.003000 0.047950" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="nut_3" type="cylinder" size="0.003 0.0012" pos="0.010500 -0.010000 0.047950" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="nut_4" type="cylinder" size="0.003 0.0012" pos="0.024500 -0.010000 0.047950" material="dark" contype="0" conaffinity="0" group="2"/>
+    </body>
+      <body name="multi_0" pos="0.018250 -0.012000 0.119750" quat="0.000000 -0.707107 0.000000 -0.707107">
+      <geom name="multi_0_v" mesh="multi" class="visual" material="bracket" pos="-0.029000 0.018500 -0.012500"/>
+      <geom name="multi_0_c" mesh="multi" class="collision" pos="-0.029000 0.018500 -0.012500" density="2700"/>
+    </body>
+    <body name="servo_1" pos="0.017500 -0.007000 0.119750" quat="0.000000 -0.000000 -0.707107 -0.707107">
+      <geom name="servo_1_v" mesh="servo" class="visual" material="dark" pos="-0.009752 0.027000 -0.021500"/>
+      <geom name="servo_1_c" mesh="servo" class="collision" pos="-0.009752 0.027000 -0.021500" density="2700"/>
+    </body>
+    <body name="horn_2" pos="0.017500 0.017000 0.129750" quat="0.000000 -0.000000 1.000000 -0.000000">
+      <geom name="horn_2_v" mesh="horn" class="visual" material="horn" pos="-0.010000 0.002600 -0.010000"/>
+      <geom name="horn_2_c" mesh="horn" class="collision" pos="-0.010000 0.002600 -0.010000" density="2700"/>
+    </body>
+    <body name="multi_3" pos="0.018250 -0.012000 0.064750" quat="0.000000 -0.707107 0.000000 -0.707107">
+      <geom name="multi_3_v" mesh="multi" class="visual" material="bracket" pos="-0.029000 0.018500 -0.012500"/>
+      <geom name="multi_3_c" mesh="multi" class="collision" pos="-0.029000 0.018500 -0.012500" density="2700"/>
+    </body>
+    <body name="servo_4" pos="0.017500 -0.007000 0.064750" quat="0.000000 -0.000000 -0.707107 -0.707107">
+      <geom name="servo_4_v" mesh="servo" class="visual" material="dark" pos="-0.009752 0.027000 -0.021500"/>
+      <geom name="servo_4_c" mesh="servo" class="collision" pos="-0.009752 0.027000 -0.021500" density="2700"/>
+    </body>
+    <body name="horn_5" pos="0.017500 0.017000 0.074750" quat="0.000000 -0.000000 1.000000 -0.000000">
+      <geom name="horn_5_v" mesh="horn" class="visual" material="horn" pos="-0.010000 0.002600 -0.010000"/>
+      <geom name="horn_5_c" mesh="horn" class="collision" pos="-0.010000 0.002600 -0.010000" density="2700"/>
+    </body>
+  </worldbody>
+</mujoco>

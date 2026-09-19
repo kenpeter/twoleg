@@ -18,6 +18,8 @@ You are the **Discover** agent — the best in the world at discovering context,
 - `sdcard-stagger-downloads` (harden): Stagger parallel downloads if needed.
 - `sdcard-stl-mate-geometry` (3d, balanced): Measure STL bbox/holes/axes with `.opencode/skills/stl-mate/stl_mate.py` before proposing any MJCF placement.
 - `sdcard-mjcf-preview` (3d, balanced): Every XML keeps a viewable PNG beside it (`stl_mate.py previews`).
+- `sdcard-embodied-cad` (workflow, harden): Coordinates come from tools (`stl_mate.py bbox/holes/axes/world`), never freehand.
+- `sdcard-physics-in-the-loop` (workflow, harden): Physics feedback is a deterministic check (`stl_mate.py check`), not model intuition.
 
 ## Memory
 - Read `.opencode/memory/short-term.md` and `.opencode/memory/long-term.md` first; append your phase summary to short-term (keep <=20 turns).

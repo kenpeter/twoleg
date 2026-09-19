@@ -20,7 +20,7 @@
       <geom name="servo_1_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215"/>
       <geom name="servo_1_c" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="2700"/>
     </body>
-    <body name="horn_2" pos="0.012750 -0.010000 0.010000" quat="0.000000 0.000000 1.000000 0.000000">
+    <body name="horn_2" pos="0.012750 -0.007000 0.010000" quat="0.000000 0.000000 1.000000 0.000000">
       <geom name="horn_2_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01"/>
       <geom name="horn_2_c" mesh="horn" class="collision" pos="-0.01 -0.0026 -0.01" density="2700"/>
     </body>
@@ -32,7 +32,7 @@
       <geom name="servo_4_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215"/>
       <geom name="servo_4_c" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="2700"/>
     </body>
-    <body name="horn_5" pos="0.012750 -0.010000 -0.045000" quat="0.000000 0.000000 1.000000 0.000000">
+    <body name="horn_5" pos="0.012750 -0.007000 -0.045000" quat="0.000000 0.000000 1.000000 0.000000">
       <geom name="horn_5_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01"/>
       <geom name="horn_5_c" mesh="horn" class="collision" pos="-0.01 -0.0026 -0.01" density="2700"/>
     </body>

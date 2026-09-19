@@ -233,6 +233,61 @@ def cmd_previews(args):
     print(f"{ok}/{len(files)} previews written")
 
 
+def cmd_check(args):
+    """Physics/assembly sanity check on a compiled MJCF (deterministic verdict)."""
+    import mujoco
+    m = mujoco.MjModel.from_xml_path(args.mjcf)
+    d = mujoco.MjData(m)
+    mujoco.mj_forward(m, d)
+
+    ok = True
+    print(f"CHECK {args.mjcf}")
+    print(f"compile: OK nbody={m.nbody} ngeom={m.ngeom} njnt={m.njnt} nq={m.nq} nu={m.nu}")
+
+    collision_bodies = set()
+    for i in range(m.ngeom):
+        if m.geom_contype[i] or m.geom_conaffinity[i]:
+            collision_bodies.add(int(m.geom_bodyid[i]))
+
+    for i in range(1, m.nbody):
+        n = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_BODY, i)
+        mass = float(m.body_mass[i])
+        flag = ""
+        if mass <= 0 and i in collision_bodies:
+            ok = False
+            flag = "  <-- FAIL collision body mass<=0"
+        print(f"body {n:18s} mass={mass:.6f} ipos={np.round(m.body_ipos[i], 5)}{flag}")
+
+    for j in range(m.njnt):
+        n = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_JOINT, j)
+        ax = m.jnt_axis[j]
+        rng = np.round(m.jnt_range[j], 4).tolist() if m.jnt_limited[j] else "unlimited"
+        print(f"joint {str(n):16s} type={int(m.jnt_type[j])} axis={np.round(ax,3)} range={rng}")
+        if float(np.linalg.norm(ax)) < 1e-6:
+            ok = False
+            print("   <-- FAIL zero joint axis")
+
+    deepest = 0.0
+    pairs = {}
+    for i in range(d.ncon):
+        c = d.contact[i]
+        deepest = min(deepest, float(c.dist))
+        b1 = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_BODY, m.geom_bodyid[c.geom1])
+        b2 = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_BODY, m.geom_bodyid[c.geom2])
+        pairs[(b1, b2)] = pairs.get((b1, b2), 0) + 1
+    pen_mm = -deepest * 1000.0
+    print(f"contacts: ncon={d.ncon} deepest_penetration={pen_mm:.3f} mm")
+    for (b1, b2), k in sorted(pairs.items(), key=lambda x: -x[1])[:12]:
+        print(f"   {b1} <-> {b2}: {k}")
+    if pen_mm > args.max_pen:
+        ok = False
+        print(f"   <-- FAIL penetration {pen_mm:.2f}mm > {args.max_pen}mm")
+
+    print(f"COM (world): {np.round(d.subtree_com[0], 5)}")
+    print("VERDICT:", "PASS" if ok else "FAIL")
+    sys.exit(0 if ok else 1)
+
+
 def main():
     ap = argparse.ArgumentParser(prog="stl_mate")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -264,6 +319,11 @@ def main():
     r.add_argument("--width", type=int, default=900)
     r.add_argument("--height", type=int, default=700)
     r.set_defaults(func=cmd_render)
+
+    ck = sub.add_parser("check", help="physics/assembly sanity check on a compiled MJCF")
+    ck.add_argument("mjcf")
+    ck.add_argument("--max-pen", type=float, default=3.0, help="max allowed penetration in mm")
+    ck.set_defaults(func=cmd_check)
 
     pv = sub.add_parser("previews", help="render each matched MJCF to a PNG alongside it")
     pv.add_argument("glob")

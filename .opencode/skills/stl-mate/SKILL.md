@@ -22,6 +22,7 @@ uv run --with numpy --with mujoco python .opencode/skills/stl-mate/stl_mate.py <
 | `holes FILE --axis X --min A --max B [--res 0.2]` | find holes through a slab (e.g. a bracket wall); prints area + centre in the two projected axes |
 | `axes FILE` | vertex distribution per axis — find a part's long/thin axes |
 | `mirror FILE OUT --axis y` | write a properly-wound mirrored STL (negate axis + reverse triangle order) |
+| `check MJCF [--max-pen MM]` | deterministic physics/assembly verdict: compile, per-body mass, joint axes/ranges, contacts + deepest penetration, COM. Prints `VERDICT: PASS/FAIL`, exits non-zero on FAIL |
 | `world MJCF` | print every body/geom world position of a compiled MJCF (verify placement) |
 | `render MJCF OUT.png [--az --el --dist --lookat x y z]` | offscreen PNG for visual verification |
 | `previews GLOB` | render each matched MJCF to a `<name>.png` **alongside** it (auto-framed) so every `*.xml` has a viewable image |
