@@ -19,9 +19,11 @@
     <mesh name="shortU" file="短U/短U支架.STL" scale="0.001 0.001 0.001"/>
     <mesh name="servo" file="舵机/舵机.STL" scale="0.001 0.001 0.001"/>
     <mesh name="horn" file="金属舵盘/金属舵盘.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="bearing" file="法兰轴承/法兰轴承.STL" scale="0.001 0.001 0.001"/>
     <material name="bracket" rgba="0.75 0.75 0.78 1"/>
     <material name="dark" rgba="0.18 0.18 0.20 1"/>
     <material name="horn" rgba="0.80 0.80 0.82 1"/>
+    <material name="steel" rgba="0.55 0.56 0.60 1"/>
   </asset>
   <worldbody>
     <body name="foot" pos="0 0 0">
@@ -33,59 +35,75 @@
         <geom name="multi_collision" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700"/>
       </body>
 
-      <body name="ankle_servo" pos="0.017 0 0.01275" quat="0 -0.7071068 0 0.7071068">
+      <body name="ankle_servo" pos="0.017000 0.000000 0.016750" quat="0 -0.7071068 0 0.7071068">
         <geom name="servo_visual" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215"/>
         <geom name="servo_collision" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="1600"/>
       </body>
 
-      <body name="horn" pos="-0.007 0.010 0.01275" quat="0.5 0.5 0.5 -0.5">
+      <body name="horn" pos="-0.007000 0.010000 0.016750" quat="0.5 0.5 0.5 -0.5">
         <geom name="horn_visual" mesh="horn" class="visual" material="horn" pos="-0.010 -0.0026 -0.010"/>
       </body>
 
       <!-- little_u_assembly_left, rotated 90 deg about Z and shifted so its lower big hole
            lines up with the servo shaft / horn centre. -->
-      <body name="shortU_up" pos="0.0175 0.010 0.065" quat="0.5 0.5 0.5 0.5">
+      <body name="shortU_up" pos="0.017500 0.010000 0.069000" quat="0.5 0.5 0.5 0.5">
         <geom name="shortU_up_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125"/>
         <geom name="shortU_up_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700"/>
       </body>
 
-      <body name="shortU_down" pos="0.0175 0.010 0.0225" quat="0 0 -0.7071068 0.7071068">
+      <body name="shortU_down" pos="0.017500 0.010000 0.026500" quat="0 0 -0.7071068 0.7071068">
         <geom name="shortU_down_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125"/>
         <geom name="shortU_down_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700"/>
       </body>
 
-      <geom name="screw_1" type="cylinder" size="0.0016 0.004" pos="0.0175 0.017 0.04275" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="screw_2" type="cylinder" size="0.0016 0.004" pos="0.0175 0.003 0.04275" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="screw_3" type="cylinder" size="0.0016 0.004" pos="0.0105 0.010 0.04275" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="screw_4" type="cylinder" size="0.0016 0.004" pos="0.0245 0.010 0.04275" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="nut_1" type="cylinder" size="0.003 0.0012" pos="0.0175 0.017 0.04795" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="nut_2" type="cylinder" size="0.003 0.0012" pos="0.0175 0.003 0.04795" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="nut_3" type="cylinder" size="0.003 0.0012" pos="0.0105 0.010 0.04795" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="nut_4" type="cylinder" size="0.003 0.0012" pos="0.0245 0.010 0.04795" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="screw_1" type="cylinder" size="0.0016 0.004" pos="0.017500 0.017000 0.046750" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="screw_2" type="cylinder" size="0.0016 0.004" pos="0.017500 0.003000 0.046750" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="screw_3" type="cylinder" size="0.0016 0.004" pos="0.010500 0.010000 0.046750" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="screw_4" type="cylinder" size="0.0016 0.004" pos="0.024500 0.010000 0.046750" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="nut_1" type="cylinder" size="0.003 0.0012" pos="0.017500 0.017000 0.051950" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="nut_2" type="cylinder" size="0.003 0.0012" pos="0.017500 0.003000 0.051950" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="nut_3" type="cylinder" size="0.003 0.0012" pos="0.010500 0.010000 0.051950" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="nut_4" type="cylinder" size="0.003 0.0012" pos="0.024500 0.010000 0.051950" material="dark" contype="0" conaffinity="0" group="2"/>
     </body>
-      <body name="multi_0" pos="0.018250 0.012000 0.144500" quat="0.000000 0.707107 0.000000 0.707107">
+      <body name="multi_0" pos="0.018250 0.008000 0.143990" quat="0.000000 0.707107 0.000000 0.707107">
       <geom name="multi_0_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125"/>
       <geom name="multi_0_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700"/>
     </body>
-    <body name="servo_1" pos="0.017500 0.007000 0.144500" quat="0.000000 0.000000 -0.707107 0.707107">
+    <body name="servo_1" pos="0.017500 0.003000 0.143990" quat="0.000000 0.000000 -0.707107 0.707107">
       <geom name="servo_1_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215"/>
       <geom name="servo_1_c" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="2700"/>
     </body>
-    <body name="horn_2" pos="0.017500 -0.017000 0.154500" quat="0.000000 0.000000 1.000000 0.000000">
+    <body name="horn_2" pos="0.017500 -0.021000 0.153990" quat="0.000000 0.000000 1.000000 0.000000">
       <geom name="horn_2_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01"/>
       <geom name="horn_2_c" mesh="horn" class="collision" pos="-0.01 -0.0026 -0.01" density="2700"/>
     </body>
-    <body name="multi_3" pos="0.018250 0.012000 0.089500" quat="0.000000 0.707107 0.000000 0.707107">
+    <body name="multi_3" pos="0.018250 0.008000 0.088990" quat="0.000000 0.707107 0.000000 0.707107">
       <geom name="multi_3_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125"/>
       <geom name="multi_3_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700"/>
     </body>
-    <body name="servo_4" pos="0.017500 0.007000 0.089500" quat="0.7071068 0.7071068 0 0">
+    <body name="servo_4" pos="0.017500 0.003000 0.088990" quat="0.7071068 0.7071068 0 0">
       <geom name="servo_4_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215"/>
       <geom name="servo_4_c" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="2700"/>
     </body>
-    <body name="horn_5" pos="0.017500 -0.017000 0.074750" quat="0.000000 0.000000 1.000000 0.000000">
+    <body name="horn_5" pos="0.017500 -0.017000 0.078750" quat="0.000000 0.000000 1.000000 0.000000">
       <geom name="horn_5_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01"/>
       <geom name="horn_5_c" mesh="horn" class="collision" pos="-0.01 -0.0026 -0.01" density="2700"/>
+    </body>
+    <!-- Knee pivot on the non-driven (+Y) side: shaft from the servo case into a
+         flange bearing in the little-U wall hole, so the joint is supported both sides. -->
+    <body name="knee_pivot_shaft" pos="0.017500 0.030000 0.078750">
+      <geom name="knee_pivot_shaft_g" type="cylinder" size="0.002 0.009000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2"/>
+    </body>
+    <body name="knee_pivot_bearing" pos="0.017500 0.037000 0.078750">
+      <geom name="knee_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750"/>
+    </body>
+    <!-- Ankle pivot on the non-driven (+X) side: shaft from the servo case into a
+         flange bearing in the little-U wall hole, so the joint is supported both sides. -->
+    <body name="ankle_pivot_shaft" pos="0.041500 0.010000 0.016750">
+      <geom name="ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 0.7071068 0" material="steel" contype="0" conaffinity="0" group="2"/>
+    </body>
+    <body name="ankle_pivot_bearing" pos="0.044500 0.010000 0.016750" quat="0 0 0.7071068 0.7071068">
+      <geom name="ankle_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750"/>
     </body>
   </worldbody>
 </mujoco>
