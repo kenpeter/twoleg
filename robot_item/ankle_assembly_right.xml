@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mujoco model="ankle_assembly_right">
-  <!-- RIGHT mirror (Y -> -Y) of ankle_assembly_left = foot_assembly_left + xiaou_assembly_left.
+  <!-- RIGHT mirror (Y -> -Y) of ankle_assembly_left = foot_assembly_left + little_u_assembly_left.
        Chiral meshes mirrored via negative Y scale; Y positions negated, rotations
        conjugated q=(w,x,y,z) -> (w,-x,y,-z). -->
   <compiler angle="radian" meshdir="." autolimits="true"/>

@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mujoco model="ankle_assembly_left">
-  <!-- Manual p.11 "左腿" ankle = foot_assembly_left + xiaou_assembly_left:
+  <!-- Manual p.11 "左腿" ankle = foot_assembly_left + little_u_assembly_left:
        大脚板 + 多功能支架 + 舵机 + 金属舵盘 with the two perpendicular 短U brackets on top.
-       The xiaou is shifted so the lower 短U big hole is concentric with the servo shaft /
+       The little_u is shifted so the lower 短U big hole is concentric with the servo shaft /
        horn centre hole (Y = 0.010, Z = 0.01275), so a screw locks them together. -->
   <compiler angle="radian" meshdir="." autolimits="true"/>
   <visual>
@@ -42,7 +42,7 @@
         <geom name="horn_visual" mesh="horn" class="visual" material="horn" pos="-0.010 -0.0026 -0.010"/>
       </body>
 
-      <!-- xiaou_assembly_left, rotated 90 deg about Z and shifted so its lower big hole
+      <!-- little_u_assembly_left, rotated 90 deg about Z and shifted so its lower big hole
            lines up with the servo shaft / horn centre. -->
       <body name="shortU_up" pos="0.0175 0.010 0.065" quat="0.5 0.5 0.5 0.5">
         <geom name="shortU_up_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125"/>

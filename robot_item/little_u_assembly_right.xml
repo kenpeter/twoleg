@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<mujoco model="xiaou_assembly_right">
-  <!-- RIGHT mirror (Y -> -Y) of xiaou_assembly_left: two perpendicular 短U brackets.
+<mujoco model="little_u_assembly_right">
+  <!-- RIGHT mirror (Y -> -Y) of little_u_assembly_left: two perpendicular 短U brackets.
        Chiral meshes mirrored via negative Y scale; Y positions negated, rotations
        conjugated q=(w,x,y,z) -> (w,-x,y,-z). -->
   <compiler angle="radian" meshdir="." autolimits="true"/>
