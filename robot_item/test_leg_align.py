@@ -28,6 +28,7 @@ TOL_MM = 0.75
 JOINTS = [
     ("ankle", "servo_visual", "horn", "shortU_down_visual"),
     ("knee", "servo_4_v", "horn_5", "shortU_up_visual"),
+    ("hip", "servo_1_v", "horn_2", "multi_0_v"),
 ]
 
 

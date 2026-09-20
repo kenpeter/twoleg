@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mujoco model="little_u_assembly_right">
-  <!-- RIGHT mirror (Y -> -Y) of little_u_assembly_left: two perpendicular 短U brackets.
-       Chiral meshes mirrored via negative Y scale; Y positions negated, rotations
-       conjugated q=(w,x,y,z) -> (w,-x,y,-z). -->
+  <!-- Manual p.3 小U 垂直安装: a BIG little-U (长U, opening up) + a SMALLER little-U (短U,
+       opening down), perpendicular, bolted base-to-base.
+       RIGHT mirror (Y -> -Y) of little_u_assembly_left: chiral meshes mirrored via negative Y
+       scale; Y positions negated, rotations conjugated q=(w,x,y,z) -> (w,-x,y,-z). -->
   <compiler angle="radian" meshdir="." autolimits="true"/>
   <visual>
     <global offwidth="1024" offheight="1024"/>
@@ -14,6 +15,7 @@
   </default>
   <asset>
     <mesh name="shortU" file="短U/短U支架.STL" scale="0.001 -0.001 0.001"/>
+    <mesh name="longU" file="长U/长U支架.STL" scale="0.001 -0.001 0.001"/>
     <material name="bracket" rgba="0.75 0.75 0.78 1"/>
     <material name="dark" rgba="0.18 0.18 0.20 1"/>
   </asset>
@@ -23,9 +25,9 @@
       <geom name="shortU_up_collision" mesh="shortU" class="collision" pos="-0.027 0.02225 -0.0125" density="2700"/>
     </body>
 
-    <body name="shortU_down" pos="0 0 -0.02025" quat="0.5 0.5 -0.5 -0.5">
-      <geom name="shortU_down_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 0.02225 -0.0125"/>
-      <geom name="shortU_down_collision" mesh="shortU" class="collision" pos="-0.027 0.02225 -0.0125" density="2700"/>
+    <body name="longU_down" pos="0 0 -0.03025" quat="0.5 0.5 -0.5 -0.5">
+      <geom name="longU_down_visual" mesh="longU" class="visual" material="bracket" pos="-0.027 0.03225 -0.0125"/>
+      <geom name="longU_down_collision" mesh="longU" class="collision" pos="-0.027 0.03225 -0.0125" density="2700"/>
     </body>
 
     <geom name="screw_1" type="cylinder" size="0.0016 0.004" pos="0.007 0 0.0" quat="0.7071068 -0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>

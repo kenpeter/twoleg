@@ -59,11 +59,7 @@ def build_ankle(dst):
         parent.remove(el)
         link.append(el)
 
-    for nm in ("shortU_up", "shortU_down"):
-        reparent(next(b for b in foot.findall("body") if b.get("name") == nm), foot)
-    for g in list(foot.findall("geom")):
-        if g.get("name", "").startswith(("screw_", "nut_")):
-            reparent(g, foot)
+    reparent(next(b for b in foot.findall("body") if b.get("name") == "little_u"), foot)
     for nm in ("multi_0", "servo_1", "horn_2", "multi_3", "servo_4", "horn_5",
                "knee_pivot_shaft", "knee_pivot_bearing"):
         reparent(next(b for b in wb.findall("body") if b.get("name") == nm), wb)

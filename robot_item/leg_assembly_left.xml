@@ -1,9 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mujoco model="leg_assembly_left">
-  <!-- Manual p.11 "左腿" ankle = foot_assembly_left + little_u_assembly_left:
-       大脚板 + 多功能支架 + 舵机 + 金属舵盘 with the two perpendicular 短U brackets on top.
-       The little_u is shifted so the lower 短U big hole is concentric with the servo shaft /
-       horn centre hole (Y = 0.010, Z = 0.01275), so a screw locks them together. -->
+  <!-- Manual p.11 "左腿": leg_assembly_left = little_u_assembly_left + leg.
+       * ankle = 大脚板 + 多功能支架 + 舵机 + 金属舵盘 with the two perpendicular 短U
+         brackets (lower 短U big hole concentric with the servo shaft / horn centre, Y = 0.010,
+         Z = 0.01275, screw-locked).
+       * hip/top = little_u_assembly combined as one unit: the big little-U (长U) is mounted
+         upside down, base plate on top and the two prongs (with the pivot holes) pointing DOWN;
+         the smaller little-U (短U) is perpendicular and opens UP, bolted base-to-base. -->
   <compiler angle="radian" meshdir="." autolimits="true"/>
   <visual>
     <global offwidth="1024" offheight="1024"/>
@@ -17,6 +20,7 @@
     <mesh name="foot" file="大脚板/脚板支架.STL" scale="0.001 0.001 0.001"/>
     <mesh name="multi" file="多功能/多功能支架.STL" scale="0.001 0.001 0.001"/>
     <mesh name="shortU" file="短U/短U支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="longU" file="长U/长U支架.STL" scale="0.001 0.001 0.001"/>
     <mesh name="servo" file="舵机/舵机.STL" scale="0.001 0.001 0.001"/>
     <mesh name="horn" file="金属舵盘/金属舵盘.STL" scale="0.001 0.001 0.001"/>
     <mesh name="bearing" file="法兰轴承/法兰轴承.STL" scale="0.001 0.001 0.001"/>
@@ -44,26 +48,32 @@
         <geom name="horn_visual" mesh="horn" class="visual" material="horn" pos="-0.010 -0.0026 -0.010"/>
       </body>
 
-      <!-- little_u_assembly_left, rotated 90 deg about Z and shifted so its lower big hole
-           lines up with the servo shaft / horn centre. -->
-      <body name="shortU_up" pos="0.017500 0.010000 0.069000" quat="0.5 0.5 0.5 0.5">
-        <geom name="shortU_up_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125"/>
-        <geom name="shortU_up_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700"/>
-      </body>
+      <!-- little_u_assembly_left combined as one unit: the whole assembly is rotated 90 deg
+           about Z and mounted so its lower 短U big hole is concentric with the servo shaft /
+           horn centre (mount at the assembly base, children keep the standalone local frames). -->
+      <body name="little_u" pos="0.017500 0.010000 0.046750" quat="0.7071068 0 0 0.7071068">
+        <!-- Upper 短U: opening up. -->
+        <body name="shortU_up" pos="0 0 0.02225" quat="0.7071068 0.7071068 0 0">
+          <geom name="shortU_up_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125"/>
+          <geom name="shortU_up_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700"/>
+        </body>
 
-      <body name="shortU_down" pos="0.017500 0.010000 0.026500" quat="0 0 -0.7071068 0.7071068">
-        <geom name="shortU_down_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125"/>
-        <geom name="shortU_down_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700"/>
-      </body>
+        <!-- Lower 短U: opening down, perpendicular to the upper one. -->
+        <body name="shortU_down" pos="0 0 -0.02025" quat="0.5 -0.5 -0.5 0.5">
+          <geom name="shortU_down_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125"/>
+          <geom name="shortU_down_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700"/>
+        </body>
 
-      <geom name="screw_1" type="cylinder" size="0.0016 0.004" pos="0.017500 0.017000 0.046750" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="screw_2" type="cylinder" size="0.0016 0.004" pos="0.017500 0.003000 0.046750" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="screw_3" type="cylinder" size="0.0016 0.004" pos="0.010500 0.010000 0.046750" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="screw_4" type="cylinder" size="0.0016 0.004" pos="0.024500 0.010000 0.046750" quat="0.5 0.5 0.5 0.5" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="nut_1" type="cylinder" size="0.003 0.0012" pos="0.017500 0.017000 0.051950" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="nut_2" type="cylinder" size="0.003 0.0012" pos="0.017500 0.003000 0.051950" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="nut_3" type="cylinder" size="0.003 0.0012" pos="0.010500 0.010000 0.051950" material="dark" contype="0" conaffinity="0" group="2"/>
-      <geom name="nut_4" type="cylinder" size="0.003 0.0012" pos="0.024500 0.010000 0.051950" material="dark" contype="0" conaffinity="0" group="2"/>
+        <!-- M3 screws/nuts through the overlapping base holes (visual only). -->
+        <geom name="screw_1" type="cylinder" size="0.0016 0.004" pos="0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+        <geom name="screw_2" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+        <geom name="screw_3" type="cylinder" size="0.0016 0.004" pos="0 0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+        <geom name="screw_4" type="cylinder" size="0.0016 0.004" pos="0 -0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+        <geom name="nut_1" type="cylinder" size="0.003 0.0012" pos="0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+        <geom name="nut_2" type="cylinder" size="0.003 0.0012" pos="-0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+        <geom name="nut_3" type="cylinder" size="0.003 0.0012" pos="0 0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+        <geom name="nut_4" type="cylinder" size="0.003 0.0012" pos="0 -0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+      </body>
     </body>
       <body name="multi_0" pos="0.018250 0.008000 0.143990" quat="0.000000 0.707107 0.000000 0.707107">
       <geom name="multi_0_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125"/>
@@ -77,6 +87,27 @@
       <geom name="horn_2_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01"/>
       <geom name="horn_2_c" mesh="horn" class="collision" pos="-0.01 -0.0026 -0.01" density="2700"/>
     </body>
+    <!-- little_u at the TOP (hip end) of the leg, combined as one unit:
+         big little-U (长U, upside down: base plate on top, prongs pointing DOWN) +
+         smaller little-U (短U, opening UP), perpendicular, bolted base-to-base. -->
+    <body name="little_u_top" pos="0.017500 0.003000 0.206210" quat="0.7071068 0 0 0.7071068">
+      <body name="longU_top" pos="0 0 -0.03225" quat="-0.7071068 0.7071068 0 0">
+        <geom name="longU_top_visual" mesh="longU" class="visual" material="bracket" pos="-0.027 -0.03225 -0.0125"/>
+        <geom name="longU_top_collision" mesh="longU" class="collision" pos="-0.027 -0.03225 -0.0125" density="2700"/>
+      </body>
+      <body name="shortU_top" pos="0 0 0.02225" quat="0.5 0.5 -0.5 -0.5">
+        <geom name="shortU_top_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125"/>
+        <geom name="shortU_top_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700"/>
+      </body>
+      <geom name="top_screw_1" type="cylinder" size="0.0016 0.004" pos="0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="top_screw_2" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="top_screw_3" type="cylinder" size="0.0016 0.004" pos="0 0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="top_screw_4" type="cylinder" size="0.0016 0.004" pos="0 -0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="top_nut_1" type="cylinder" size="0.003 0.0012" pos="0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="top_nut_2" type="cylinder" size="0.003 0.0012" pos="-0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="top_nut_3" type="cylinder" size="0.003 0.0012" pos="0 0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="top_nut_4" type="cylinder" size="0.003 0.0012" pos="0 -0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2"/>
+    </body>
     <body name="multi_3" pos="0.018250 0.008000 0.088990" quat="0.000000 0.707107 0.000000 0.707107">
       <geom name="multi_3_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125"/>
       <geom name="multi_3_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700"/>
@@ -88,6 +119,14 @@
     <body name="horn_5" pos="0.017500 -0.017000 0.078750" quat="0.000000 0.000000 1.000000 0.000000">
       <geom name="horn_5_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01"/>
       <geom name="horn_5_c" mesh="horn" class="collision" pos="-0.01 -0.0026 -0.01" density="2700"/>
+    </body>
+    <!-- Hip pivot on the non-driven (+Y) side: shaft from the servo case into a flange
+         bearing in the 长U prong hole, so the hip is supported on both sides. -->
+    <body name="hip_pivot_shaft" pos="0.017000 0.026500 0.153940">
+      <geom name="hip_pivot_shaft_g" type="cylinder" size="0.002 0.005000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2"/>
+    </body>
+    <body name="hip_pivot_bearing" pos="0.017000 0.029000 0.153940">
+      <geom name="hip_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750"/>
     </body>
     <!-- Knee pivot on the non-driven (+Y) side: shaft from the servo case into a
          flange bearing in the little-U wall hole, so the joint is supported both sides. -->
