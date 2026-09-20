@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="chest_assembly_step1">
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+  <visual>
+    <global offwidth="1024" offheight="1024"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3"/></default>
+  </default>
+  <asset>
+    <mesh name="U_beam" file="U型梁/U梁支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="shortU" file="短U/短U支架.STL" scale="0.001 0.001 0.001"/>
+    <material name="bracket" rgba="0.75 0.75 0.78 1"/>
+    <material name="dark" rgba="0.18 0.18 0.20 1"/>
+    <material name="horn" rgba="0.80 0.80 0.82 1"/>
+    <material name="steel" rgba="0.55 0.56 0.60 1"/>
+  </asset>
+  <worldbody>
+    <body name="u_beam" pos="0.000000 0.000000 0.014500" quat="0.707107 0.000000 0.707107 0.000000">
+      <geom name="u_beam_v" mesh="U_beam" class="visual" material="bracket" pos="-0.014500 -0.022000 -0.045001"/>
+      <geom name="u_beam_c" mesh="U_beam" class="collision" pos="-0.014500 -0.022000 -0.045001" density="2700"/>
+    </body>
+    <body name="chest_center" pos="0.000000 0.003250 0.054000" quat="0.707107 0.000000 0.707107 0.000000">
+      <geom name="chest_center_v" mesh="shortU" class="visual" material="bracket" pos="-0.027001 -0.022250 -0.012501"/>
+      <geom name="chest_center_c" mesh="shortU" class="collision" pos="-0.027001 -0.022250 -0.012501" density="2700"/>
+    </body>
+    <body name="s1_screws" pos="0 0.010 0.029">
+      <geom name="s1_a" type="cylinder" size="0.0016 0.004" pos="0.008000 0.000000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="s1_a_nut" type="cylinder" size="0.003 0.0012" pos="0.008000 0.000000 0.005500" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="s1_b" type="cylinder" size="0.0016 0.004" pos="-0.008000 0.000000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="s1_b_nut" type="cylinder" size="0.003 0.0012" pos="-0.008000 0.000000 0.005500" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="s1_c" type="cylinder" size="0.0016 0.004" pos="0.022000 -0.008000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="s1_c_nut" type="cylinder" size="0.003 0.0012" pos="0.022000 -0.008000 0.005500" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="s1_d" type="cylinder" size="0.0016 0.004" pos="-0.022000 -0.008000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+      <geom name="s1_d_nut" type="cylinder" size="0.003 0.0012" pos="-0.022000 -0.008000 0.005500" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+    </body>
+  </worldbody>
+</mujoco>
