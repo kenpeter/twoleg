@@ -142,11 +142,11 @@
       <geom name="chest_servo_R_horn_s2" type="cylinder" size="0.0016 0.004" pos="0.007000 -0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
       <geom name="chest_servo_R_horn_s3" type="cylinder" size="0.0016 0.004" pos="-0.007000 -0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
     </body>
-    <body name="waist_servo_L" pos="-0.050000 -0.012000 -0.004000" quat="0.653281 0.653281 -0.270598 -0.270598">
+    <body name="waist_servo_L" pos="-0.027000 -0.004000 -0.012000" quat="0.5 0.5 0.5 -0.5">
       <geom name="waist_servo_L_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027000 -0.021500"/>
       <geom name="waist_servo_L_c" mesh="servo" class="collision" material="dark" pos="-0.009752 -0.027000 -0.021500" density="1600"/>
     </body>
-        <body name="waist_servo_L_horn" pos="-0.066971 -0.028971 -0.014000" quat="0.653281 0.270598 0.653281 -0.270598">
+        <body name="waist_servo_L_horn" pos="-0.037000 -0.028000 -0.012000" quat="0.707107 0 0.707107 0">
       <geom name="waist_servo_L_horn_v" mesh="horn" class="visual" material="horn" pos="-0.010000 -0.002600 -0.010000"/>
       <geom name="waist_servo_L_horn_c" mesh="horn" class="collision" material="horn" pos="-0.010000 -0.002600 -0.010000" density="2700"/>
       <geom name="waist_servo_L_horn_s0" type="cylinder" size="0.0016 0.004" pos="0.007000 0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
@@ -154,11 +154,11 @@
       <geom name="waist_servo_L_horn_s2" type="cylinder" size="0.0016 0.004" pos="0.007000 -0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
       <geom name="waist_servo_L_horn_s3" type="cylinder" size="0.0016 0.004" pos="-0.007000 -0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
     </body>
-    <body name="waist_servo_R" pos="0.050000 -0.012000 -0.004000" quat="0.653281 0.653281 0.270598 0.270598">
+    <body name="waist_servo_R" pos="0.027000 -0.004000 -0.012000" quat="0.5 0.5 -0.5 0.5">
       <geom name="waist_servo_R_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027000 -0.021500"/>
       <geom name="waist_servo_R_c" mesh="servo" class="collision" material="dark" pos="-0.009752 -0.027000 -0.021500" density="1600"/>
     </body>
-        <body name="waist_servo_R_horn" pos="0.066971 -0.028971 -0.014000" quat="0.653281 -0.270598 0.653281 0.270598">
+        <body name="waist_servo_R_horn" pos="0.037000 -0.028000 -0.012000" quat="0.707107 0 0.707107 0">
       <geom name="waist_servo_R_horn_v" mesh="horn" class="visual" material="horn" pos="-0.010000 -0.002600 -0.010000"/>
       <geom name="waist_servo_R_horn_c" mesh="horn" class="collision" material="horn" pos="-0.010000 -0.002600 -0.010000" density="2700"/>
       <geom name="waist_servo_R_horn_s0" type="cylinder" size="0.0016 0.004" pos="0.007000 0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
