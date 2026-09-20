@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "rule": "Schema is frozen (inputs/outputs/handoff_path/handoff_marker/memory_protocol/forbidden/output_schema). Wording, gene list, and temperature are free to evolve via score_prompts.py + gepa_reflect.py. Any change to a frozen field requires a schema version bump + human approval.",
+  "loop_order": ["discover", "plan", "action", "verify", "reflect"],
+  "memory_protocol": [
+    "read short-term.md + long-term.md first",
+    "append phase summary to short-term (<=20 turns)",
+    "verify distills learning to long-term on verdict",
+    "verify writes reflection.md (mandatory, also on difficulty)"
+  ],
+  "phases": {
+    "discover": {
+      "agent_file": ".opencode/agents/discover.md",
+      "inputs": ["task"],
+      "context_reads": [".opencode/memory/short-term.md", ".opencode/memory/long-term.md", ".opencode/memory/reflection.md"],
+      "outputs": ["report"],
+      "handoff_path": "/tmp/gen1_discover.md",
+      "handoff_marker": "/tmp/gen1_discover.md",
+      "forbidden": ["code edits", "implementation"],
+      "prompt_must_contain": ["short-term", "long-term", "/tmp/gen1_discover.md", "research", "handoff"],
+      "output_schema": ["Context|context", "Research|research", "http|URL", "Files to change|files to change"]
+    },
+    "plan": {
+      "agent_file": ".opencode/agents/plan.md",
+      "inputs": ["task", "discover report (/tmp/gen1_discover.md)"],
+      "context_reads": [".opencode/memory/short-term.md", ".opencode/memory/long-term.md", "/tmp/gen1_discover.md"],
+      "outputs": ["design doc", "test plan"],
+      "handoff_path": "/tmp/gen1_plan.md",
+      "handoff_marker": "/tmp/gen1_plan.md",
+      "forbidden": ["code edits"],
+      "requires": ["explicit user go-ahead before action"],
+      "prompt_must_contain": ["short-term", "long-term", "/tmp/gen1_plan.md", "go-ahead", "handoff"],
+      "output_schema": ["checklist|Checklist", "test|Test", "go-ahead|go ahead|approval"]
+    },
+    "action": {
+      "agent_file": ".opencode/agents/action.md",
+      "inputs": ["task", "/tmp/gen1_plan.md", "/tmp/gen1_discover.md"],
+      "context_reads": [".opencode/memory/short-term.md", ".opencode/memory/long-term.md"],
+      "outputs": ["code patch", "tests", "commit"],
+      "handoff_path": "handoff to /verify (code+tests are the artifact, no tmp file)",
+      "handoff_marker": "handoff",
+      "forbidden": ["commit secrets", "behavior without test"],
+      "prompt_must_contain": ["short-term", "long-term", "test_gen1", "handoff"],
+      "output_schema": ["test|Test", "PASS|pass", "commit|Commit"]
+    },
+    "verify": {
+      "agent_file": ".opencode/agents/verify.md",
+      "inputs": ["task", "/tmp/gen1_plan.md"],
+      "context_reads": [".opencode/memory/short-term.md", ".opencode/memory/long-term.md"],
+      "outputs": ["PASS/FAIL verdict + evidence", "reflection.md", "short-term append", "long-term distill"],
+      "handoff_path": "loop back to /discover",
+      "handoff_marker": "discover",
+      "forbidden": ["PASS without image/log/test evidence"],
+      "prompt_must_contain": ["short-term", "long-term", "reflection.md", "discover", "evidence"],
+      "output_schema": ["PASS|FAIL", "evidence|Evidence|.png|nbody|log"]
+    }
+  }
+}
