@@ -161,6 +161,21 @@
       <geom name="waist_servo_R_horn_v" mesh="horn" class="visual" material="horn" pos="-0.010000 -0.002600 -0.010000"/>
       <geom name="waist_servo_R_horn_c" mesh="horn" class="collision" material="horn" pos="-0.010000 -0.002600 -0.010000" density="2700"/>
     </body>
+    <!-- Waist pivot on the non-driven (+Y) side of each little-U: shaft from the servo
+         case into a flange bearing seated in the back prong hole, so the waist joint
+         (servo moves the leg outward/inward) is supported on both prongs. -->
+    <body name="waist_pivot_shaft_L" pos="-0.037449 0.015000 -0.011500">
+      <geom name="waist_pivot_shaft_L_g" type="cylinder" size="0.002 0.012000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2"/>
+    </body>
+    <body name="waist_pivot_bearing_L" pos="-0.037449 0.027500 -0.011500">
+      <geom name="waist_pivot_bearing_L_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750"/>
+    </body>
+    <body name="waist_pivot_shaft_R" pos="0.037449 0.015000 -0.011500">
+      <geom name="waist_pivot_shaft_R_g" type="cylinder" size="0.002 0.012000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2"/>
+    </body>
+    <body name="waist_pivot_bearing_R" pos="0.037449 0.027500 -0.011500">
+      <geom name="waist_pivot_bearing_R_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750"/>
+    </body>
   
     <body name="leg_left" pos="-0.034200 -0.018500 -0.250000" quat="0.707107 0 0 0.707107">
     <body name="foot" pos="0 0 0">

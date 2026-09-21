@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+  <mujoco model="left_forearm">
+  <!-- Left forearm / left hand end unit (manual p.5 "6. 左右手末端支架的安装" +
+       p.9 "5. 左右手舵机的安装"): 多功能支架 + 舵机 + 金属舵盘, with a 一字 bracket
+       bolted to the 4-hole horn pattern so the paddle hangs down from the shaft.
+       配件：多功能支架 1 个、一字支架 1 个、舵机 1 个、金属舵盘 1 个.
+       Units: metres.  The multi+servo+horn block shares the exactly verified
+       placement of left_tricep.xml; the 一字 is mated concentrically to horn_2:
+       its rounded end (8 mm bore + 4x M3 at r=7) sits on the horn face (Y = -0.0095)
+       and the 63 mm paddle extends along -Z. -->
+  <compiler angle="radian" meshdir="/home/kenpeter/work/twoleg/robot_item" autolimits="true"/>
+  <visual>
+    <global offwidth="1024" offheight="1024"/>
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/></default>
+    <default class="collision"><geom type="mesh" group="3"/></default>
+  </default>
+  <asset>
+    <mesh name="multi" file="多功能/多功能支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="straight" file="一字/一字支架.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="servo" file="舵机/舵机.STL" scale="0.001 0.001 0.001"/>
+    <mesh name="horn" file="金属舵盘/金属舵盘.STL" scale="0.001 0.001 0.001"/>
+    <material name="bracket" rgba="0.75 0.75 0.78 1"/>
+    <material name="dark" rgba="0.18 0.18 0.20 1"/>
+    <material name="horn" rgba="0.80 0.80 0.82 1"/>
+  </asset>
+  <worldbody>
+    <body name="multi_0" pos="0.013500 0.022000 0.000000" quat="0.000000 0.707107 0.000000 0.707107">
+      <geom name="multi_0_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125"/>
+      <geom name="multi_0_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700"/>
+    </body>
+    <body name="servo_1" pos="0.012750 0.017000 0.000000" quat="0.000000 0.000000 -0.707107 0.707107">
+      <geom name="servo_1_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215"/>
+      <geom name="servo_1_c" mesh="servo" class="collision" material="dark" pos="-0.009752 -0.027 -0.0215" density="1600"/>
+    </body>
+    <body name="horn_2" pos="0.012750 -0.007000 0.010000" quat="0.000000 0.000000 1.000000 0.000000">
+      <geom name="horn_2_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01"/>
+      <geom name="horn_2_c" mesh="horn" class="collision" material="horn" pos="-0.01 -0.0026 -0.01" density="2700"/>
+    </body>
+    <!-- 一字 paddle bolted to horn_2: rounded horn end over the disc, long end down (-Z). -->
+    <body name="straight_3" pos="0.000003 0.014996 -0.029991" quat="0.707107 0.000000 0.707107 0.000000">
+      <geom name="straight_3_v" mesh="straight" class="visual" material="bracket" pos="-0.0315 -0.0125 -0.001001"/>
+      <geom name="straight_3_c" mesh="straight" class="collision" pos="-0.0315 -0.0125 -0.001001" density="2700"/>
+    </body>
+    <!-- Horn retaining screws (visual only), through the 4 disc holes. -->
+    <geom name="horn_s0" type="cylinder" size="0.0016 0.004" pos="0.005750 -0.007000 0.017000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+    <geom name="horn_s1" type="cylinder" size="0.0016 0.004" pos="0.019750 -0.007000 0.017000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+    <geom name="horn_s2" type="cylinder" size="0.0016 0.004" pos="0.005750 -0.007000 0.003000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+    <geom name="horn_s3" type="cylinder" size="0.0016 0.004" pos="0.019750 -0.007000 0.003000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+  </worldbody>
+</mujoco>
