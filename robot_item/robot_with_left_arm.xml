@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mujoco model="twoleg">
-  <compiler angle="radian" meshdir="assets" autolimits="true" />
+  <compiler angle="radian" meshdir=".." autolimits="true" />
   <visual>
     <global offwidth="1024" offheight="1024" />
     <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2" />
@@ -14,29 +14,29 @@
     </default>
   </default>
   <asset>
-    <mesh name="foot" file="foot_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="shortU" file="shortU_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="longU" file="longU_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="multi" file="multi_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="straight" file="straight_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="L_bracket" file="L_bracket_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="U_beam" file="U_beam_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="slantU" file="slantU_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="servo" file="servo_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="horn" file="horn_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="bearing" file="bearing_c.stl" scale="0.001 0.001 0.001" />
-    <mesh name="arm_multi" file="multi.STL" scale="0.001 0.001 0.001" />
-    <mesh name="arm_straight" file="straight.STL" scale="0.001 0.001 0.001" />
-    <mesh name="arm_servo" file="servo.STL" scale="0.001 0.001 0.001" />
-    <mesh name="arm_horn" file="horn.STL" scale="0.001 0.001 0.001" />
-    <mesh name="arm_longU" file="longU.STL" scale="0.001 0.001 0.001" />
-    <mesh name="arm_bearing" file="bearing.STL" scale="0.001 0.001 0.001" />
-    <mesh name="arm_multi_r" file="multi.STL" scale="0.001 -0.001 0.001" />
-    <mesh name="arm_straight_r" file="straight.STL" scale="0.001 -0.001 0.001" />
-    <mesh name="arm_servo_r" file="servo.STL" scale="0.001 -0.001 0.001" />
-    <mesh name="arm_horn_r" file="horn.STL" scale="0.001 -0.001 0.001" />
-    <mesh name="arm_longU_r" file="longU.STL" scale="0.001 -0.001 0.001" />
-    <mesh name="arm_bearing_r" file="bearing.STL" scale="0.001 -0.001 0.001" />
+    <mesh name="foot" file="twoleg_mjcf/assets/foot_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="shortU" file="twoleg_mjcf/assets/shortU_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="longU" file="twoleg_mjcf/assets/longU_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="multi" file="twoleg_mjcf/assets/multi_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="straight" file="twoleg_mjcf/assets/straight_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="L_bracket" file="twoleg_mjcf/assets/L_bracket_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="U_beam" file="twoleg_mjcf/assets/U_beam_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="slantU" file="twoleg_mjcf/assets/slantU_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="servo" file="twoleg_mjcf/assets/servo_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="horn" file="twoleg_mjcf/assets/horn_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="bearing" file="twoleg_mjcf/assets/bearing_c.stl" scale="0.001 0.001 0.001" />
+    <mesh name="arm_multi" file="robot_item/多功能/多功能支架.STL" scale="0.001 0.001 0.001" />
+    <mesh name="arm_straight" file="robot_item/一字/一字支架.STL" scale="0.001 0.001 0.001" />
+    <mesh name="arm_servo" file="robot_item/舵机/舵机.STL" scale="0.001 0.001 0.001" />
+    <mesh name="arm_horn" file="robot_item/金属舵盘/金属舵盘.STL" scale="0.001 0.001 0.001" />
+    <mesh name="arm_longU" file="robot_item/长U/长U支架.STL" scale="0.001 0.001 0.001" />
+    <mesh name="arm_bearing" file="robot_item/法兰轴承/法兰轴承.STL" scale="0.001 0.001 0.001" />
+    <mesh name="arm_multi_r" file="robot_item/多功能/多功能支架.STL" scale="0.001 -0.001 0.001" />
+    <mesh name="arm_straight_r" file="robot_item/一字/一字支架.STL" scale="0.001 -0.001 0.001" />
+    <mesh name="arm_servo_r" file="robot_item/舵机/舵机.STL" scale="0.001 -0.001 0.001" />
+    <mesh name="arm_horn_r" file="robot_item/金属舵盘/金属舵盘.STL" scale="0.001 -0.001 0.001" />
+    <mesh name="arm_longU_r" file="robot_item/长U/长U支架.STL" scale="0.001 -0.001 0.001" />
+    <mesh name="arm_bearing_r" file="robot_item/法兰轴承/法兰轴承.STL" scale="0.001 -0.001 0.001" />
     <material name="bracket" rgba="0.75 0.75 0.78 1" />
     <material name="dark" rgba="0.18 0.18 0.2 1" />
     <material name="horn" rgba="0.80 0.80 0.82 1" />
