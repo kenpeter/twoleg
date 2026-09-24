@@ -61,22 +61,20 @@
     <geom name="horn_s1" type="cylinder" size="0.0016 0.004" pos="0.019750 -0.007000 0.017000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
     <geom name="horn_s2" type="cylinder" size="0.0016 0.004" pos="0.005750 -0.007000 0.003000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
     <geom name="horn_s3" type="cylinder" size="0.0016 0.004" pos="0.019750 -0.007000 0.003000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
-    <!-- Elbow pivot (Y axis): flange bearing centred in the 长U prong 8 mm bore at
-         Y=-0.005..0.001 (X=0.01325, Z=-0.08125) and a 4 mm shaft running from the
-         forearm 金属舵盘, across that prong, so the elbow is supported; mirrors the
-         knee/hip pivot construction in leg_assembly_left. -->
+    <!-- Elbow pivot (Y axis) at the 长U prong A bore (X=0.01325, Z=-0.08125): flange
+         bearing centred in the prong and a 4 mm shaft through prong + the 金属舵盘
+         bolted on its outer face. -->
     <body name="elbow_bearing" pos="0.013250 -0.002019 -0.081250">
       <geom name="elbow_bearing_v" mesh="bearing" class="visual" material="steel" pos="-0.00475 -0.0015 -0.00475"/>
     </body>
-    <geom name="elbow_shaft" type="cylinder" size="0.002 0.004" pos="0.013250 -0.003038 -0.081250" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2"/>
+    <geom name="elbow_shaft" type="cylinder" size="0.002 0.0055" pos="0.013250 -0.004500 -0.081250" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2"/>
 
     <!-- ------------------------------ forearm (lower arm) ------------------------------
-         Flipped 180 deg about Z from the outboard pose so the 多功能 stands inside the
-         长U prongs: its near face Y=0.000962 is flush on the prong inner face (prong at
-         Y=-0.005..0.001) and it clears the far prong by 5.1 mm.  The 金属舵盘 sits
-         2.0 mm off that prong's outer face with its 4x M3 diamond on the prong bore
-         axis (X=0.01325, Z=-0.08125); the 一字 keeps the disc's other face, -Z. -->
-    <body name="forearm" pos="0.000750 -0.002538 -0.091000" quat="1.000000 0.000000 0.000000 0.000000">
+         The 多功能 sits inside the 长U prongs (Y 0.003..0.040, clear of both prongs) and
+         the 金属舵盘 bolts flat onto prong A's outer face (Y -0.010..-0.005), its 4x M3
+         diamond on that prong's bore axis (X=0.01325, Z=-0.08125) with the 舵机 body
+         spanning the gap between them. -->
+    <body name="forearm" pos="0.000750 -0.000500 -0.091000" quat="1.000000 0.000000 0.000000 0.000000">
       <body name="multi_0_f" pos="0.013500 0.022000 0.000000" quat="0.000000 0.707107 0.000000 0.707107">
         <geom name="multi_0_f_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125"/>
         <geom name="multi_0_f_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700"/>
