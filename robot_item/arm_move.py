@@ -9,7 +9,7 @@ The static assembly is re-rigged as ``shoulder_link -> elbow_link -> forearm``
 with both hinges on the measured world-Y axes:
 
     shoulder  Y through (0.012750, -0.007000,  0.010000)   # tricep horn
-    elbow     Y through (0.013700,  0.000500, -0.080800)   # 长U prong pivot shaft
+    elbow     Y through (0.013250,  0.000481, -0.081250)   # 长U prong bore + 金属舵盘
 
 so a correct render means the kinematics match the hardware.
 
@@ -34,8 +34,8 @@ SHOULDER_DEG = 25.0
 ELBOW_DEG = 50.0
 
 SHOULDER_P = np.array([0.012750, -0.007000, 0.010000])
-ELBOW_P = np.array([0.013700, 0.000500, -0.080800])
-TRICEP_BODIES = ["multi_0", "servo_1", "horn_2", "longU_down"]
+ELBOW_P = np.array([0.013250, 0.000481, -0.081250])
+TRICEP_BODIES = ["multi_0", "servo_1", "horn_2", "longU_down", "elbow_bearing"]
 
 
 def _vec(a):
