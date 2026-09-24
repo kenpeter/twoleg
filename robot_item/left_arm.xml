@@ -68,6 +68,13 @@
       <geom name="elbow_bearing_v" mesh="bearing" class="visual" material="steel" pos="-0.00475 -0.0015 -0.00475"/>
     </body>
     <geom name="elbow_shaft" type="cylinder" size="0.002 0.0055" pos="0.013250 -0.004500 -0.081250" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2"/>
+    <!-- The other prong (B) carries a matching bearing and a 4 mm shaft from the 多功能
+         far face (Y=0.040) through prong B (Y 0.043..0.049), so both sides of the U
+         connect to the forearm hardware. -->
+    <body name="far_bearing" pos="0.013250 0.046019 -0.081250">
+      <geom name="far_bearing_v" mesh="bearing" class="visual" material="steel" pos="-0.00475 -0.0015 -0.00475"/>
+    </body>
+    <geom name="far_shaft" type="cylinder" size="0.002 0.0045" pos="0.013250 0.044500 -0.081250" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2"/>
 
     <!-- ------------------------------ forearm (lower arm) ------------------------------
          The 多功能 sits inside the 长U prongs (Y 0.003..0.040, clear of both prongs) and
