@@ -14,10 +14,12 @@ Checks:
      frame moves a part without any simulation running: the wrist disc sat 91 mm from
      the servo it is bolted to and orbited that wrong point.
   3. The wrist disc stays on the wrist axis for the whole clip.
-  4. The chain reaches its t=0 command before frame 0 (a start-up lurch is an artefact
+  4. The two arms stay mirror images of each other in the world YZ plane for the whole
+     clip, which pins the relative phase of the L/R arm servos.
+  5. The chain reaches its t=0 command before frame 0 (a start-up lurch is an artefact
      of recording before the servo has wound in, not motion).
-  5. Every servo tracks its command to within TRACK_TOL_DEG over the whole clip.
-  6. qpos and qvel stay finite for the whole clip.
+  6. Every servo tracks its command to within TRACK_TOL_DEG over the whole clip.
+  7. qpos and qvel stay finite for the whole clip.
 
 Contact state is reported, not asserted: chest_step6_move.py takes every geom out of the
 contact set because the bolted parts interpenetrate by design, so the rig simulates
@@ -83,6 +85,7 @@ def test_rig_compiles():
 
 
 POSE_TOL_M = 1e-6
+MIRROR_TOL_M = 3e-3     # 1.67 mm measured; in-phase arm servos give 88.9 mm
 
 
 def _body_xpos(m, d):
@@ -156,6 +159,58 @@ def test_wrist_disc_stays_on_axis():
     except Exception as exc:
         fails.append(f"exception {exc}")
     print(f"  worst disc-to-axis distance over the clip: {worst * 1000:.4f} mm")
+    return fails, not fails
+
+
+def test_arms_stay_mirror_images():
+    """The two arms must remain reflections of each other in the world YZ plane for the
+    whole clip. This is what pins the sign of the arm servos: a joint axis is written in
+    its own body's frame and the right arm's frame is the mirror of the left's, so
+    whether the pair runs in phase or antiphase decides whether the arms swing together
+    or one forward and one back. Driving them in phase puts the worst mirror error at
+    88.9 mm; antiphase holds it under 2 mm."""
+    fails = []
+    worst = 0.0
+    worst_name = ""
+    pairs = []
+    try:
+        m, d = _load()
+        qadr, ctrl = _ids(m)
+        mujoco.mj_forward(m, d)
+        for b in range(1, m.nbody):
+            nm = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_BODY, b)
+            if not nm or nm.endswith("_R"):
+                continue
+            r = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, nm + "_R")
+            if r >= 0:
+                pairs.append((b, r, nm))
+        if len(pairs) < 8:
+            return [f"only {len(pairs)} mirrored body pairs; the right arm is missing "
+                    f"or not generated from the left"], False
+        for j, v in RIG._targets(0.0).items():
+            d.ctrl[ctrl[j]] = v
+        for _ in range(int(RIG.SETTLE_SECONDS / m.opt.timestep)):
+            mujoco.mj_step(m, d)
+        sub = max(1, int(round(1.0 / (FPS * m.opt.timestep))))
+        for i in range(int(FPS * SECONDS)):
+            t = (i / FPS) / SECONDS
+            for j, v in RIG._targets(t).items():
+                d.ctrl[ctrl[j]] = v
+            for _ in range(sub):
+                mujoco.mj_step(m, d)
+            for b, r, nm in pairs:
+                p = d.xpos[r]
+                err = float(np.linalg.norm(
+                    np.array([-p[0], p[1], p[2]]) - d.xpos[b]))
+                if err > worst:
+                    worst, worst_name = err, nm
+        if worst > MIRROR_TOL_M:
+            fails.append(f"{worst_name} is {worst * 1000:.3f} mm from its mirror image "
+                         f"(tol {MIRROR_TOL_M * 1000:.1f} mm); the L/R servos are probably "
+                         f"driven in the wrong relative phase")
+    except Exception as exc:
+        fails.append(f"exception {exc}")
+    print(f"  {len(pairs)} mirrored body pairs, worst mirror error {worst * 1000:.3f} mm")
     return fails, not fails
 
 
@@ -236,6 +291,7 @@ def main():
         ("rig_compiles", test_rig_compiles),
         ("rig_preserves_source_pose", test_rig_preserves_source_pose),
         ("wrist_disc_stays_on_axis", test_wrist_disc_stays_on_axis),
+        ("arms_stay_mirror_images", test_arms_stay_mirror_images),
         ("settles_before_recording", test_settles_before_recording),
         ("servos_track_under_dynamics", test_servos_track_under_dynamics),
     ]

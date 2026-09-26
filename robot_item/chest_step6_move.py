@@ -79,13 +79,22 @@ CHEST_HINGES = {
                  bodies=("head_servo",), geoms=()),
 }
 
-# left arm, in the left_arm body's own frame (see chest_assembly_step6.xml header)
-SHOULDER_P = np.array([0.016087, 0.0, -0.001945])   # on the prong-bore line
-ELBOW_P = np.array([0.013250, 0.000481, -0.081250])
-# The wrist pivot is deliberately NOT a constant here. The elbow and shoulder sit in the
-# left_arm frame, but the wrist disc is bolted to the forearm, so the same point has two
-# different coordinate expressions and hardcoding one of them silently mis-places the
-# hinge by the forearm offset. rig() reads both from the tree instead.
+# Per-arm hinge frames. Each pivot is in that arm body's own frame, and the right arm is
+# an exact mirror of the left (gen_right_arm.py), so its pivots are the left's with x
+# negated and every name it owns carries the _R suffix. The wrist pivot is deliberately
+# NOT a constant: the elbow and shoulder sit in the arm frame but the wrist disc is
+# bolted to the forearm, so the same point has two coordinate expressions and hardcoding
+# one of them silently mis-places the hinge by the forearm offset. rig() reads both from
+# the tree instead.
+ARMS = {
+    "L": dict(body="left_arm", suffix="",
+              shoulder=(0.016087, 0.0, -0.001945),      # on the prong-bore line
+              elbow=(0.013250, 0.000481, -0.081250)),
+    "R": dict(body="right_arm", suffix="_R",
+              shoulder=(-0.016087, 0.0, -0.001945),
+              elbow=(-0.013250, 0.000481, -0.081250)),
+}
+ARM_OF_ABDUCT = {"abduct_L": "left_arm", "abduct_R": "right_arm"}
 
 # bodies / geoms carried by each arm hinge
 SHOULDER_BODIES = ("multi_0", "servo_1", "longU_down", "elbow_bearing", "far_bearing")
@@ -98,11 +107,9 @@ ELBOW_BODIES = ("forearm",)
 # on the rotor swung it through a 73 mm arc and tore the hand off the arm.
 WRIST_BODIES = ("horn_2_f",)
 WRIST_GEOMS = ("horn_s0_f", "horn_s1_f", "horn_s2_f", "horn_s3_f")
-# grounded to the shoulder yoke (the shoulder servo's output)
-GROUNDED = ("horn_2",)
-
 ACTUATORS = ("abduct_L", "abduct_R", "waist_L", "waist_R", "head",
-             "shoulder_test", "elbow_test", "wrist_test")
+             "shoulder_test", "elbow_test", "wrist_test",
+             "shoulder_test_R", "elbow_test_R", "wrist_test_R")
 
 
 def _vec(a):
@@ -164,53 +171,47 @@ def _hinge(name, axis, pivot, parent, origin_world):
 
 def rig(root):
     wb = root.find("worldbody")
-    arm = wb.find("body[@name='left_arm']")
 
-    # Read both wrist frames before any _take re-bases the tree. forearm_pos is the
-    # forearm origin in the left_arm frame; horn_pos is the wrist disc centre in the
-    # forearm frame. The hinge is placed with their sum (left_arm frame) while the disc
-    # and its screws are re-based with horn_pos (forearm frame). Reading both from the
-    # tree is what keeps the disc on the servo instead of 91 mm away from it.
-    forearm = arm.find("body[@name='forearm']")
-    forearm_pos = _pos(forearm)
-    horn_pos = _pos(forearm.find("body[@name='horn_2_f']"))
-    wrist_p = forearm_pos + horn_pos
+    # Arm hinges go in before the abduct hinges, because the abduct hinges move each whole
+    # arm into its chest servo and would otherwise carry the arm out still un-jointed.
+    for cfg in ARMS.values():
+        arm = wb.find(f"body[@name='{cfg['body']}']")
+        if arm is None:
+            raise KeyError(cfg["body"])
+        sfx = cfg["suffix"]
+        shoulder_p = np.array(cfg["shoulder"])
+        elbow_p = np.array(cfg["elbow"])
+        forearm = arm.find(f"body[@name='forearm{sfx}']")
+        horn_pos = _pos(forearm.find(f"body[@name='horn_2_f{sfx}']"))
+        wrist_p = _pos(forearm) + horn_pos
+
+        shoulder = _hinge(f"shoulder_test{sfx}", (0, 1, 0), shoulder_p, arm, shoulder_p)
+        for nm in SHOULDER_BODIES + SHOULDER_GEOMS:
+            shoulder.append(_take(arm, nm + sfx, shoulder_p))
+
+        elbow = _hinge(f"elbow_test{sfx}", (0, 1, 0), elbow_p - shoulder_p, arm, shoulder_p)
+        for nm in ELBOW_BODIES:
+            elbow.append(_take(arm, nm + sfx, elbow_p))
+
+        wrist = _hinge(f"wrist_test{sfx}", (0, 1, 0), wrist_p - elbow_p, arm, shoulder_p)
+        fw = elbow.find(f"body[@name='forearm{sfx}']")
+        for nm in WRIST_BODIES + WRIST_GEOMS:
+            wrist.append(_take(fw, nm + sfx, horn_pos))
+
+        elbow.append(wrist)
+        shoulder.append(elbow)
+        arm.append(shoulder)
 
     # --- chest / waist / head hinges, all children of the world -------------
-    for name in ("waist_L", "waist_R", "head", "abduct_R"):
+    for name in ("waist_L", "waist_R", "head", "abduct_L", "abduct_R"):
         cfg = CHEST_HINGES[name]
         pivot = np.array(cfg["pivot"])
         h = _hinge(name, cfg["axis"], pivot, wb, pivot)
         for nm in cfg["bodies"] + cfg["geoms"]:
             h.append(_take(wb, nm, pivot))
+        if name in ARM_OF_ABDUCT:
+            h.append(_take(wb, ARM_OF_ABDUCT[name], pivot))
         wb.append(h)
-    # abduct_L must also carry the whole left arm, so build it last and move the
-    # arm in as one rigid child.
-    cfg = CHEST_HINGES["abduct_L"]
-    pivot = np.array(cfg["pivot"])
-    abduct_L = _hinge("abduct_L", cfg["axis"], pivot, wb, pivot)
-    for nm in cfg["bodies"] + cfg["geoms"]:
-        abduct_L.append(_take(wb, nm, pivot))
-    abduct_L.append(_take(wb, "left_arm", pivot))
-    wb.append(abduct_L)
-
-    # --- left-arm hinges, inside left_arm ----------------------------------
-    shoulder = _hinge("shoulder_test", (0, 1, 0), SHOULDER_P, arm, SHOULDER_P)
-    for nm in SHOULDER_BODIES + SHOULDER_GEOMS:
-        shoulder.append(_take(arm, nm, SHOULDER_P))
-
-    elbow = _hinge("elbow_test", (0, 1, 0), ELBOW_P - SHOULDER_P, arm, SHOULDER_P)
-    for nm in ELBOW_BODIES:
-        elbow.append(_take(arm, nm, ELBOW_P))
-
-    wrist = _hinge("wrist_test", (0, 1, 0), wrist_p - ELBOW_P, arm, SHOULDER_P)
-    fw = elbow.find("body[@name='forearm']")
-    for nm in WRIST_BODIES + WRIST_GEOMS:
-        wrist.append(_take(fw, nm, horn_pos))
-
-    elbow.append(wrist)
-    shoulder.append(elbow)
-    arm.append(shoulder)
     return root
 
 
@@ -230,22 +231,34 @@ def build(dst, physics):
 def _targets(t):
     """Servo commands, one full cycle over the clip.
 
-    Both chest hinges rotate about world X and both waist hinges about world Y.
-    The left and right wings are mirror images across X=0, and a rotation about X
-    (or Y) moves a point and its mirror identically, so each L/R pair takes the
-    SAME sign.  Running them in antiphase swings one wing up while the other goes
-    down, which is not a motion this robot can do.
+    The two wings take the SAME sign; the two arm hinges take the OPPOSITE sign. Conjugating
+    a rotation by the YZ-plane reflection gives Rot(M*axis, -angle), so the angle is preserved
+    and the axis is mirrored, and which sign that leaves depends on whether the two axes are
+    parallel or antiparallel:
+
+      abduct_L / abduct_R  turn about world X, and M(X) = -X, so the axes are ANTIPARALLEL
+                           and the negated angle cancels the negated axis -> same sign.
+      shoulder/elbow/wrist  turn about world Y, and M(Y) = +Y, so the axes are PARALLEL and
+                           nothing cancels the negated angle            -> opposite sign.
+
+    Measured, not assumed. Driving the arm pair in phase instead of antiphase takes the
+    worst mirror error between the two arms from 1.6 mm to 88.9 mm: it swings one arm
+    forward while the other goes back, which is not a motion this robot can do.
     """
-    return {
+    out = {
         "abduct_L": np.radians(CHEST_DEG) * np.sin(2 * np.pi * t),
         "abduct_R": np.radians(CHEST_DEG) * np.sin(2 * np.pi * t),
         "waist_L": np.radians(WAIST_DEG) * np.sin(2 * np.pi * t - np.pi / 2),
         "waist_R": np.radians(WAIST_DEG) * np.sin(2 * np.pi * t - np.pi / 2),
         "head": np.radians(HEAD_DEG) * np.sin(2 * np.pi * t + np.pi / 2),
-        "shoulder_test": np.radians(SHOULDER_DEG) * np.sin(2 * np.pi * t - np.pi / 2),
-        "elbow_test": np.radians(ELBOW_DEG) * np.sin(2 * np.pi * t),
-        "wrist_test": np.radians(WRIST_DEG) * np.sin(2 * np.pi * t + np.pi / 2),
     }
+    for joint, deg, phase in (("shoulder_test", SHOULDER_DEG, -np.pi / 2),
+                              ("elbow_test", ELBOW_DEG, 0.0),
+                              ("wrist_test", WRIST_DEG, np.pi / 2)):
+        wave = np.radians(deg) * np.sin(2 * np.pi * t + phase)
+        out[joint] = wave
+        out[joint + "_R"] = -wave
+    return out
 
 
 def render(path, out, physics):
