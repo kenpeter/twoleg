@@ -29,7 +29,7 @@
     <material name="steel" rgba="0.55 0.56 0.60 1"/>
   </asset>
   <worldbody>
-    <!-- ------------------------------ tricep (upper arm) ------------------------------ -->
+    <!-- ============================== tricep (upper arm) ============================== -->
     <body name="multi_0" pos="0.013500 0.022000 0.000000" quat="0.000000 0.707107 0.000000 0.707107">
       <geom name="multi_0_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125"/>
       <geom name="multi_0_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700"/>
@@ -57,10 +57,13 @@
     <geom name="base_nut_3" type="cylinder" size="0.003 0.0012" pos="0.013500 0.029100 -0.034500" material="dark" contype="0" conaffinity="0" group="2"/>
     <geom name="base_nut_4" type="cylinder" size="0.003 0.0012" pos="0.013500 0.015100 -0.034500" material="dark" contype="0" conaffinity="0" group="2"/>
     <!-- Horn retaining screws (visual only), through the 4 disc holes. -->
-    <geom name="horn_s0" type="cylinder" size="0.0016 0.004" pos="0.005750 -0.007000 0.017000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
-    <geom name="horn_s1" type="cylinder" size="0.0016 0.004" pos="0.019750 -0.007000 0.017000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
-    <geom name="horn_s2" type="cylinder" size="0.0016 0.004" pos="0.005750 -0.007000 0.003000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
-    <geom name="horn_s3" type="cylinder" size="0.0016 0.004" pos="0.019750 -0.007000 0.003000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
+    <!-- Shoulder pivot shaft on the arm-Y axis at X=0.01275 Z=0.010, shaped to the
+         金属舵盘 central socket so the disc is centred on the 舵机 output and the
+         servo can rotate the arm out/in without the horn cocking in the bore.
+         Measured socket: D9 (R4.5) Y -4.5..-7.5, D6 (R3.0) Y -7.5..-8.0,
+         D3 (R1.5) Y -8.0..-9.5.  The shaft is a D9 shoulder filling the mouth, a D6
+         pilot in the step, and a D3 tip running through to protrude 1.1 mm past the
+         horn's outer face. -->
     <!-- Elbow pivot (Y axis) at the 长U prong A bore (X=0.01325, Z=-0.08125): flange
          bearing centred in the prong and a 4 mm shaft through prong + the 金属舵盘
          bolted on its outer face. -->
@@ -76,7 +79,7 @@
     </body>
     <geom name="far_shaft" type="cylinder" size="0.002 0.0045" pos="0.013250 0.044500 -0.081250" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2"/>
 
-    <!-- ------------------------------ forearm (lower arm) ------------------------------
+    <!-- ============================== forearm (lower arm) ==============================
          The 多功能 sits inside the 长U prongs (Y 0.003..0.040, clear of both prongs) and
          the 金属舵盘 bolts flat onto prong A's outer face (Y -0.010..-0.005), its 4x M3
          diamond on that prong's bore axis (X=0.01325, Z=-0.08125) with the 舵机 body

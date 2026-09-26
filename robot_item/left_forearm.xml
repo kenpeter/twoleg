@@ -45,9 +45,5 @@
       <geom name="straight_3_c" mesh="straight" class="collision" pos="-0.0315 -0.0125 -0.001001" density="2700"/>
     </body>
     <!-- Horn retaining screws (visual only), through the 4 disc holes. -->
-    <geom name="horn_s0" type="cylinder" size="0.0016 0.004" pos="0.005750 -0.007000 0.017000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
-    <geom name="horn_s1" type="cylinder" size="0.0016 0.004" pos="0.019750 -0.007000 0.017000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
-    <geom name="horn_s2" type="cylinder" size="0.0016 0.004" pos="0.005750 -0.007000 0.003000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
-    <geom name="horn_s3" type="cylinder" size="0.0016 0.004" pos="0.019750 -0.007000 0.003000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
   </worldbody>
 </mujoco>

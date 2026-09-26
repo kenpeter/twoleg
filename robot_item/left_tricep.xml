@@ -51,9 +51,5 @@
     <geom name="base_nut_3" type="cylinder" size="0.003 0.0012" pos="0.013500 0.029100 -0.034500" material="dark" contype="0" conaffinity="0" group="2"/>
     <geom name="base_nut_4" type="cylinder" size="0.003 0.0012" pos="0.013500 0.015100 -0.034500" material="dark" contype="0" conaffinity="0" group="2"/>
     <!-- Horn retaining screws (visual only), through the 4 disc holes. -->
-    <geom name="horn_s0" type="cylinder" size="0.0016 0.004" pos="0.005750 -0.007000 0.017000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
-    <geom name="horn_s1" type="cylinder" size="0.0016 0.004" pos="0.019750 -0.007000 0.017000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
-    <geom name="horn_s2" type="cylinder" size="0.0016 0.004" pos="0.005750 -0.007000 0.003000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
-    <geom name="horn_s3" type="cylinder" size="0.0016 0.004" pos="0.019750 -0.007000 0.003000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2"/>
   </worldbody>
 </mujoco>
