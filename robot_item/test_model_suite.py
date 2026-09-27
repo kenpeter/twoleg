@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Contract suite over every MJCF model in this directory: each model must parse, compile,
 stay finite, be physically sane, and keep its named parts; each combination model must
-still embed its sub-models verbatim. main() prints the inventory of checks it ran.
+still embed its sub-models verbatim; and every mirrored subtree must reference meshes whose
+scale sign pattern is that mirror plane. main() prints the inventory of checks it ran.
 
 Every model here is fully rigid, nq = nv = nu = 0, so the forward/step check only proves
 the pipeline recomputes without producing a non-finite value; there is no state to settle.
@@ -16,6 +17,7 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 from collections import Counter
+from functools import lru_cache
 from typing import NamedTuple
 
 import mujoco
@@ -28,8 +30,12 @@ WALK_TAGS = ("body", "geom", "joint", "site", "freejoint")
 MESH_SCALE = 0.001
 QUAT_TOL = 1e-6
 MASS_REL_TOL = 1e-9
+MIRROR_TOL = 1e-6
 N_STEPS = 100
 SIDES = ("left", "right")
+MIRROR_PLANES = {"X": np.diag([-1.0, 1.0, 1.0]),
+                 "Y": np.diag([1.0, -1.0, 1.0]),
+                 "Z": np.diag([1.0, 1.0, -1.0])}
 
 class Row(NamedTuple):
     depth: int
@@ -71,6 +77,17 @@ class Corpus(NamedTuple):
     accepted: list
     baseline_error: str
     infos: list
+
+
+class MeshGeom(NamedTuple):
+    """One mesh-referencing geom resolved into the world frame, so two sides of a mirror
+    can be compared without re-walking either tree."""
+    name: str | None
+    mesh: str | None
+    scale: np.ndarray
+    file: str
+    mat: np.ndarray
+    pos: np.ndarray
 
 
 def _walk(el, depth):
@@ -241,6 +258,126 @@ def twin_pairs(by_name):
     return sorted(pairs)
 
 
+def _quat_matrix(raw):
+    """The authored wxyz attribute as a rotation matrix, normalised first: the file is the
+    only place an unnormalised quat survives, and a mirror test is an equality, not a
+    closeness."""
+    w, x, y, z = (float(v) for v in raw.split())
+    n = math.sqrt(w * w + x * x + y * y + z * z)
+    w, x, y, z = w / n, x / n, y / n, z / n
+    return np.array([
+        [1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+        [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+        [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)]])
+
+
+def _frame(el):
+    q, p = el.get("quat"), el.get("pos")
+    return (_quat_matrix(q) if q else np.eye(3),
+            np.array([float(v) for v in p.split()]) if p else np.zeros(3))
+
+
+def _scale(mesh):
+    """The three authored scale components, or None when they are absent, non-numeric or
+    not three of them. A malformed scale is test_mesh_assets_resolve's finding and must
+    not take the rest of the suite down with an exception."""
+    raw = mesh.get("scale")
+    if not raw:
+        return None
+    try:
+        comps = [float(v) for v in raw.split()]
+    except ValueError:
+        return None
+    return np.array(comps) if len(comps) == 3 else None
+
+
+@lru_cache(maxsize=None)
+def _stl_vertices(relpath):
+    """Every triangle corner of a binary STL as (n, 3) millimetre vertices: 80-byte header,
+    uint32 triangle count, then 50 bytes per triangle of which bytes 12..48 are the three
+    float32 corners. Read here rather than through MuJoCo so a part's shape is checkable
+    without a compiler."""
+    with open(os.path.join(HERE, relpath), "rb") as fh:
+        n = int(np.frombuffer(fh.read(84)[80:84], dtype="<u4")[0])
+        block = np.frombuffer(fh.read(n * 50), dtype=np.uint8).reshape(n, 50)
+    return block[:, 12:48].copy().view("<f4").reshape(-1, 3).astype(np.float64)
+
+
+def _mesh_geoms(spec, bodyname):
+    """Every mesh-referencing geom in document order under a body, or under the whole
+    worldbody when bodyname is None, each resolved into the world frame. Primitive geoms
+    are left out: they carry no mesh, so handedness is not theirs to get wrong."""
+    meshes = {m.get("name"): m for m in spec.root.iter("mesh")}
+    root = spec.root.find("worldbody")
+    if bodyname is not None:
+        root = next((b for b in root.iter("body") if b.get("name") == bodyname), None)
+        if root is None:
+            return []
+    R0, p0 = _frame(root)
+    out = []
+
+    def rec(el, Rm, pm):
+        for g in el.findall("geom"):
+            m = meshes.get(g.get("mesh")) if g.get("mesh") else None
+            s = _scale(m) if m is not None else None
+            if s is None:
+                continue
+            Rg, pg = _frame(g)
+            out.append(MeshGeom(g.get("name"), m.get("name"), s, m.get("file"),
+                                Rm @ Rg, Rm @ pg + pm))
+        for c in el.findall("body"):
+            Rc, pc = _frame(c)
+            rec(c, Rc @ Rm, Rc @ pm + pc)
+
+    rec(root, R0, p0)
+    return out
+
+
+def _mirror_plane(left, right):
+    """The one plane, if any, under which every paired geom's right world frame is the
+    exact mirror of its left one, T_right = R . T_left . R. None means the two sides are
+    separately placed parts that happen to share a naming scheme, which is not a mirror
+    and so is not this test's business."""
+    for axis, R in MIRROR_PLANES.items():
+        if all(np.abs(r.pos - R @ l.pos).max() <= MIRROR_TOL
+               and np.abs(r.mat - R @ l.mat @ R).max() <= MIRROR_TOL
+               for l, r in zip(left, right)):
+            return axis, R
+    return None
+
+
+def _side_of(name):
+    return "right" if "right" in name.split("_") else "left"
+
+
+def _candidate_pairs(corpus):
+    """(label, left geoms, right geoms) for every pair that could be a mirror. Two forms
+    inside one model, a body against its right-hand counterpart, and one form across two
+    models, every twin_pairs() member.
+
+    A right-hand body is spotted by its marker and the left name is whatever that marker
+    hides: a trailing `_R` hides a bare stem (multi_0 vs multi_0_R) or a trailing `_L`
+    (chest_side_L vs chest_side_R), and a leading `R_` hides a bare stem (foot vs R_foot).
+    The two sides are then paired positionally in document order, because a right side is
+    generated by walking the left side in order and the two files need not agree on what
+    to call the geoms."""
+    for spec in corpus.by_name.values():
+        if spec.root is None:
+            continue
+        bodies = {b.get("name") for b in spec.root.iter("body") if b.get("name")}
+        for right_name in sorted(bodies):
+            stems = ([right_name[:-2], right_name[:-1] + "L"] if right_name.endswith("_R")
+                     else [right_name[2:]] if right_name.startswith("R_") else [])
+            left_name = next((s for s in stems if s in bodies), None)
+            if left_name is not None:
+                yield spec.name, _mesh_geoms(spec, left_name), _mesh_geoms(spec, right_name)
+    for a, b in twin_pairs(corpus.by_name):
+        if _side_of(a) == "right":
+            a, b = b, a
+        yield (f"{a} <-> {b}", _mesh_geoms(corpus.by_name[a], None),
+               _mesh_geoms(corpus.by_name[b], None))
+
+
 def test_xml_wellformed(corpus):
     fails = [f"{name}: {corpus.errors[name]}" for name in sorted(corpus.errors)]
     return fails, not fails
@@ -365,6 +502,49 @@ def test_mesh_assets_resolve(corpus):
             if len(comps) != 3 or any(abs(c) != MESH_SCALE for c in comps):
                 fails.append(f"{spec.name}: mesh {label} scale {raw!r} is not "
                              f"{MESH_SCALE} per axis in magnitude")
+    return fails, not fails
+
+
+def test_mirrored_meshes_handed(corpus):
+    """A mirrored subtree's geom world frame is the mirror of its twin's, so the right
+    side's vertices land at (S . v) . R_geom.T + p for that mesh's own diagonal scale S.
+    Those equal the left side's vertices under R only when S == R, which means a mirrored
+    part needs the sign of its scale flipped on the plane's normal; with S == I the reader
+    gets a rotated copy of the part wearing the right name.
+
+    The plane is never assumed. Every candidate pair is tried against all three
+    single-negative diagonal planes and only a pair whose frames really are an exact mirror
+    under one of them is judged, so a right-hand part that was placed independently instead
+    of mirrored is skipped rather than failed. The STL is read here, so the check needs no
+    MuJoCo and reports the measured vertex error rather than a restated sign pattern."""
+    found = {}
+    for label, left, right in _candidate_pairs(corpus):
+        if not left or len(left) != len(right):
+            continue
+        plane = _mirror_plane(left, right)
+        if plane is None:
+            continue
+        axis, R = plane
+        worst, unmirrored = 0.0, set()
+        for l, r in zip(left, right):
+            vl, vr = _stl_vertices(l.file), _stl_vertices(r.file)
+            if len(vl) != len(vr):
+                continue
+            want = ((l.scale * vl) @ l.mat.T + l.pos) @ R.T
+            got = (r.scale * vr) @ r.mat.T + r.pos
+            err = float(np.abs(got - want).max())
+            if err > MIRROR_TOL:
+                worst = max(worst, err)
+                unmirrored.add(r.mesh)
+        if unmirrored:
+            seen = found.get((label, axis), (0.0, set()))
+            found[(label, axis)] = (max(seen[0], worst), seen[1] | unmirrored)
+    fails = []
+    for (label, axis), (worst, unmirrored) in sorted(found.items()):
+        diag = tuple(int(v) for v in MIRROR_PLANES[axis].diagonal())
+        fails.append(f"{label}: mirrored about the {axis} normal (diag {diag}), but "
+                     f"mesh(es) {', '.join(sorted(unmirrored))} on the mirrored side are "
+                     f"not mirrored, max vertex error {worst * 1000:.1f} mm")
     return fails, not fails
 
 
@@ -547,6 +727,7 @@ def main(argv):
         ("test_mass_and_inertia_physical", test_mass_and_inertia_physical),
         ("test_quats_normalized", test_quats_normalized),
         ("test_mesh_assets_resolve", test_mesh_assets_resolve),
+        ("test_mirrored_meshes_handed", test_mirrored_meshes_handed),
         ("test_names_unique", test_names_unique),
         ("test_collision_has_visual", test_collision_has_visual),
         ("test_composition_preserved", test_composition_preserved),

@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='utf-8'?>
+  <!-- right_arm: the sagittal mirror of the left arm part, S = diag(1, -1, +1),
+       i.e. Y -> -Y, applied to left_arm.xml by gen_right_arm.py in part mode.
+       Do not hand-edit this file.  Edit left_arm.xml or the generator and rerun it.
+       Transform rules, applied to every body and geom in the worldbody tree:
+         pos  (x, y, z) -> (x, -y, z)
+         quat (w, x, y, z) -> (w, -x, y, -z)
+         mesh scale (sx, sy, sz) -> (sx, -sy, sz)
+       Body and geom names are unchanged and every mesh keeps its left_arm.xml name
+       and file=, so this part shares the STL files with the left arm.  That is the
+       convention the neighbouring part files already use.  It is not the convention
+       of the chest mirror in gen_right_arm.py, which reflects about the other plane,
+       diag(-1, 1, 1), and suffixes every name with _R, so do not read one target's
+       naming or numbers as the other's.
+       工程记录, every Y value mirrored from left_arm.xml.  长U bracket: base plate on
+       top bolted under the multi, prongs down.  M3 screws + nuts through the 长U
+       base-plate holes into the 多功能 bottom (visual only).  Horn retaining screws
+       (visual only), through the 4 disc holes.  Shoulder pivot shaft on the arm-Y
+       axis at X=0.01275 Z=0.010, shaped to the 金属舵盘 central socket so the disc is
+       centred on the 舵机 output and the servo can rotate the arm out/in without the
+       horn cocking in the bore.  Measured socket: D9 (R4.5) Y 4.5..7.5, D6 (R3.0)
+       Y 7.5..8.0, D3 (R1.5) Y 8.0..9.5.  The shaft is a D9 shoulder filling the
+       mouth, a D6 pilot in the step, and a D3 tip running through to protrude
+       1.1 mm past the horn's outer face.  Elbow pivot (Y axis) at the 长U prong A
+       bore (X=0.01325, Z=-0.08125): flange bearing centred in the prong and a 4 mm
+       shaft through prong + the 金属舵盘 bolted on its outer face.  The other prong
+       (B) carries a matching bearing and a 4 mm shaft from the 多功能 far face
+       (Y=-0.040) through prong B (Y -0.043..-0.049), so both sides of the U connect
+       to the forearm hardware.  The 多功能 sits inside the 长U prongs
+       (Y -0.040..-0.003, clear of both prongs) and the 金属舵盘 bolts flat onto prong
+       A's outer face (Y 0.005..0.010), its 4x M3 diamond on that prong's bore axis
+       (X=0.01325, Z=-0.08125) with the 舵机 body spanning the gap between them.
+       Right arm = the mirrored left_tricep unit (upper arm: 多功能 + 舵机 + 金属舵盘 +
+       长U) joined to the mirrored left_forearm unit (多功能 + 舵机 + 金属舵盘 + 一字)
+       per manual p.10 "三.1 左右手臂的拼接 · 右手".  The elbow is the 长U prong bore at
+       Y=-0.001..0.005 (X=0.01325, Z=-0.08125, axis along Y): the forearm's 多功能
+       stands inside the prongs on that bore axis, and its 金属舵盘 lines its 4x M3
+       diamond up with the prong's identical diamond.  The 一字 keeps the disc's other
+       face and both units stay in their mirrored standalone frames, so right_arm =
+       tricep + T_elbow(forearm).
+       Parts are dimensioned in millimetres and MJCF is in metres, hence every mesh
+       scale of 0.001, with the Y component negated for this mirror. -->
+<mujoco model="right_arm">
+  
+  <compiler angle="radian" meshdir="." autolimits="true" />
+  <visual>
+    <global offwidth="1024" offheight="1024" />
+    <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2" />
+  </visual>
+  <default>
+    <default class="visual"><geom type="mesh" contype="0" conaffinity="0" group="2" density="0" /></default>
+    <default class="collision"><geom type="mesh" group="3" /></default>
+  </default>
+  <asset>
+    <mesh name="multi" file="多功能/多功能支架.STL" scale="0.001000 -0.001000 0.001000" />
+    <mesh name="straight" file="一字/一字支架.STL" scale="0.001000 -0.001000 0.001000" />
+    <mesh name="servo" file="舵机/舵机.STL" scale="0.001000 -0.001000 0.001000" />
+    <mesh name="horn" file="金属舵盘/金属舵盘.STL" scale="0.001000 -0.001000 0.001000" />
+    <mesh name="longU" file="长U/长U支架.STL" scale="0.001000 -0.001000 0.001000" />
+    <mesh name="bearing" file="法兰轴承/法兰轴承.STL" scale="0.001000 -0.001000 0.001000" />
+    <material name="bracket" rgba="0.75 0.75 0.78 1" />
+    <material name="dark" rgba="0.18 0.18 0.20 1" />
+    <material name="horn" rgba="0.80 0.80 0.82 1" />
+    <material name="steel" rgba="0.55 0.56 0.60 1" />
+  </asset>
+  <worldbody>
+    
+    <body name="multi_0" pos="0.013500 -0.022000 0.000000" quat="0.000000 -0.707107 0.000000 -0.707107">
+      <geom name="multi_0_v" mesh="multi" class="visual" material="bracket" pos="-0.029000 0.018500 -0.012500" />
+      <geom name="multi_0_c" mesh="multi" class="collision" pos="-0.029000 0.018500 -0.012500" density="2700" />
+    </body>
+    <body name="servo_1" pos="0.012750 -0.017000 0.000000" quat="0.000000 -0.000000 -0.707107 -0.707107">
+      <geom name="servo_1_v" mesh="servo" class="visual" material="dark" pos="-0.009752 0.027000 -0.021500" />
+      <geom name="servo_1_c" mesh="servo" class="collision" material="dark" pos="-0.009752 0.027000 -0.021500" density="1600" />
+    </body>
+    <body name="horn_2" pos="0.012750 0.007000 0.010000" quat="0.000000 -0.000000 1.000000 -0.000000">
+      <geom name="horn_2_v" mesh="horn" class="visual" material="horn" pos="-0.010000 0.002600 -0.010000" />
+      <geom name="horn_2_c" mesh="horn" class="collision" material="horn" pos="-0.010000 0.002600 -0.010000" density="2700" />
+    </body>
+    
+    <body name="longU_down" pos="0.013500 -0.022000 -0.061250" quat="-0.500000 -0.500000 0.500000 0.500000">
+      <geom name="longU_down_v" mesh="longU" class="visual" material="bracket" pos="-0.027000 0.032250 -0.012500" />
+      <geom name="longU_down_c" mesh="longU" class="collision" pos="-0.027000 0.032250 -0.012500" density="2700" />
+    </body>
+    
+    <geom name="base_screw_1" type="cylinder" size="0.0016 0.005" pos="0.006600 -0.022100 -0.030500" material="dark" contype="0" conaffinity="0" group="2" />
+    <geom name="base_screw_2" type="cylinder" size="0.0016 0.005" pos="0.020600 -0.022100 -0.030500" material="dark" contype="0" conaffinity="0" group="2" />
+    <geom name="base_screw_3" type="cylinder" size="0.0016 0.005" pos="0.013500 -0.029100 -0.030500" material="dark" contype="0" conaffinity="0" group="2" />
+    <geom name="base_screw_4" type="cylinder" size="0.0016 0.005" pos="0.013500 -0.015100 -0.030500" material="dark" contype="0" conaffinity="0" group="2" />
+    <geom name="base_nut_1" type="cylinder" size="0.003 0.0012" pos="0.006600 -0.022100 -0.034500" material="dark" contype="0" conaffinity="0" group="2" />
+    <geom name="base_nut_2" type="cylinder" size="0.003 0.0012" pos="0.020600 -0.022100 -0.034500" material="dark" contype="0" conaffinity="0" group="2" />
+    <geom name="base_nut_3" type="cylinder" size="0.003 0.0012" pos="0.013500 -0.029100 -0.034500" material="dark" contype="0" conaffinity="0" group="2" />
+    <geom name="base_nut_4" type="cylinder" size="0.003 0.0012" pos="0.013500 -0.015100 -0.034500" material="dark" contype="0" conaffinity="0" group="2" />
+    
+    
+    
+    <body name="elbow_bearing" pos="0.013250 0.002019 -0.081250">
+      <geom name="elbow_bearing_v" mesh="bearing" class="visual" material="steel" pos="-0.004750 0.001500 -0.004750" />
+    </body>
+    <geom name="elbow_shaft" type="cylinder" size="0.002 0.0055" pos="0.013250 0.004500 -0.081250" quat="0.707107 -0.707107 0.000000 -0.000000" material="steel" contype="0" conaffinity="0" group="2" />
+    
+    <body name="far_bearing" pos="0.013250 -0.046019 -0.081250">
+      <geom name="far_bearing_v" mesh="bearing" class="visual" material="steel" pos="-0.004750 0.001500 -0.004750" />
+    </body>
+    <geom name="far_shaft" type="cylinder" size="0.002 0.0045" pos="0.013250 -0.044500 -0.081250" quat="0.707107 -0.707107 0.000000 -0.000000" material="steel" contype="0" conaffinity="0" group="2" />
+
+    
+    <body name="forearm" pos="0.000750 0.000500 -0.091000" quat="1.000000 -0.000000 0.000000 -0.000000">
+      <body name="multi_0_f" pos="0.013500 -0.022000 0.000000" quat="0.000000 -0.707107 0.000000 -0.707107">
+        <geom name="multi_0_f_v" mesh="multi" class="visual" material="bracket" pos="-0.029000 0.018500 -0.012500" />
+        <geom name="multi_0_f_c" mesh="multi" class="collision" pos="-0.029000 0.018500 -0.012500" density="2700" />
+      </body>
+      <body name="servo_1_f" pos="0.012750 -0.017000 0.000000" quat="0.000000 -0.000000 -0.707107 -0.707107">
+        <geom name="servo_1_f_v" mesh="servo" class="visual" material="dark" pos="-0.009752 0.027000 -0.021500" />
+        <geom name="servo_1_f_c" mesh="servo" class="collision" material="dark" pos="-0.009752 0.027000 -0.021500" density="1600" />
+      </body>
+      <body name="horn_2_f" pos="0.012750 0.007000 0.010000" quat="0.000000 -0.000000 1.000000 -0.000000">
+        <geom name="horn_2_f_v" mesh="horn" class="visual" material="horn" pos="-0.010000 0.002600 -0.010000" />
+        <geom name="horn_2_f_c" mesh="horn" class="collision" material="horn" pos="-0.010000 0.002600 -0.010000" density="2700" />
+      </body>
+      <body name="straight_3_f" pos="0.000003 -0.014996 -0.029991" quat="0.707107 -0.000000 0.707107 -0.000000">
+        <geom name="straight_3_f_v" mesh="straight" class="visual" material="bracket" pos="-0.031500 0.012500 -0.001001" />
+        <geom name="straight_3_f_c" mesh="straight" class="collision" pos="-0.031500 0.012500 -0.001001" density="2700" />
+      </body>
+      <geom name="horn_s0_f" type="cylinder" size="0.0016 0.004" pos="0.005500 0.007000 0.016750" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="horn_s1_f" type="cylinder" size="0.0016 0.004" pos="0.019500 0.007000 0.016750" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="horn_s2_f" type="cylinder" size="0.0016 0.004" pos="0.005500 0.007000 0.002750" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="horn_s3_f" type="cylinder" size="0.0016 0.004" pos="0.019500 0.007000 0.002750" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
+    </body>
+  </worldbody>
+</mujoco>
