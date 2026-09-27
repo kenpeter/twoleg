@@ -8,7 +8,7 @@
        placement of left_tricep.xml; the 一字 is mated concentrically to horn_2:
        its rounded end (8 mm bore + 4x M3 at r=7) sits on the horn face (Y = -0.0095)
        and the 63 mm paddle extends along -Z. -->
-  <compiler angle="radian" meshdir="/home/kenpeter/work/twoleg/robot_item" autolimits="true"/>
+  <compiler angle="radian" meshdir="." autolimits="true"/>
   <visual>
     <global offwidth="1024" offheight="1024"/>
     <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2"/>

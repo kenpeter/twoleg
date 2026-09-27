@@ -19,6 +19,13 @@
     <mesh name="foot" file="大脚板/脚板支架.STL" scale="0.001 0.001 0.001" />
     <mesh name="longU" file="长U/长U支架.STL" scale="0.001 0.001 0.001" />
     <mesh name="bearing" file="法兰轴承/法兰轴承.STL" scale="0.001 0.001 0.001" />
+    <mesh name="foot_r" file="大脚板/脚板支架.STL" scale="-0.001 0.001 0.001" />
+    <mesh name="shortU_r" file="短U/短U支架.STL" scale="-0.001 0.001 0.001" />
+    <mesh name="longU_r" file="长U/长U支架.STL" scale="-0.001 0.001 0.001" />
+    <mesh name="multi_r" file="多功能/多功能支架.STL" scale="-0.001 0.001 0.001" />
+    <mesh name="servo_r" file="舵机/舵机.STL" scale="-0.001 0.001 0.001" />
+    <mesh name="horn_r" file="金属舵盘/金属舵盘.STL" scale="-0.001 0.001 0.001" />
+    <mesh name="bearing_r" file="法兰轴承/法兰轴承.STL" scale="-0.001 0.001 0.001" />
     <material name="bracket" rgba="0.75 0.75 0.78 1" />
     <material name="dark" rgba="0.18 0.18 0.20 1" />
     <material name="horn" rgba="0.80 0.80 0.82 1" />
@@ -285,112 +292,114 @@
     </body>
   
     </body>
-    <body name="leg_right" pos="0.034200 -0.018500 -0.250000" quat="0.707107 0.000000 0.000000 0.707107"><body name="R_foot" pos="0.000000 -0.000000 0.000000">
-      <geom name="R_foot_visual" mesh="foot" class="visual" material="bracket" pos="-0.06175 -0.03175 -0.001" />
-      <geom name="R_foot_collision" mesh="foot" class="collision" pos="-0.06175 -0.03175 -0.001" density="2700" />
+    <body name="leg_right" pos="0.034200 -0.018500 -0.250000" quat="0.707107 0 0 -0.707107">
+    <body name="R_foot" pos="0 0 0">
+      <geom name="R_foot_visual" mesh="foot_r" class="visual" material="bracket" pos="0.06175 -0.03175 -0.001" />
+      <geom name="R_foot_collision" mesh="foot_r" class="collision" pos="0.06175 -0.03175 -0.001" density="2700" />
 
-      <body name="R_multi" pos="0.022000 -0.000000 0.013500" quat="0.707107 -0.000000 0.000000 -0.707107">
-        <geom name="R_multi_visual" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125" />
-        <geom name="R_multi_collision" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700" />
+      <body name="R_multi" pos="-0.022 0 0.0135" quat="0.70710678 0 0 -0.70710678">
+        <geom name="R_multi_visual" mesh="multi_r" class="visual" material="bracket" pos="0.029 -0.0185 -0.0125" />
+        <geom name="R_multi_collision" mesh="multi_r" class="collision" pos="0.029 -0.0185 -0.0125" density="2700" />
       </body>
 
-      <body name="R_ankle_servo" pos="0.017000 -0.000000 0.016750" quat="0.000000 0.707107 0.000000 -0.707107">
-        <geom name="R_servo_visual" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215" />
-        <geom name="R_servo_collision" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="1600" />
+      <body name="R_ankle_servo" pos="-0.017000 0.000000 0.016750" quat="0 -0.7071068 0 -0.7071068">
+        <geom name="R_servo_visual" mesh="servo_r" class="visual" material="dark" pos="0.009752 -0.027 -0.0215" />
+        <geom name="R_servo_collision" mesh="servo_r" class="collision" pos="0.009752 -0.027 -0.0215" density="1600" />
       </body>
 
-      <body name="R_horn" pos="-0.007000 -0.010000 0.016750" quat="0.500000 -0.500000 0.500000 0.500000">
-        <geom name="R_horn_visual" mesh="horn" class="visual" material="horn" pos="-0.010 -0.0026 -0.010" />
+      <body name="R_horn" pos="0.007000 0.010000 0.016750" quat="0.5 0.5 -0.5 0.5">
+        <geom name="R_horn_visual" mesh="horn_r" class="visual" material="horn" pos="0.010 -0.0026 -0.010" />
       </body>
 
       
-      <body name="R_little_u" pos="0.017500 -0.010000 0.046750" quat="0.707107 -0.000000 0.000000 -0.707107">
+      <body name="R_little_u" pos="-0.017500 0.010000 0.046750" quat="0.7071068 0 0 -0.7071068">
         
-        <body name="R_shortU_up" pos="0.000000 -0.000000 0.022250" quat="0.707107 -0.707107 0.000000 -0.000000">
-          <geom name="R_shortU_up_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125" />
-          <geom name="R_shortU_up_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700" />
+        <body name="R_shortU_up" pos="0 0 0.02225" quat="0.7071068 0.7071068 0 0">
+          <geom name="R_shortU_up_visual" mesh="shortU_r" class="visual" material="bracket" pos="0.027 -0.02225 -0.0125" />
+          <geom name="R_shortU_up_collision" mesh="shortU_r" class="collision" pos="0.027 -0.02225 -0.0125" density="2700" />
         </body>
 
         
-        <body name="R_shortU_down" pos="0.000000 -0.000000 -0.020250" quat="0.500000 0.500000 -0.500000 -0.500000">
-          <geom name="R_shortU_down_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125" />
-          <geom name="R_shortU_down_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700" />
+        <body name="R_shortU_down" pos="0 0 -0.02025" quat="0.5 -0.5 0.5 -0.5">
+          <geom name="R_shortU_down_visual" mesh="shortU_r" class="visual" material="bracket" pos="0.027 -0.02225 -0.0125" />
+          <geom name="R_shortU_down_collision" mesh="shortU_r" class="collision" pos="0.027 -0.02225 -0.0125" density="2700" />
         </body>
 
         
-        <geom name="R_screw_1" type="cylinder" size="0.0016 0.004" pos="0.007000 -0.000000 0.000000" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
-        <geom name="R_screw_2" type="cylinder" size="0.0016 0.004" pos="-0.007000 -0.000000 0.000000" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
-        <geom name="R_screw_3" type="cylinder" size="0.0016 0.004" pos="0.000000 -0.007000 0.000000" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
-        <geom name="R_screw_4" type="cylinder" size="0.0016 0.004" pos="0.000000 0.007000 0.000000" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
-        <geom name="R_nut_1" type="cylinder" size="0.003 0.0012" pos="0.007000 -0.000000 0.005200" material="dark" contype="0" conaffinity="0" group="2" />
-        <geom name="R_nut_2" type="cylinder" size="0.003 0.0012" pos="-0.007000 -0.000000 0.005200" material="dark" contype="0" conaffinity="0" group="2" />
-        <geom name="R_nut_3" type="cylinder" size="0.003 0.0012" pos="0.000000 -0.007000 0.005200" material="dark" contype="0" conaffinity="0" group="2" />
-        <geom name="R_nut_4" type="cylinder" size="0.003 0.0012" pos="0.000000 0.007000 0.005200" material="dark" contype="0" conaffinity="0" group="2" />
+        <geom name="R_screw_1" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
+        <geom name="R_screw_2" type="cylinder" size="0.0016 0.004" pos="0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
+        <geom name="R_screw_3" type="cylinder" size="0.0016 0.004" pos="0 0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
+        <geom name="R_screw_4" type="cylinder" size="0.0016 0.004" pos="0 -0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
+        <geom name="R_nut_1" type="cylinder" size="0.003 0.0012" pos="-0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
+        <geom name="R_nut_2" type="cylinder" size="0.003 0.0012" pos="0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
+        <geom name="R_nut_3" type="cylinder" size="0.003 0.0012" pos="0 0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
+        <geom name="R_nut_4" type="cylinder" size="0.003 0.0012" pos="0 -0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
       </body>
     </body>
-      <body name="R_multi_0" pos="0.018250 -0.008000 0.143990" quat="0.000000 -0.707107 0.000000 -0.707107">
-      <geom name="R_multi_0_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125" />
-      <geom name="R_multi_0_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700" />
+      <body name="R_multi_0" pos="-0.018250 0.008000 0.143990" quat="0.000000 0.707107 0.000000 -0.707107">
+      <geom name="R_multi_0_v" mesh="multi_r" class="visual" material="bracket" pos="0.029 -0.0185 -0.0125" />
+      <geom name="R_multi_0_c" mesh="multi_r" class="collision" pos="0.029 -0.0185 -0.0125" density="2700" />
     </body>
-    <body name="R_servo_1" pos="0.017500 -0.003000 0.143990" quat="0.000000 -0.000000 -0.707107 -0.707107">
-      <geom name="R_servo_1_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215" />
-      <geom name="R_servo_1_c" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="2700" />
+    <body name="R_servo_1" pos="-0.017500 0.003000 0.143990" quat="0.000000 0.000000 0.707107 -0.707107">
+      <geom name="R_servo_1_v" mesh="servo_r" class="visual" material="dark" pos="0.009752 -0.027 -0.0215" />
+      <geom name="R_servo_1_c" mesh="servo_r" class="collision" pos="0.009752 -0.027 -0.0215" density="2700" />
     </body>
-    <body name="R_horn_2" pos="0.017500 0.021000 0.153990" quat="0.000000 -0.000000 1.000000 -0.000000">
-      <geom name="R_horn_2_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01" />
-      <geom name="R_horn_2_c" mesh="horn" class="collision" pos="-0.01 -0.0026 -0.01" density="2700" />
+    <body name="R_horn_2" pos="-0.017500 -0.021000 0.153990" quat="0.000000 0.000000 -1.000000 0.000000">
+      <geom name="R_horn_2_v" mesh="horn_r" class="visual" material="horn" pos="0.01 -0.0026 -0.01" />
+      <geom name="R_horn_2_c" mesh="horn_r" class="collision" pos="0.01 -0.0026 -0.01" density="2700" />
     </body>
     
-    <body name="R_little_u_top" pos="0.017500 -0.003000 0.206210" quat="0.707107 -0.000000 0.000000 -0.707107">
-      <body name="R_longU_top" pos="0.000000 -0.000000 -0.032250" quat="-0.707107 -0.707107 0.000000 -0.000000">
-        <geom name="R_longU_top_visual" mesh="longU" class="visual" material="bracket" pos="-0.027 -0.03225 -0.0125" />
-        <geom name="R_longU_top_collision" mesh="longU" class="collision" pos="-0.027 -0.03225 -0.0125" density="2700" />
+    <body name="R_little_u_top" pos="-0.017500 0.003000 0.206210" quat="0.7071068 0 0 -0.7071068">
+      <body name="R_longU_top" pos="0 0 -0.03225" quat="-0.7071068 0.7071068 0 0">
+        <geom name="R_longU_top_visual" mesh="longU_r" class="visual" material="bracket" pos="0.027 -0.03225 -0.0125" />
+        <geom name="R_longU_top_collision" mesh="longU_r" class="collision" pos="0.027 -0.03225 -0.0125" density="2700" />
       </body>
-      <body name="R_shortU_top" pos="0.000000 -0.000000 0.022250" quat="0.500000 -0.500000 -0.500000 0.500000">
-        <geom name="R_shortU_top_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125" />
-        <geom name="R_shortU_top_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700" />
+      <body name="R_shortU_top" pos="0 0 0.02225" quat="0.5 0.5 0.5 0.5">
+        <geom name="R_shortU_top_visual" mesh="shortU_r" class="visual" material="bracket" pos="0.027 -0.02225 -0.0125" />
+        <geom name="R_shortU_top_collision" mesh="shortU_r" class="collision" pos="0.027 -0.02225 -0.0125" density="2700" />
       </body>
-      <geom name="R_top_screw_1" type="cylinder" size="0.0016 0.004" pos="0.007000 -0.000000 0.000000" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
-      <geom name="R_top_screw_2" type="cylinder" size="0.0016 0.004" pos="-0.007000 -0.000000 0.000000" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
-      <geom name="R_top_screw_3" type="cylinder" size="0.0016 0.004" pos="0.000000 -0.007000 0.000000" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
-      <geom name="R_top_screw_4" type="cylinder" size="0.0016 0.004" pos="0.000000 0.007000 0.000000" quat="0.707107 -0.707107 0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
-      <geom name="R_top_nut_1" type="cylinder" size="0.003 0.0012" pos="0.007000 -0.000000 0.005200" material="dark" contype="0" conaffinity="0" group="2" />
-      <geom name="R_top_nut_2" type="cylinder" size="0.003 0.0012" pos="-0.007000 -0.000000 0.005200" material="dark" contype="0" conaffinity="0" group="2" />
-      <geom name="R_top_nut_3" type="cylinder" size="0.003 0.0012" pos="0.000000 -0.007000 0.005200" material="dark" contype="0" conaffinity="0" group="2" />
-      <geom name="R_top_nut_4" type="cylinder" size="0.003 0.0012" pos="0.000000 0.007000 0.005200" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="R_top_screw_1" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="R_top_screw_2" type="cylinder" size="0.0016 0.004" pos="0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="R_top_screw_3" type="cylinder" size="0.0016 0.004" pos="0 0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="R_top_screw_4" type="cylinder" size="0.0016 0.004" pos="0 -0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="R_top_nut_1" type="cylinder" size="0.003 0.0012" pos="-0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="R_top_nut_2" type="cylinder" size="0.003 0.0012" pos="0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="R_top_nut_3" type="cylinder" size="0.003 0.0012" pos="0 0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
+      <geom name="R_top_nut_4" type="cylinder" size="0.003 0.0012" pos="0 -0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
     </body>
-    <body name="R_multi_3" pos="0.018250 -0.008000 0.088990" quat="0.000000 -0.707107 0.000000 -0.707107">
-      <geom name="R_multi_3_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125" />
-      <geom name="R_multi_3_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700" />
+    <body name="R_multi_3" pos="-0.018250 0.008000 0.088990" quat="0.000000 0.707107 0.000000 -0.707107">
+      <geom name="R_multi_3_v" mesh="multi_r" class="visual" material="bracket" pos="0.029 -0.0185 -0.0125" />
+      <geom name="R_multi_3_c" mesh="multi_r" class="collision" pos="0.029 -0.0185 -0.0125" density="2700" />
     </body>
-    <body name="R_servo_4" pos="0.017500 -0.003000 0.088990" quat="0.707107 -0.707107 0.000000 -0.000000">
-      <geom name="R_servo_4_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215" />
-      <geom name="R_servo_4_c" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="2700" />
+    <body name="R_servo_4" pos="-0.017500 0.003000 0.088990" quat="0.7071068 0.7071068 0 0">
+      <geom name="R_servo_4_v" mesh="servo_r" class="visual" material="dark" pos="0.009752 -0.027 -0.0215" />
+      <geom name="R_servo_4_c" mesh="servo_r" class="collision" pos="0.009752 -0.027 -0.0215" density="2700" />
     </body>
-    <body name="R_horn_5" pos="0.017500 0.017000 0.078750" quat="0.000000 -0.000000 1.000000 -0.000000">
-      <geom name="R_horn_5_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01" />
-      <geom name="R_horn_5_c" mesh="horn" class="collision" pos="-0.01 -0.0026 -0.01" density="2700" />
-    </body>
-    
-    <body name="R_hip_pivot_shaft" pos="0.017000 -0.026500 0.153940">
-      <geom name="R_hip_pivot_shaft_g" type="cylinder" size="0.002 0.005000" quat="0.707107 -0.707107 0.000000 -0.000000" material="steel" contype="0" conaffinity="0" group="2" />
-    </body>
-    <body name="R_hip_pivot_bearing" pos="0.017000 -0.029000 0.153940">
-      <geom name="R_hip_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" />
+    <body name="R_horn_5" pos="-0.017500 -0.017000 0.078750" quat="0.000000 0.000000 -1.000000 0.000000">
+      <geom name="R_horn_5_v" mesh="horn_r" class="visual" material="horn" pos="0.01 -0.0026 -0.01" />
+      <geom name="R_horn_5_c" mesh="horn_r" class="collision" pos="0.01 -0.0026 -0.01" density="2700" />
     </body>
     
-    <body name="R_knee_pivot_shaft" pos="0.017500 -0.030000 0.078750">
-      <geom name="R_knee_pivot_shaft_g" type="cylinder" size="0.002 0.009000" quat="0.707107 -0.707107 0.000000 -0.000000" material="steel" contype="0" conaffinity="0" group="2" />
+    <body name="R_hip_pivot_shaft" pos="-0.017000 0.026500 0.153940">
+      <geom name="R_hip_pivot_shaft_g" type="cylinder" size="0.002 0.005000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2" />
     </body>
-    <body name="R_knee_pivot_bearing" pos="0.017500 -0.037000 0.078750">
-      <geom name="R_knee_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" />
+    <body name="R_hip_pivot_bearing" pos="-0.017000 0.029000 0.153940">
+      <geom name="R_hip_pivot_bearing_g" type="mesh" mesh="bearing_r" class="visual" material="steel" pos="0.004750 -0.001500 -0.004750" />
     </body>
     
-    <body name="R_ankle_pivot_shaft" pos="0.041500 -0.010000 0.016750">
-      <geom name="R_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.707107 -0.000000 0.707107 -0.000000" material="steel" contype="0" conaffinity="0" group="2" />
+    <body name="R_knee_pivot_shaft" pos="-0.017500 0.030000 0.078750">
+      <geom name="R_knee_pivot_shaft_g" type="cylinder" size="0.002 0.009000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2" />
     </body>
-    <body name="R_ankle_pivot_bearing" pos="0.044500 -0.010000 0.016750" quat="0.707107 -0.000000 0.000000 -0.707107">
-      <geom name="R_ankle_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" />
+    <body name="R_knee_pivot_bearing" pos="-0.017500 0.037000 0.078750">
+      <geom name="R_knee_pivot_bearing_g" type="mesh" mesh="bearing_r" class="visual" material="steel" pos="0.004750 -0.001500 -0.004750" />
     </body>
+    
+    <body name="R_ankle_pivot_shaft" pos="-0.041500 0.010000 0.016750">
+      <geom name="R_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 -0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
+    </body>
+    <body name="R_ankle_pivot_bearing" pos="-0.044500 0.010000 0.016750" quat="0.7071068 0 0 -0.7071068">
+      <geom name="R_ankle_pivot_bearing_g" type="mesh" mesh="bearing_r" class="visual" material="steel" pos="0.004750 -0.001500 -0.004750" />
+    </body>
+  
   </body></worldbody>
 </mujoco>
