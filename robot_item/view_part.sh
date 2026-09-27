@@ -34,7 +34,10 @@ fi
 export MUJOCO_GL=glfw
 export PYTHONWARNINGS=ignore
 echo "Opening $XML  (close window or Ctrl+C to exit)"
-uv run --offline --with mujoco python - "$XML" <<'PY' 2> >(grep -v -E "libdecor|libEGL|pci id|dri2 screen|No plugins found|no decorations|^$" >&2)
+# launch_passive needs mjpython on macOS; plain python elsewhere.
+PYBIN="python"
+[[ "$(uname -s)" == "Darwin" ]] && PYBIN="mjpython"
+uv run --offline --with mujoco "$PYBIN" - "$XML" <<'PY' 2> >(grep -v -E "libdecor|libEGL|pci id|dri2 screen|No plugins found|no decorations|^$" >&2)
 import sys, time, warnings
 warnings.filterwarnings("ignore")
 try:
