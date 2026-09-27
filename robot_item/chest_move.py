@@ -39,6 +39,16 @@ FPS = 30
 SECONDS = 8.0
 WAIST_SWING_DEG = 20.0
 SWING_DEG = 35.0
+SETTLE_SECONDS = 1.0     # physics only: reach the t=0 pose before frame 0
+
+# Mirror map: the sign each right-leg joint needs for the right leg to be the
+# exact X mirror of the left (measured joint by joint: right == Mx(left) over
+# a full choreography cycle, 0.000 mm).  The waist hinge axis is parallel
+# under the mirror but the mirror conjugates the angle, so it negates; the
+# ankle's world axis comes out antiparallel from the leg's own Rz(∓90) mount
+# and needs the left sign; knee and hip negate.  Blanket-flipping every joint
+# by the side's sign (as earlier revisions did) mis-drives the right ankle.
+RM = {"waist_test": -1.0, "ankle_test": 1.0, "knee_test": -1.0, "hip_test": -1.0}
 
 # Waist (abduction) axis: world Y through this point (measured: back-prong
 # pivot hole of the leg's top short-U == waist servo shaft line).
@@ -51,9 +61,12 @@ CHEST = {
     "right": "chest_right_leg.xml",
 }
 LEG = {"left": "leg_left", "right": "leg_right"}
-CAM = {  # lookat, azimuth; right is the mirror of left
-    "left": ([-0.030, -0.010, -0.160], 40.0),
-    "right": ([0.030, -0.010, -0.160], -40.0),
+CAM = {  # lookat, azimuth; right is the mirror of left.
+    # z=-0.10 and 0.66 m keep the chest-side plate inside the frame at every
+    # pose of the swing (the old -0.16/0.62 cropped 125 px off the top of the
+    # right-leg video in all 240 frames).
+    "left": ([-0.030, -0.010, -0.100], 40.0),
+    "right": ([0.030, -0.010, -0.100], -40.0),
 }
 OUT = {s: os.path.join(HERE, f"chest_{s}_leg.mp4") for s in ("left", "right")}
 
@@ -73,6 +86,11 @@ def _setup(tree, physics=False):
     if physics:
         opt.set("timestep", "0.001")
         opt.set("iterations", "100")
+        # The leg servos (kp=40, dampratio=1) are stiff: explicit Euler at
+        # dt=0.001 goes unstable and the hips end up swinging 100 deg off
+        # target.  implicitfast integrates the servo+limb poles exactly and
+        # holds the clip to ~2 deg.
+        opt.set("integrator", "implicitfast")
     for g in root.iter("geom"):
         g.set("contype", "0")
         g.set("conaffinity", "0")
@@ -111,37 +129,101 @@ def _reparent(el, parent, origin):
     parent.append(el)
 
 
-def make_chain(side, leg_pos, leg_quat, sfx):
-    """Re-rig one leg as ``waist -> top -> hip -> knee -> ankle -> foot``.
+# Every leg subtree the chest models carry is a mirror of leg_assembly_left:
+# leg_assembly_right (and a left/right standalone pair) is a Y mirror, while the
+# chest models embed the right leg as an exact X mirror (mesh twins, negated root
+# quat).  The pivots above are measured in leg_assembly_left's frame, so the
+# mirror the model actually used has to be carried into them too.
+MIRRORS = {"I": np.eye(3),
+           "MX": np.diag([-1.0, 1.0, 1.0]),
+           "MY": np.diag([1.0, -1.0, 1.0])}
+LINK_NAMES = ("leg_top", "hip_link", "knee_link", "ankle_link", "waist_link",
+              "hip_test", "knee_test", "ankle_test", "waist_test")
+
+
+def _frames(el, prefix=""):
+    """{name: pos} of `el`'s direct body children, with `prefix` stripped."""
+    out = {}
+    for b in el.findall("body"):
+        n = b.get("name") or ""
+        if prefix and not n.startswith(prefix):
+            continue
+        out[n[len(prefix):]] = np.array(
+            [float(v) for v in b.get("pos", "0 0 0").split()])
+    return out
+
+
+def _source_frames():
+    root = ET.parse(os.path.join(HERE, "leg_assembly_left.xml")).getroot()
+    return _frames(root.find("worldbody"))
+
+
+def _detect_mirror(leg, prefix):
+    """Which mirror takes leg_assembly_left's frame onto this leg's frame.
+
+    Fitting the leg's own body positions (names compared with `prefix` stripped)
+    against each candidate separates the two conventions: an X mirror flips x
+    only, a Y mirror flips y only, and they disagree by 2x on every body that is
+    off both axes -- which is nearly all of them.
+    """
+    mine, src = _frames(leg, prefix), _source_frames()
+    common = [k for k in mine if k in src]
+    if len(common) < 5:
+        raise ValueError(f"leg subtree shares {len(common)} bodies with "
+                         f"leg_assembly_left, cannot place its pivots")
+    name, err = min(
+        ((n, max(float(np.linalg.norm(mine[k] - M @ src[k])) for k in common))
+         for n, M in MIRRORS.items()), key=lambda kv: kv[1])
+    if err > 1e-5:
+        raise ValueError(f"leg subtree matches no mirror of leg_assembly_left "
+                         f"(best {name} off by {err * 1000:.3f} mm)")
+    return name
+
+
+def _pivots(mirror):
+    """ankle/knee/hip pivots in this leg's own frame, for a given mirror."""
+    M = MIRRORS[mirror]
+    return {k: M @ SIDES["left"][k] for k in ("ankle", "knee", "hip")}
+
+
+def make_chain(side, leg_pos, leg_quat, sfx, leg, prefix=""):
+    """Re-rig the model's own leg subtree as
+    ``waist -> top -> hip -> knee -> ankle -> foot``.
 
     The top little-U is bolted to the waist horn (rigid with the waist), the hip
     servo folds the thigh below it, the knee servo folds the shin, the ankle
-    servo folds the foot. Body/joint names are prefixed with ``sfx``.
+    servo folds the foot.  Re-grouping the bodies the model already has (rather
+    than re-mounting a standalone leg file) leaves every geom's mesh, pos and
+    quat untouched, so the zero-angle pose stays exact whatever mirror the model
+    used; the measured pivots are mirrored to match (see MIRRORS).  The links and
+    joints this creates are prefixed with ``sfx``; the bodies it moves keep the
+    names they came with.
     """
-    cfg = SIDES[side]
     waist_p = WAIST[side]
-    ankle_p, knee_p, hip_p = cfg["ankle"], cfg["knee"], cfg["hip"]
+    pivots = _pivots(_detect_mirror(leg, prefix))
+    ankle_p, knee_p, hip_p = pivots["ankle"], pivots["knee"], pivots["hip"]
+    leg_foot = next(b for b in leg.findall("body")
+                    if b.get("name") == prefix + "foot")
 
-    leg_root = _setup(ET.parse(os.path.join(HERE, cfg["src"])))
-    leg_wb = leg_root.find("worldbody")
-    leg_foot = next(b for b in leg_wb.findall("body") if b.get("name") == "foot")
+    def grab(name):
+        return _take(leg, leg_foot, prefix + name)
 
     top = ET.Element("body", {"name": "leg_top", "pos": "0 0 0"})
     for nm in TOP:
-        _reparent(_take(leg_wb, leg_foot, nm), top, np.zeros(3))
+        _reparent(grab(nm), top, np.zeros(3))
 
     hip = ET.Element("body", {"name": "hip_link", "pos": _vec(hip_p)})
     ET.SubElement(hip, "joint", {"name": "hip_test", "type": "hinge",
                                  "axis": "0 1 0", "damping": "0.05"})
     for nm in THIGH:
-        _reparent(_take(leg_wb, leg_foot, nm), hip, hip_p)
+        _reparent(grab(nm), hip, hip_p)
     top.append(hip)
 
     knee = ET.Element("body", {"name": "knee_link", "pos": _vec(knee_p - hip_p)})
     ET.SubElement(knee, "joint", {"name": "knee_test", "type": "hinge",
                                   "axis": "0 1 0", "damping": "0.05"})
     for nm in SHIN:
-        _reparent(_take(leg_wb, leg_foot, nm), knee, knee_p)
+        _reparent(grab(nm), knee, knee_p)
     hip.append(knee)
 
     ankle = ET.Element("body", {"name": "ankle_link",
@@ -149,7 +231,7 @@ def make_chain(side, leg_pos, leg_quat, sfx):
     ET.SubElement(ankle, "joint", {"name": "ankle_test", "type": "hinge",
                                    "axis": "1 0 0", "damping": "0.05"})
     for nm in FOOT:
-        _reparent(_take(leg_wb, leg_foot, nm), ankle, ankle_p)
+        _reparent(grab(nm), ankle, ankle_p)
     # Whatever is left in the foot (foot mesh, multi bracket, ankle servo)
     # folds as one rigid piece about the ankle axis.
     for b in list(leg_foot.findall("body")):
@@ -170,17 +252,23 @@ def make_chain(side, leg_pos, leg_quat, sfx):
 
     if sfx:
         for el in waist.iter():
-            if el.get("name"):
+            if el.get("name") in LINK_NAMES:
                 el.set("name", sfx + el.get("name"))
     return waist
 
 
-def _detach_leg(wb, side):
+def _leg(wb, side):
+    """Detach the model's own leg subtree; return it, its name prefix and the
+    root pose the chain has to be hung back at."""
     leg = next(b for b in wb.findall("body") if b.get("name") == LEG[side])
     leg_pos = np.array([float(v) for v in leg.get("pos").split()])
-    leg_quat = leg.get("quat")
+    leg_quat = leg.get("quat", "1 0 0 0")
     wb.remove(leg)
-    return leg_pos, leg_quat
+    foot = next((b.get("name") for b in leg.findall("body")
+                 if (b.get("name") or "").endswith("foot")), None)
+    if foot is None:
+        raise KeyError(f"{LEG[side]} has no foot body")
+    return leg, foot[:-len("foot")], leg_pos, leg_quat
 
 
 def _write(root, dst):
@@ -191,8 +279,8 @@ def _write(root, dst):
 def build(dst, side, physics=False):
     root = _setup(ET.parse(os.path.join(HERE, CHEST[side])), physics)
     wb = root.find("worldbody")
-    leg_pos, leg_quat = _detach_leg(wb, side)
-    chain = make_chain(side, leg_pos, leg_quat, "")
+    leg, prefix, leg_pos, leg_quat = _leg(wb, side)
+    chain = make_chain(side, leg_pos, leg_quat, "", leg, prefix)
     wb.append(chain)
     if physics:
         _leg_collision(chain, 1, 2)
@@ -203,15 +291,13 @@ def build(dst, side, physics=False):
 def build_both(dst, physics=False):
     root = _setup(ET.parse(os.path.join(HERE, "chest_both_legs.xml")), physics)
     wb = root.find("worldbody")
-    geom = {}
-    for side in SIDES:
-        geom[side] = _detach_leg(wb, side)
+    legs = {side: _leg(wb, side) for side in SIDES}
     bits = {"left": (1, 2), "right": (2, 1)}
     names = []
     for side in SIDES:
-        leg_pos, leg_quat = geom[side]
+        leg, prefix, leg_pos, leg_quat = legs[side]
         sfx = side[0].upper() + "_"
-        chain = make_chain(side, leg_pos, leg_quat, sfx)
+        chain = make_chain(side, leg_pos, leg_quat, sfx, leg, prefix)
         if physics:
             _leg_collision(chain, *bits[side])
             names += [sfx + j for j in ("waist_test", "ankle_test",
@@ -240,6 +326,27 @@ def _act_id(m, name):
     return mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, name)
 
 
+def _choreo(t, sgn, waist_outward):
+    """Joint commands for one leg; ``sgn`` maps joint -> side/mirror sign.
+
+    waist_outward keeps the two legs apart in the two-leg render (the waist
+    then never adducts past centre, so the feet can never cross); the
+    single-leg renders keep the plain sine through zero.
+    """
+    w = (np.radians(WAIST_SWING_DEG) * (0.5 + 0.5 * np.sin(2 * np.pi * t))
+         if waist_outward else
+         np.radians(WAIST_SWING_DEG) * np.sin(2 * np.pi * t))
+    return {
+        "waist_test": w * sgn["waist_test"],
+        "ankle_test": np.radians(SWING_DEG) * sgn["ankle_test"]
+        * np.sin(2 * np.pi * t - np.pi / 2),
+        "knee_test": np.radians(SWING_DEG) * sgn["knee_test"]
+        * np.sin(2 * np.pi * t - np.pi),
+        "hip_test": np.radians(SWING_DEG) * sgn["hip_test"]
+        * np.sin(2 * np.pi * t - 3 * np.pi / 2),
+    }
+
+
 def render(path, out, side, physics=False):
     m = mujoco.MjModel.from_xml_path(path)
     d = mujoco.MjData(m)
@@ -251,24 +358,22 @@ def render(path, out, side, physics=False):
     cam = mujoco.MjvCamera()
     lookat, az = CAM[side]
     cam.lookat[:] = lookat
-    cam.distance = 0.62
+    cam.distance = 0.66
     cam.azimuth = az
     cam.elevation = -4
 
-    sign = SIDES[side]["sign"]
-    w_amp = np.radians(WAIST_SWING_DEG) * sign
-    amp = np.radians(SWING_DEG) * sign
+    sgn = {j: (RM[j] if side == "right" else 1.0) for j in joints}
     n = int(FPS * SECONDS)
     sub = _substep(m)
+    if physics:
+        for j, v in _choreo(0.0, sgn, False).items():
+            d.ctrl[act[j]] = v
+        for _ in range(int(SETTLE_SECONDS / m.opt.timestep)):
+            mujoco.mj_step(m, d)
     with _writer(out) as w:
         for i in range(n):
             t = (i / FPS) / SECONDS
-            target = {
-                "waist_test": w_amp * np.sin(2 * np.pi * t),
-                "ankle_test": amp * np.sin(2 * np.pi * t - np.pi / 2),
-                "knee_test": amp * np.sin(2 * np.pi * t - np.pi),
-                "hip_test": amp * np.sin(2 * np.pi * t - 3 * np.pi / 2),
-            }
+            target = _choreo(t, sgn, False)
             if physics:
                 for j, v in target.items():
                     d.ctrl[act[j]] = v
@@ -305,23 +410,18 @@ def render_both(path, out, physics=False):
 
     n = int(FPS * SECONDS)
     sub = _substep(m)
-    # Mirror map: to make the right leg a mirror image of the left, the right
-    # waist/ankle hinge signs are negated while knee/hip keep the left sign
-    # (verified: right foot == Mx(left foot) for all joint values).
-    RM = {"waist_test": -1.0, "ankle_test": -1.0,
-          "knee_test": 1.0, "hip_test": 1.0}
+    one = {j: 1.0 for j in ("waist_test", "ankle_test", "knee_test", "hip_test")}
+    sgn = {"left": one, "right": RM}
+    if physics:
+        for side in SIDES:
+            for j, v in _choreo(0.0, sgn[side], True).items():
+                d.ctrl[act[side, j]] = v
+        for _ in range(int(SETTLE_SECONDS / m.opt.timestep)):
+            mujoco.mj_step(m, d)
     with _writer(out) as w:
         for i in range(n):
             t = (i / FPS) / SECONDS
-            base = {
-                # waist moves outward only (never adducts past centre), so the
-                # two legs always stay apart and can never cross.
-                "waist_test": np.radians(WAIST_SWING_DEG) * (0.5 + 0.5 * np.sin(2 * np.pi * t)),
-                "ankle_test": np.radians(SWING_DEG) * np.sin(2 * np.pi * t - np.pi / 2),
-                "knee_test": np.radians(SWING_DEG) * np.sin(2 * np.pi * t - np.pi),
-                "hip_test": np.radians(SWING_DEG) * np.sin(2 * np.pi * t - 3 * np.pi / 2),
-            }
-            for j, v in base.items():
+            for j, v in _choreo(t, sgn["left"], True).items():
                 if physics:
                     d.ctrl[act["left", j]] = v
                     d.ctrl[act["right", j]] = RM[j] * v
