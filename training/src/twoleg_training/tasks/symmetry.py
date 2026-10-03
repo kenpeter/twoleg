@@ -55,7 +55,8 @@ _ACT_SIGN: list[float] = [
     1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, 1, 1, 1,
 ]
 
-# 57-dim actor obs. Left-right is X, forward is Y, up is Z.
+# 57-dim actor obs. Left-right is X, forward is -Y (face side), up is Z.
+# Mirror rules are unchanged: the face component keeps its sign under mirror.
 # base_lin_vel: negate lateral x.  base_ang_vel is a pseudovector: it keeps x
 # and negates y and z.  Gravity is a plain vector.  The twist command is
 # (lateral, forward, yaw), so it negates x and z.

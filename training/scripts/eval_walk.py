@@ -45,7 +45,7 @@ def main():
     # Global heading metric: the model's forward is body +y here, so reset
     # mjlab's +x default to avoid measuring side-sway as forward travel.
     robot.data.forward_vec_b[:] = 0.0
-    robot.data.forward_vec_b[:, 1] = 1.0
+    robot.data.forward_vec_b[:, 1] = -1.0
     twist = env.command_manager.get_term("twist")
 
     import math
@@ -60,7 +60,7 @@ def main():
     forward, P, H = [], [], []
     for _ in range(args.steps):
         cmd = torch.zeros_like(twist.command)
-        cmd[:, 1] = args.command
+        cmd[:, 1] = -args.command
         twist.command[:] = cmd
         with torch.no_grad():
             actions = policy(obs)

@@ -123,13 +123,13 @@ def test_env_builds_headless():
 
 
 def test_command_axis_forward_is_body_y():
-    """Forward command lives on body +y (TwoLeg's leg chain swings the shins
-    in the YZ plane; left-right is body +x)."""
+    """Forward command lives on body -y (face side: chest servos / wide head
+    box; leg chain swings the shins in the YZ plane; left-right is body +x)."""
     cfg = _cfg()
     assert cfg.commands["twist"].ranges.lin_vel_x == (-0.1, 0.1), \
         "lin_vel_x must be lateral"
-    assert cfg.commands["twist"].ranges.lin_vel_y == (0.0, 0.3), \
-        "lin_vel_y must be forward"
+    assert cfg.commands["twist"].ranges.lin_vel_y == (-0.3, 0.0), \
+        "lin_vel_y must be forward (negative = face direction)"
 
 
 def test_policy_runs_and_both_feet_load(tmp_path):
@@ -220,14 +220,14 @@ def test_forward_command_produces_forward_motion_not_sidestep(tmp_path):
     obs, _ = venv.reset()
     for _ in range(50):
         cmd = torch.zeros_like(twist.command)
-        cmd[:, 1] = 0.15
+        cmd[:, 1] = -0.15
         twist.command[:] = cmd
         with torch.no_grad():
             obs, _, _, _ = venv.step(policy(obs))
     fwd, lat = [], []
     for _ in range(100):
         cmd = torch.zeros_like(twist.command)
-        cmd[:, 1] = 0.15
+        cmd[:, 1] = -0.15
         twist.command[:] = cmd
         with torch.no_grad():
             obs, _, _, _ = venv.step(policy(obs))
@@ -237,7 +237,7 @@ def test_forward_command_produces_forward_motion_not_sidestep(tmp_path):
     fwd = torch.stack(fwd).mean(0).mean().item()
     lat = torch.stack(lat).mean(0).abs().mean().item()
     env.close()
-    assert fwd > 0.05, f"no forward motion on +y command: v_y={fwd:.3f}"
+    assert fwd < -0.05, f"no forward motion on -y command: v_y={fwd:.3f}"
     assert lat < 0.05, f"side-step regression: |v_x|={lat:.3f} not ~0"
 
 

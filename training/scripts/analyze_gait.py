@@ -55,7 +55,7 @@ def main():
     rf = []
     for _ in range(args.steps):
         cmd = torch.zeros_like(twist.command)
-        cmd[:, 1] = args.command  # forward is body +y
+        cmd[:, 1] = -args.command  # forward is body -y (face side)
         twist.command[:] = cmd
         with torch.no_grad():
             actions = policy(obs)

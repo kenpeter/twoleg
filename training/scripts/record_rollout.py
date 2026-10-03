@@ -49,13 +49,13 @@ def main():
 
     robot = env.scene["robot"]
     robot.data.forward_vec_b[:] = 0.0
-    robot.data.forward_vec_b[:, 1] = 1.0
+    robot.data.forward_vec_b[:, 1] = -1.0
     twist = env.command_manager.get_term("twist")
     step_dt = env.step_dt
     obs, _ = venv.reset()
     for _ in range(50):
         cmd = torch.zeros_like(twist.command)
-        cmd[:, 1] = args.command
+        cmd[:, 1] = -args.command
         twist.command[:] = cmd
         with torch.no_grad():
             obs, _, _, _ = venv.step(policy(obs))
@@ -66,7 +66,7 @@ def main():
     rows = []
     for s in range(args.steps):
         cmd = torch.zeros_like(twist.command)
-        cmd[:, 1] = args.command
+        cmd[:, 1] = -args.command
         twist.command[:] = cmd
         with torch.no_grad():
             obs, _, _, _ = venv.step(policy(obs))

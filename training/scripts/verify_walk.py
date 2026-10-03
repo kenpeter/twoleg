@@ -157,17 +157,17 @@ def main():
     policy = runner.get_inference_policy(device=args.device)
 
     robot = env.scene["robot"]
-    # This model's forward is body +y. mjlab hardcodes forward_vec_b to
+    # This model's forward is body -y (face side). mjlab hardcodes forward_vec_b to
     # body+x, so point it at the real forward axis; otherwise the travel
     # metric scores side-sway like a side-stepping gait.
     robot.data.forward_vec_b[:] = 0.0
-    robot.data.forward_vec_b[:, 1] = 1.0
+    robot.data.forward_vec_b[:, 1] = -1.0
     twist = env.command_manager.get_term("twist")
     step_dt = env.step_dt
     obs, _ = venv.reset()
     for _ in range(50):
         cmd = torch.zeros_like(twist.command)
-        cmd[:, 1] = args.command  # forward is body +y
+        cmd[:, 1] = -args.command  # forward is body -y (face side)
         twist.command[:] = cmd
         with torch.no_grad():
             obs, _, _, _ = venv.step(policy(obs))
@@ -178,7 +178,7 @@ def main():
     frames, P, H, C = [], [], [], []
     for _ in range(args.steps):
         cmd = torch.zeros_like(twist.command)
-        cmd[:, 1] = args.command  # forward is body +y
+        cmd[:, 1] = -args.command  # forward is body -y (face side)
         twist.command[:] = cmd
         with torch.no_grad():
             obs, _, _, _ = venv.step(policy(obs))

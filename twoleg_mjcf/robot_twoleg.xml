@@ -555,8 +555,8 @@
           </body>
         </body>
       </body>
-      <geom name="front_shaft" type="cylinder" size="0.004 0.07" pos="0 0.10 0.25" quat="0.7071068 -0.7071068 0 0" rgba="1 0.1 0.1 1" contype="0" conaffinity="0" />
-      <geom name="front_tip" type="cylinder" size="0.012 0.015" pos="0 0.19 0.25" quat="0.7071068 -0.7071068 0 0" rgba="1 0.1 0.1 1" contype="0" conaffinity="0" />
+      <geom name="front_shaft" type="cylinder" size="0.004 0.07" pos="0 -0.10 0.25" quat="0.7071068 0.7071068 0 0" rgba="1 0.1 0.1 1" contype="0" conaffinity="0" />
+      <geom name="front_tip" type="cylinder" size="0.012 0.015" pos="0 -0.19 0.25" quat="0.7071068 0.7071068 0 0" rgba="1 0.1 0.1 1" contype="0" conaffinity="0" />
     </body>
   </worldbody>
   <actuator>

@@ -34,11 +34,12 @@ from twoleg_training.robot.twoleg_constants import get_twoleg_robot_cfg
 from twoleg_training.tasks.curriculum import air_time_window, walk_command_ramp
 from twoleg_training.tasks.mdp import reward_weight, standing_envs_curriculum
 
-# Slow-walk command envelope. Forward is body +y: the leg kinematics
+# Slow-walk command envelope. Forward is body -y (face side: chest servos /
+# wide head box): the leg kinematics
 # (hip/knee hinge axes local Y, chain quats keep Y world-Y) swing the feet
 # in the YZ plane, and +x of this body is across the stance.
 LIN_VEL_X = (-0.1, 0.1)  # lateral
-LIN_VEL_Y = (0.0, 0.3)  # forward, slow
+LIN_VEL_Y = (-0.3, 0.0)  # forward (body -y, face side), slow
 ANG_VEL_Z = (-0.4, 0.4)
 
 # Gait-shaping constants ported from the microduck_rl velocity task.
@@ -194,7 +195,7 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     cfg.rewards["pose"].params["walking_threshold"] = 0.05
 
     # --- Commands: fixed slow-walk ranges. Forward lives in channel 1 because
-    # this body faces +y; see LIN_VEL_Y above. ---
+    # this body faces -y (chest servos / wide head box side); see LIN_VEL_Y above. ---
     command: UniformVelocityCommandCfg = cfg.commands["twist"]
     command.ranges.lin_vel_x = LIN_VEL_X
     command.ranges.lin_vel_y = LIN_VEL_Y
@@ -270,7 +271,7 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     cfg.viewer.body_name = "torso"
     cfg.viewer.distance = 0.8
     cfg.viewer.elevation = -10.0
-    # Face the robot. The model's front is +y (left-right is X, forward is Y,
+    # Face the robot. The model's front is -y (left-right is X, forward is -Y,
     # see symmetry.py). MuJoCo azimuth 0 puts the camera on -y, i.e. behind the
     # robot; azimuth 180 puts it on +y, looking at the face.
     cfg.viewer.azimuth = 180.0

@@ -275,15 +275,15 @@ def generate(dst, mesh_dir):
     base.append(ET.Element("site", {"name": "imu", "pos": "0 0 0.04", "size": "0.001"}))
     base.append(flat[ROOT_BODY])
     # Front indicator: red arrow welded to the free root, pointing at the
-    # model's forward (+y) so a side-on vs front-on render is unambiguous.
+    # model's forward (-y, face side) so a side-on vs front-on render is unambiguous.
     base.append(ET.Element("geom", {
         "name": "front_shaft", "type": "cylinder", "size": "0.004 0.07",
-        "pos": "0 0.10 0.25", "quat": "0.7071068 -0.7071068 0 0",
+        "pos": "0 -0.10 0.25", "quat": "0.7071068 0.7071068 0 0",
         "rgba": "1 0.1 0.1 1", "contype": "0", "conaffinity": "0",
     }))
     base.append(ET.Element("geom", {
         "name": "front_tip", "type": "cylinder", "size": "0.012 0.015",
-        "pos": "0 0.19 0.25", "quat": "0.7071068 -0.7071068 0 0",
+        "pos": "0 -0.19 0.25", "quat": "0.7071068 0.7071068 0 0",
         "rgba": "1 0.1 0.1 1", "contype": "0", "conaffinity": "0",
     }))
     worldbody.append(base)
