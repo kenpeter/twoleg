@@ -1,0 +1,1 @@
+{"name": "continue-1", "kind": "resume-train", "iters": 1000, "envs": 4096, "why": "reflector disabled; continuing microduck-exact resume", "change": "none (no reflector)"}

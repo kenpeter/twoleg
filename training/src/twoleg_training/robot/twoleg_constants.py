@@ -1,9 +1,10 @@
 """TwoLeg robot configuration for mjlab.
 
-Wraps ``training/assets/twoleg.xml`` (a copy of ``twoleg_mjcf/robot_twoleg.xml``
-plus an IMU site and built-in sensors) as an mjlab ``EntityCfg``. The XML's own
-``<position>`` actuators are reused via ``XmlActuatorCfg``, so no gains are
-re-specified here.
+Wraps ``training/assets/twoleg.xml`` as an mjlab ``EntityCfg``. That file is
+generated from the reference assembly by
+``training/scripts/generate_twoleg_model.py``; do not edit it by hand. The
+XML's own ``<position>`` actuators are reused via ``XmlActuatorCfg``, so no
+gains are re-specified here.
 """
 
 from pathlib import Path
@@ -21,43 +22,31 @@ def get_spec() -> mujoco.MjSpec:
     return mujoco.MjSpec.from_file(str(TWOLEG_XML))
 
 
-# 15 actuated joints, in XML actuator order.
+# 4 actuated joints only: hip and knee on each leg. Everything else
+# is welded in training/assets/twoleg.xml; see
+# training/scripts/generate_twoleg_model.py KEEP_JOINTS/WELD.
 JOINT_NAMES: tuple[str, ...] = (
-    "head_yaw",
-    "left_shoulder_pitch",
-    "left_elbow",
-    "left_shoulder_roll",
-    "right_shoulder_pitch",
-    "right_elbow",
-    "right_shoulder_roll",
-    "left_hip_roll",
-    "left_hip_pitch",
-    "left_knee",
-    "left_ankle",
-    "right_hip_roll",
-    "right_hip_pitch",
-    "right_knee",
-    "right_ankle",
+    "L_hip_test",
+    "L_knee_test",
+    "R_hip_test",
+    "R_knee_test",
 )
 
-# HOME pose = the STAND keyframe of robot_twoleg.xml: straight legs, arms tucked.
-# Regex keys are matched in order; the final ".*" is the catch-all.
+# HOME pose = the model's own zero pose (straight legs, arms down), with the
+# torso at the height that puts the feet on the ground. The generated model's
+# lowest point sits at -0.3197 m from the torso origin.
 INIT_STATE = EntityCfg.InitialStateCfg(
-    pos=(0.0, 0.0, 0.165),
-    joint_pos={
-        r"left_shoulder_roll": -0.4,
-        r"right_shoulder_roll": 0.4,
-        r"left_elbow": -0.62,
-        r"right_elbow": 0.62,
-        r".*": 0.0,
-    },
+    pos=(0.0, 0.0, 0.32),
+    joint_pos={".*": 0.0},
     joint_vel={".*": 0.0},
 )
 
-# The XML already gives the two foot boxes collision geoms and leaves the meshes
-# as visual-only, so no CollisionCfg is needed.
+# Collision geoms live in the XML (the reference assembly's leg and foot
+# meshes, with the ground bit added), so no CollisionCfg is needed.
+# Target the joints by name: a catch-all ".*" also matches the imu/foot sites and
+# makes mjlab warn that the actuator config may be aiming at the wrong namespace.
 TWOLEG_ARTICULATION = EntityArticulationInfoCfg(
-    actuators=(XmlActuatorCfg(target_names_expr=(r".*",)),),
+    actuators=(XmlActuatorCfg(target_names_expr=JOINT_NAMES),),
     soft_joint_pos_limit_factor=0.9,
 )
 
