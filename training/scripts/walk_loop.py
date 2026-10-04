@@ -95,14 +95,20 @@ def newest_model(run):
 
 def train_round(strategy, run, ckpt, fresh=False):
     """Launch a bounded training run detached, poll until it exits. Returns the
-    new run dir, or None on failure.
+    (run_dir, checkpoint) actually produced, or (None, None) on failure.
 
-    fresh=True  -> train from random init (NO --agent.resume / load flags).
-    fresh=False -> resume from (run, ckpt). ANY run we launch is always
-    recorded in state with its newest checkpoint, so it can be resumed later.
+    BUG FIX: resumed training writes checkpoints into the ORIGINAL run dir, not a
+    new one, so the old code's `set(run_dirs()) - before` diff returned nothing
+    and the loop exited 2 (data-loss). Now we also fall back to the resume target
+    dir and pick the newest model anywhere under logs/rsl_rl/velocity.
     """
     iters, envs = strategy["iters"], strategy["envs"]
     before = set(run_dirs())
+    before_ckpts = set(
+        os.path.join(TRAINING, "logs", "rsl_rl", "velocity", d, f)
+        for d in before for f in os.listdir(os.path.join(TRAINING, "logs", "rsl_rl", "velocity", d))
+        if f.startswith("model_") and f.endswith(".pt")
+    )
     logf = f"/tmp/opencode/loop_{strategy['name']}.log"
     if os.path.exists(logf):
         os.remove(logf)
@@ -110,9 +116,6 @@ def train_round(strategy, run, ckpt, fresh=False):
     if not fresh:
         resume_part = (f"--agent.resume True --agent.load-run {run} "
                        f"--agent.load-checkpoint {ckpt} ")
-    # xvfb-run wraps train: --video True needs a GL context, and this host has
-    # no real display. Without it the child dies at renderer init (caught as
-    # "no new run dir appeared").
     cmd = (f"setsid nohup xvfb-run -a -s \"-screen 0 800x600x24\" "
            f"uv run --no-sync train {TASK} "
            f"--env.scene.num-envs {envs} --agent.max-iterations {iters} "
@@ -120,10 +123,6 @@ def train_round(strategy, run, ckpt, fresh=False):
            f"> {logf} 2>&1 < /dev/null &")
     subprocess.Popen(cmd, shell=True, cwd=TRAINING,
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    # Generous wall-clock budget: ~1.0s/iter on this 150W-capped 4070 Ti plus
-    # startup (xvfb+uv+cuda) slack. Never pkill a healthy run that is still
-    # making progress -- only give up if the proc actually died. The earlier
-    # iters*2.0+600 budget was too tight and killed a resume at iter 3255.
     deadline = time.time() + iters * 1.0 + 1800.0
     launched = False
     while time.time() < deadline:
@@ -135,17 +134,27 @@ def train_round(strategy, run, ckpt, fresh=False):
         elif launched:
             break  # proc exited on its own -> run finished (or crashed)
     if time.time() >= deadline and launched:
-        # Only reached if the proc is STILL alive past budget. Log but do not
-        # kill; let it keep training and pick up the newer checkpoint.
         print(f"train round still running past budget ({iters} iters); "
               f"continuing to poll for checkpoint")
-    after = set(run_dirs())
-    new = sorted(after - before)
-    if not new:
-        print("no new run dir appeared; check", logf)
-        return None
-    print(f"round done, new run dir: {new[-1]}")
-    return new[-1]
+    after_ckpts = set(
+        os.path.join(TRAINING, "logs", "rsl_rl", "velocity", d, f)
+        for d in run_dirs() for f in os.listdir(os.path.join(TRAINING, "logs", "rsl_rl", "velocity", d))
+        if f.startswith("model_") and f.endswith(".pt")
+    )
+    new_ckpts = sorted(after_ckpts - before_ckpts)
+    if not new_ckpts:
+        # Resumed training writes into the original dir (no new dir). Fall back
+        # to the resume target dir's newest ckpt if it advanced past `ckpt`.
+        if not fresh and run:
+            cand = newest_model(run)
+            if cand and cand != ckpt:
+                return run, cand
+        print("no new checkpoint appeared; check", logf)
+        return None, None
+    newest = new_ckpts[-1]
+    # run dir is the parent of the newest checkpoint path
+    run_dir = os.path.basename(os.path.dirname(newest))
+    return run_dir, os.path.basename(newest)
 
 
 def verify(run, ckpt):
@@ -180,11 +189,11 @@ def reflect(state):
     reversible change. Returns a strategy dict. Never invents a rewrite."""
     v = state.get("last_verdict") or {}
     reasons = "; ".join(v.get("reasons", [])) or "no verdict"
-    left = v.get("left_duty", "?")
-    right = v.get("right_duty", "?")
-    speed = v.get("speed", "?")
-    last_min = v.get("last_min_duty", "?")
-    last_alt = v.get("last_frame_alt", "?")
+    left = v.get("left_duty_mean", "?")
+    right = v.get("right_duty_mean", "?")
+    speed = v.get("speed_mean", "?")
+    last_alt = v.get("last_frame_alt_mean", "?")
+    roll = v.get("rolling_pass_frac", "?")
     video = state.get("last_video") or v.get("video") or ""
     round_n = state["rounds_done"] + 1
 
@@ -194,7 +203,7 @@ def reflect(state):
         f"VERIFIER VERDICT (last-frames aware):\n"
         f"  reasons: {reasons}\n"
         f"  duty left={left} right={right}  speed={speed}\n"
-        f"  LAST-frames min duty={last_min}  last frame_alt={last_alt}\n\n"
+        f"  LAST-frames alt={last_alt}  rolling_pass_frac={roll}\n\n"
         f"WATCH THE VIDEO before deciding: {video}\n"
         f"Open it and look at the FINAL frames. Is the robot upright? Are BOTH "
         f"feet on the ground bearing load, or did it collapse onto one leg / fall? "
@@ -239,7 +248,7 @@ def reflect(state):
         print(f"reflect: opencode unavailable ({e}); fallback duty-balance")
         return {"name": f"duty-balance-{round_n}", "kind": "resume-train",
                 "iters": 1000, "envs": 4096,
-                "why": f"fallback: still collapsing (last min duty {last_min}). "
+                "why": f"fallback: still failing (frame_alt {last_alt}, roll {roll}). "
                        f"Add duty-balance reward so both legs bear load.",
                 "change": "add left/right duty-balance term to reward"}
 
@@ -317,8 +326,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--from-run", default=None)
     ap.add_argument("--from-checkpoint", default=None)
-    ap.add_argument("--rounds", type=int, default=0,
-                    help="max rounds; 0 = infinite loop until WALKS (default)")
+    ap.add_argument("--rounds", type=int, default=1,
+                    help="rounds per invocation; the loop_forever.sh supervisor "
+                         "re-invokes to make it infinite. 1 = one round then exit.")
     ap.add_argument("--reflect-only", action="store_true")
     ap.add_argument("--no-reflect", action="store_true",
                     help="skip the opencode reflector; always use the fallback "
@@ -352,7 +362,7 @@ def main():
             return SEED_STRATEGY
         return reflect(state)
 
-    for step in range(args.rounds) if args.rounds and args.rounds > 0 else iter(int, 1):
+    for step in range(max(1, args.rounds)):
         st = pick_strategy(state)
         append_strategy(st)
         fresh = (state.get("run") is None)  # first ever run = fresh from init
@@ -360,13 +370,12 @@ def main():
                 f"{'FRESH' if fresh else 'from ' + ckpt}",
                 st.get("why", ""), f"logs/rsl_rl/velocity/{run}/{ckpt}",
                 "training")
-        new_run = train_round(st, run, ckpt, fresh=fresh)
-        if new_run is None:
-            log_row("loop", f"{st['name']} failed to produce a run", "see loop log",
+        new_run, new_ckpt = train_round(st, run, ckpt, fresh=fresh)
+        if new_run is None or new_ckpt is None:
+            log_row("loop", f"{st['name']} failed to produce a run/ckpt", "see loop log",
                     f"/tmp/opencode/loop_{st['name']}.log", "failed")
             sys.exit(2)
-        new_ckpt = newest_model(new_run)
-        if new_ckpt is None:
+        if not os.path.exists(os.path.join(TRAINING, "logs", "rsl_rl", "velocity", new_run, new_ckpt)):
             log_row("loop", f"{st['name']} produced no checkpoint (training died)",
                     "see loop log", f"/tmp/opencode/loop_{st['name']}.log", "failed")
             sys.exit(2)

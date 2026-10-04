@@ -2,6 +2,9 @@
  "rounds_done": 0,
  "run": null,
  "checkpoint": null,
- "last_verdict": null,
+ "last_verdict": {
+   "verdict": "FRESH-START",
+   "note": "User chose FRESH over resuming model_499 (which measured frame_alt=-1.0 inverted, L/R 0.339/0.074 collapsed onto right leg). Resuming an inverted model under the new 25deg fell_over would kill episodes on step 1 -> no learning. Fresh start under the fixed config (fell_over 25deg, upright 2.0 microduck-exact, no torso_inverted spawn-death bug) learns posture correctly."
+ },
  "last_video": null
 }
