@@ -65,14 +65,18 @@ def test_reward_weights_match_microduck_exact():
         assert abs(got - val) < 1e-5, f"{key}: got {got}, expected {val}"
 
 
-def test_both_feet_air_time_absent():
-    """We removed both_feet_air_time to follow microduck exactly.
+def test_both_feet_air_time_present():
+    """The alternation-gated anti-hop term must be wired at weight 5.0.
 
-    Catches: accidental re-add of the H2 term that gamed one-leg hopping.
+    Catches: removing the term again and re-enabling the two-foot hop the raw
+    air_time term rewards (it sums over feet and pays double for double flight).
     """
     cfg = _cfg()
-    assert "both_feet_air_time" not in cfg.rewards, \
-        "both_feet_air_time must stay removed (microduck has none)"
+    assert "both_feet_air_time" in cfg.rewards, \
+        "both_feet_air_time must be present to price alternation"
+    term = cfg.rewards["both_feet_air_time"]
+    assert term.weight == 5.0, f"expected weight 5.0, got {term.weight}"
+    assert term.params["sensor_name"] == "feet_ground_contact"
 
 
 def test_standing_envs_starts_small():
@@ -96,16 +100,20 @@ def test_symmetry_matches_microduck():
     assert SYMMETRY_CFG["mirror_loss_coeff"] == 0.5
 
 
-def test_six_leg_joints_actuated():
-    """Hips, knees AND ankles must be actuated (push-off needs ankles).
+def test_fifteen_joints_actuated():
+    """All 15 real servos must be actuated: head, 6 arm joints, 8 leg joints.
 
-    Catches: the generator re-welding the ankles back to the 4-joint stand.
+    Catches: the generator re-welding any arm, head, or leg servo.
     """
     from twoleg_training.robot.twoleg_constants import JOINT_NAMES
     assert set(JOINT_NAMES) == {
-        "L_hip_test", "L_knee_test", "L_ankle_test",
-        "R_hip_test", "R_knee_test", "R_ankle_test",
-    }, f"ankles must be actuated: {JOINT_NAMES}"
+        "head",
+        "shoulder_test", "elbow_test", "wrist_test",
+        "shoulder_test_R", "elbow_test_R", "wrist_test_R",
+        "L_waist_test", "L_hip_test", "L_knee_test", "L_ankle_test",
+        "R_waist_test", "R_hip_test", "R_knee_test", "R_ankle_test",
+    }, f"all 15 servos must be actuated: {JOINT_NAMES}"
+    assert len(JOINT_NAMES) == 15, f"expected 15 joints, got {len(JOINT_NAMES)}"
 
 
 def test_curricula_present():

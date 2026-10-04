@@ -173,6 +173,7 @@
           <geom name="sh_d_nut" type="cylinder" size="0.003 0.0012" pos="-0.103000 -0.020275 0.084080" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
         </body>
         <body name="head_link" pos="-0.06604 0.013884 -3.4e-05" quat="0.707106781 0 -0.707106781 0">
+          <joint name="head" type="hinge" axis="0.000000 0.000000 1.000000" damping="0.05" frictionloss="0.02" armature="0.01" />
           <body name="head_servo" pos="0.000034 -0.009884 0.022960" quat="0 1 0 0">
             <geom name="head_servo_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027000 -0.021500" contype="0" conaffinity="0" />
             <geom name="head_servo_c" mesh="servo" class="collision" material="dark" pos="-0.009752 -0.027000 -0.021500" density="1600" contype="0" conaffinity="0" />
@@ -195,6 +196,7 @@
               <geom name="horn_2_c" mesh="horn" class="collision" material="horn" pos="-0.01 -0.0026 -0.01" density="2700" contype="0" conaffinity="0" />
             </body>
             <body name="shoulder_test_link" pos="0.016087 0.000000 -0.001945">
+              <joint name="shoulder_test" type="hinge" axis="0.000000 1.000000 0.000000" damping="0.05" frictionloss="0.02" armature="0.01" />
               <geom name="base_screw_1" type="cylinder" size="0.0016 0.005" pos="-0.009487 0.022100 -0.028555" material="dark" contype="0" conaffinity="0" group="2" />
               <geom name="base_screw_2" type="cylinder" size="0.0016 0.005" pos="0.004513 0.022100 -0.028555" material="dark" contype="0" conaffinity="0" group="2" />
               <geom name="base_screw_3" type="cylinder" size="0.0016 0.005" pos="-0.002587 0.029100 -0.028555" material="dark" contype="0" conaffinity="0" group="2" />
@@ -224,6 +226,7 @@
                 <geom name="far_bearing_v" mesh="bearing" class="visual" material="steel" pos="-0.00475 -0.0015 -0.00475" contype="0" conaffinity="0" />
               </body>
               <body name="elbow_test_link" pos="-0.002837 0.000481 -0.079305">
+                <joint name="elbow_test" type="hinge" axis="0.000000 1.000000 0.000000" damping="0.05" frictionloss="0.02" armature="0.01" />
                 <body name="forearm" pos="-0.012500 -0.000981 -0.009750" quat="1.000000 0.000000 0.000000 0.000000">
                   <body name="multi_0_f" pos="0.013500 0.022000 0.000000" quat="0.000000 0.707107 0.000000 0.707107">
                     <geom name="multi_0_f_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125" contype="0" conaffinity="0" />
@@ -239,6 +242,7 @@
                   </body>
                 </body>
                 <body name="wrist_test_link" pos="0.000250 -0.007981 0.000250">
+                  <joint name="wrist_test" type="hinge" axis="0.000000 1.000000 0.000000" damping="0.05" frictionloss="0.02" armature="0.01" />
                   <geom name="horn_s0_f" type="cylinder" size="0.0016 0.004" pos="-0.007250 0.000000 0.006750" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
                   <geom name="horn_s1_f" type="cylinder" size="0.0016 0.004" pos="0.006750 0.000000 0.006750" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
                   <geom name="horn_s2_f" type="cylinder" size="0.0016 0.004" pos="-0.007250 0.000000 -0.007250" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
@@ -271,6 +275,7 @@
               <geom name="horn_2_c_R" mesh="horn_r" class="collision" material="horn" pos="0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
             </body>
             <body name="shoulder_test_R_link" pos="-0.016087 0.000000 -0.001945">
+              <joint name="shoulder_test_R" type="hinge" axis="0.000000 1.000000 0.000000" damping="0.05" frictionloss="0.02" armature="0.01" />
               <geom name="base_screw_1_R" type="cylinder" size="0.0016 0.005" pos="0.009487 0.022100 -0.028555" material="dark" contype="0" conaffinity="0" group="2" />
               <geom name="base_screw_2_R" type="cylinder" size="0.0016 0.005" pos="-0.004513 0.022100 -0.028555" material="dark" contype="0" conaffinity="0" group="2" />
               <geom name="base_screw_3_R" type="cylinder" size="0.0016 0.005" pos="0.002587 0.029100 -0.028555" material="dark" contype="0" conaffinity="0" group="2" />
@@ -300,6 +305,7 @@
                 <geom name="far_bearing_v_R" mesh="bearing_r" class="visual" material="steel" pos="0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
               </body>
               <body name="elbow_test_R_link" pos="0.002837 0.000481 -0.079305">
+                <joint name="elbow_test_R" type="hinge" axis="0.000000 1.000000 0.000000" damping="0.05" frictionloss="0.02" armature="0.01" />
                 <body name="forearm_R" pos="0.012500 -0.000981 -0.009750" quat="1.000000 0.000000 -0.000000 -0.000000">
                   <body name="multi_0_f_R" pos="-0.013500 0.022000 0.000000" quat="0.000000 0.707107 -0.000000 -0.707107">
                     <geom name="multi_0_f_v_R" mesh="multi_r" class="visual" material="bracket" pos="0.029000 -0.018500 -0.012500" contype="0" conaffinity="0" />
@@ -315,6 +321,7 @@
                   </body>
                 </body>
                 <body name="wrist_test_R_link" pos="-0.000250 -0.007981 0.000250">
+                  <joint name="wrist_test_R" type="hinge" axis="0.000000 1.000000 0.000000" damping="0.05" frictionloss="0.02" armature="0.01" />
                   <geom name="horn_s0_f_R" type="cylinder" size="0.0016 0.004" pos="0.007250 0.000000 0.006750" quat="0.707107 0.707107 -0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
                   <geom name="horn_s1_f_R" type="cylinder" size="0.0016 0.004" pos="-0.006750 0.000000 0.006750" quat="0.707107 0.707107 -0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
                   <geom name="horn_s2_f_R" type="cylinder" size="0.0016 0.004" pos="0.007250 0.000000 -0.007250" quat="0.707107 0.707107 -0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
@@ -329,6 +336,7 @@
           </body>
         </body>
         <body name="L_waist_link" pos="0.026 -0.001 -0.037449" quat="0.707106781 0 -0.707106781 0">
+          <joint name="L_waist_test" type="hinge" axis="0 1 0" damping="0.05" frictionloss="0.02" armature="0.01" />
           <body name="L_leg_top" pos="0.003249 -0.017500 -0.238500" quat="0.707107 0 0 0.707107">
             <body name="waist_L_link" pos="-0.01046 0.002834 0.238034" quat="0.707106781 0 0 -0.707106781">
               <body name="waist_servo_L_horn" pos="0.000034 0.000960 -0.000034" quat="0.707107 0 0.707107 0">
@@ -443,6 +451,7 @@
           </body>
         </body>
         <body name="R_waist_link" pos="0.026 -0.001 0.037449" quat="0.707106781 0 -0.707106781 0">
+          <joint name="R_waist_test" type="hinge" axis="0 1 0" damping="0.05" frictionloss="0.02" armature="0.01" />
           <body name="R_leg_top" pos="-0.003249 -0.017500 -0.238500" quat="0.707107 0 0 -0.707107">
             <body name="waist_R_link" pos="0.01046 0.002766 0.238034" quat="0.707106781 0 0 0.707106781">
               <body name="waist_servo_R_horn" pos="0.000034 0.000960 -0.000034" quat="0.707107 0 0.707107 0">
@@ -562,9 +571,18 @@
     </body>
   </worldbody>
   <actuator>
+    <position name="head" joint="head" kp="6" dampratio="1" ctrlrange="-1.4 1.4" />
+    <position name="shoulder_test" joint="shoulder_test" kp="6" dampratio="1" ctrlrange="-1.4 1.4" />
+    <position name="elbow_test" joint="elbow_test" kp="6" dampratio="1" ctrlrange="-1.4 1.4" />
+    <position name="wrist_test" joint="wrist_test" kp="6" dampratio="1" ctrlrange="-1.4 1.4" />
+    <position name="shoulder_test_R" joint="shoulder_test_R" kp="6" dampratio="1" ctrlrange="-1.4 1.4" />
+    <position name="elbow_test_R" joint="elbow_test_R" kp="6" dampratio="1" ctrlrange="-1.4 1.4" />
+    <position name="wrist_test_R" joint="wrist_test_R" kp="6" dampratio="1" ctrlrange="-1.4 1.4" />
+    <position name="L_waist_test" joint="L_waist_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
     <position name="L_ankle_test" joint="L_ankle_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
     <position name="L_knee_test" joint="L_knee_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
     <position name="L_hip_test" joint="L_hip_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
+    <position name="R_waist_test" joint="R_waist_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
     <position name="R_ankle_test" joint="R_ankle_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
     <position name="R_knee_test" joint="R_knee_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
     <position name="R_hip_test" joint="R_hip_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />

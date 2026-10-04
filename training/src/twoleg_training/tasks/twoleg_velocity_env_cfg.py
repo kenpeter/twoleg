@@ -32,7 +32,11 @@ from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
 
 from twoleg_training.robot.twoleg_constants import get_twoleg_robot_cfg
 from twoleg_training.tasks.curriculum import air_time_window, walk_command_ramp
-from twoleg_training.tasks.mdp import reward_weight, standing_envs_curriculum
+from twoleg_training.tasks.mdp import (
+    both_feet_air_time,
+    reward_weight,
+    standing_envs_curriculum,
+)
 
 # Slow-walk command envelope. Forward is body -y (face side: chest servos /
 # wide head box): the leg kinematics
@@ -160,10 +164,21 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         params={"sensor_name": "self_collision"},
     )
 
-    # NOTE: both_feet_air_time (our H2 anti-hop term) is REMOVED to follow
-    # microduck_rl exactly -- microduck achieves symmetric two-legged gait via the
-    # reward + curricula below, not an explicit both-feet term. If one-leg hopping
-    # returns, re-add it (weight 5.0, func both_feet_air_time).
+    # Anti-hop: pay a foot's swing only while the OTHER foot is in stance, so
+    # single-support alternation earns and a two-foot hop earns nothing. Raw
+    # air_time (weight 3.0) sums over feet and pays double for double flight,
+    # which the policy flew; this term prices the alternation that term omits.
+    cfg.rewards["both_feet_air_time"] = RewardTermCfg(
+        func=both_feet_air_time,
+        weight=5.0,
+        params={
+            "sensor_name": "feet_ground_contact",
+            "threshold_min": 0.125,
+            "threshold_max": 0.300,
+            "command_name": "twist",
+            "command_threshold": COMMAND_THRESHOLD,
+        },
+    )
 
     cfg.rewards["track_linear_velocity"].weight = 2.0
     cfg.rewards["track_linear_velocity"].params["std"] = math.sqrt(0.1)
@@ -191,14 +206,24 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # Joint posture: hold HOME when standing, allow motion when walking.
     cfg.rewards["pose"].weight = 1.0
     cfg.rewards["pose"].params["std_standing"] = {
+        r".*waist.*": 0.1,
         r".*hip.*": 0.1,
         r".*knee.*": 0.1,
         r".*ankle.*": 0.1,
+        r".*shoulder.*": 0.1,
+        r".*elbow.*": 0.1,
+        r".*wrist.*": 0.1,
+        r".*head.*": 0.1,
     }
     cfg.rewards["pose"].params["std_walking"] = {
+        r".*waist.*": 0.4,
         r".*hip.*": 0.4,
         r".*knee.*": 0.4,
         r".*ankle.*": 0.25,
+        r".*shoulder.*": 0.4,
+        r".*elbow.*": 0.4,
+        r".*wrist.*": 0.4,
+        r".*head.*": 0.3,
     }
     cfg.rewards["pose"].params["std_running"] = cfg.rewards["pose"].params["std_walking"]
     cfg.rewards["pose"].params["asset_cfg"] = SceneEntityCfg("robot", joint_names=(r".*",))

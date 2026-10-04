@@ -16,7 +16,7 @@ This script rebuilds the same parts into a connected kinematic tree:
   two hinges on one shaft (``waist_L`` on the horn branch, ``L_waist_test`` on
   the leg branch), which would give the leg two serial hinges in one place. The
   leg-side hinge is kept and the horn branch is welded into the leg, giving the
-  mechanism's true 17 actuated joints.
+  mechanism's true 15 actuated joints.
 * geoms, and therefore mass and inertia, carried over untouched. The reference
   has no explicit ``<inertial>`` blocks, so MuJoCo infers mass from the geom
   densities (aluminium 2700, servo bodies 1600, visual geoms 0), which totals
@@ -101,11 +101,17 @@ DUPLICATE_WAIST_JOINTS = ("waist_L", "waist_R")
 WELDED_STATIC = ("abduct_L_link", "abduct_R_link")
 DROP_ACTUATORS = ("abduct_L", "abduct_R")
 
-# 6-servo stance: hips, knees and ankles stay actuated (ankles give the
-# push-off a gait needs). The other hinges are welded (joint elements removed)
-# and every other actuator is dropped.
-KEEP_JOINTS = ("L_hip_test", "R_hip_test", "L_knee_test", "R_knee_test",
-               "L_ankle_test", "R_ankle_test")
+# Full 15-servo stance: every real servo. Head, both arms (shoulder, elbow,
+# wrist) and both legs (waist, hip, knee, ankle). The abduct hinges have no
+# real actuator and the duplicate waist horns (waist_L/R) are welded into the
+# legs, so neither is kept. Order matches the generated actuator list.
+KEEP_JOINTS = (
+    "head",
+    "shoulder_test", "elbow_test", "wrist_test",
+    "shoulder_test_R", "elbow_test_R", "wrist_test_R",
+    "L_waist_test", "L_ankle_test", "L_knee_test", "L_hip_test",
+    "R_waist_test", "R_ankle_test", "R_knee_test", "R_hip_test",
+)
 WELD = True
 
 # Collision geometry. The reference enables 26 mesh geoms across the two legs,
@@ -296,8 +302,8 @@ def generate(dst, mesh_dir):
     # both would give the leg two serial hinges in the same place. The leg-side
     # hinge stays; the horn branch is welded into the leg.
     #
-    # Then weld everything except the four hip/ankle hinges: the 4-servo
-    # configuration used in this debugging/teaching run. Every mubljoint
+    # Then weld everything except the 15 real servos: the full-robot
+    # configuration used in this run. Every mubljoint
     # transformation you kept is still valid (joint transforms stay in the
     # body's pos/quat wrt parent); a nested joint removed just makes the
     # subtree rigid with the parent's frame.
