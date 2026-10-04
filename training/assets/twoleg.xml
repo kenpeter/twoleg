@@ -416,6 +416,7 @@
                   <geom name="L_knee_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
                 </body>
                 <body name="L_ankle_link" pos="-0.024500 0.024000 -0.062000">
+                  <joint name="L_ankle_test" type="hinge" axis="1 0 0" damping="0.05" frictionloss="0.02" armature="0.01" />
                   <body name="L_ankle_pivot_shaft" pos="0.048500 0.000000 0.000000">
                     <geom name="L_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
                   </body>
@@ -529,6 +530,7 @@
                   <geom name="R_knee_pivot_bearing_g" type="mesh" mesh="bearing_r" class="visual" material="steel" pos="0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
                 </body>
                 <body name="R_ankle_link" pos="0.024500 0.024000 -0.062000">
+                  <joint name="R_ankle_test" type="hinge" axis="1 0 0" damping="0.05" frictionloss="0.02" armature="0.01" />
                   <body name="R_ankle_pivot_shaft" pos="-0.048500 0.000000 0.000000">
                     <geom name="R_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 -0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
                   </body>
@@ -560,8 +562,10 @@
     </body>
   </worldbody>
   <actuator>
+    <position name="L_ankle_test" joint="L_ankle_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
     <position name="L_knee_test" joint="L_knee_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
     <position name="L_hip_test" joint="L_hip_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
+    <position name="R_ankle_test" joint="R_ankle_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
     <position name="R_knee_test" joint="R_knee_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
     <position name="R_hip_test" joint="R_hip_test" kp="40" dampratio="1" ctrlrange="-1.4 1.4" />
   </actuator>

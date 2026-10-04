@@ -96,6 +96,18 @@ def test_symmetry_matches_microduck():
     assert SYMMETRY_CFG["mirror_loss_coeff"] == 0.5
 
 
+def test_six_leg_joints_actuated():
+    """Hips, knees AND ankles must be actuated (push-off needs ankles).
+
+    Catches: the generator re-welding the ankles back to the 4-joint stand.
+    """
+    from twoleg_training.robot.twoleg_constants import JOINT_NAMES
+    assert set(JOINT_NAMES) == {
+        "L_hip_test", "L_knee_test", "L_ankle_test",
+        "R_hip_test", "R_knee_test", "R_ankle_test",
+    }, f"ankles must be actuated: {JOINT_NAMES}"
+
+
 def test_curricula_present():
     """The two microduck ramps must be wired (action_rate + standing_envs).
 
@@ -123,13 +135,16 @@ def test_env_builds_headless():
 
 
 def test_command_axis_forward_is_body_y():
-    """Forward command lives on body -y (face side: chest servos / wide head
-    box; leg chain swings the shins in the YZ plane; left-right is body +x)."""
+    """Forward command lives on body y (face side: chest servos / wide head
+    box; leg chain swings the shins in the YZ plane; left-right is body +x).
+    Ranges follow duck: wide enough that shuffle cannot track them."""
     cfg = _cfg()
-    assert cfg.commands["twist"].ranges.lin_vel_x == (-0.1, 0.1), \
+    assert cfg.commands["twist"].ranges.lin_vel_x == (-0.4, 0.4), \
         "lin_vel_x must be lateral"
-    assert cfg.commands["twist"].ranges.lin_vel_y == (-0.3, 0.0), \
-        "lin_vel_y must be forward (negative = face direction)"
+    assert cfg.commands["twist"].ranges.lin_vel_y == (-0.3, 0.3), \
+        "lin_vel_y must span forward and back"
+    assert cfg.commands["twist"].ranges.ang_vel_z == (-1.0, 1.0), \
+        "ang_vel_z must allow real turns"
 
 
 def test_policy_runs_and_both_feet_load(tmp_path):

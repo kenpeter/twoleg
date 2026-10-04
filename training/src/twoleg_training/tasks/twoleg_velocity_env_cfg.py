@@ -38,9 +38,9 @@ from twoleg_training.tasks.mdp import reward_weight, standing_envs_curriculum
 # wide head box): the leg kinematics
 # (hip/knee hinge axes local Y, chain quats keep Y world-Y) swing the feet
 # in the YZ plane, and +x of this body is across the stance.
-LIN_VEL_X = (-0.1, 0.1)  # lateral
-LIN_VEL_Y = (-0.3, 0.0)  # forward (body -y, face side), slow
-ANG_VEL_Z = (-0.4, 0.4)
+LIN_VEL_X = (-0.4, 0.4)  # lateral
+LIN_VEL_Y = (-0.3, 0.3)  # forward (body -y, face side)
+ANG_VEL_Z = (-1.0, 1.0)
 
 # Gait-shaping constants ported from the microduck_rl velocity task.
 FOOT_SITES = ("left_foot", "right_foot")
@@ -101,7 +101,7 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     cfg.scene.terrain.terrain_generator = None
 
     # --- Actuation: XML position servos; action = target offset in radians. ---
-    cfg.actions["joint_pos"].scale = 0.5
+    cfg.actions["joint_pos"].scale = 1.0
 
     # --- Solver: the reference assembly carries 26 collision geoms per leg pair
     # against the old model's two foot boxes, so the default contact capacity is
@@ -113,6 +113,14 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # terms microduck_rl gives it, which the restored sensors now feed. ---
     del cfg.observations["actor"].terms["height_scan"]
     del cfg.observations["critic"].terms["height_scan"]
+
+    # Obs noise: duck tuned these 5-50x below template after audit (lines 587-590
+    # of microduck_velocity_env_cfg.py). Template noise punishes dynamic motion.
+    from mjlab.utils.noise import UniformNoiseCfg as Unoise
+    cfg.observations["actor"].terms["base_ang_vel"].noise = Unoise(n_min=-0.03, n_max=0.03)
+    cfg.observations["actor"].terms["projected_gravity"].noise = Unoise(n_min=-0.01, n_max=0.01)
+    cfg.observations["actor"].terms["joint_pos"].noise = Unoise(n_min=-0.001, n_max=0.001)
+    cfg.observations["actor"].terms["joint_vel"].noise = Unoise(n_min=-0.25, n_max=0.25)
 
     # --- Rewards: restore the gait terms, sized for a 0.2 m leg on a 1.26 kg body. ---
     cfg.rewards.pop("soft_landing", None)  # Dropped in microduck_rl's reward set too.
@@ -185,10 +193,12 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     cfg.rewards["pose"].params["std_standing"] = {
         r".*hip.*": 0.1,
         r".*knee.*": 0.1,
+        r".*ankle.*": 0.1,
     }
     cfg.rewards["pose"].params["std_walking"] = {
         r".*hip.*": 0.4,
         r".*knee.*": 0.4,
+        r".*ankle.*": 0.25,
     }
     cfg.rewards["pose"].params["std_running"] = cfg.rewards["pose"].params["std_walking"]
     cfg.rewards["pose"].params["asset_cfg"] = SceneEntityCfg("robot", joint_names=(r".*",))
@@ -208,6 +218,7 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # later than a verified walk.
     command.rel_standing_envs = 0.02
     command.rel_heading_envs = 0.0
+    command.rel_turn_in_place_envs = 0.15
 
     # --- Events: point DR at our bodies/geoms, reset at standing height. ---
     cfg.events["reset_base"].params["pose_range"]["z"] = (0.31, 0.33)
@@ -215,7 +226,9 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         "L_foot_collision",
         "R_foot_collision",
     )
+    cfg.events["foot_friction"].params["ranges"] = (0.7, 1.3)
     cfg.events["base_com"].params["asset_cfg"].body_names = ("torso",)
+    cfg.events["push_robot"].interval_range_s = (3.0, 6.0)
     cfg.events["push_robot"].params["velocity_range"] = {"x": (-0.2, 0.2), "y": (-0.2, 0.2)}
 
     # --- Terminations: time_out + fell_over (mjlab's bad_orientation already

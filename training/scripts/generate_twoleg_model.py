@@ -101,10 +101,11 @@ DUPLICATE_WAIST_JOINTS = ("waist_L", "waist_R")
 WELDED_STATIC = ("abduct_L_link", "abduct_R_link")
 DROP_ACTUATORS = ("abduct_L", "abduct_R")
 
-# 4-servo debugging stance: only the two hip and two ankle hinges stay
-# actuated. The other hinges are welded (joint elements removed) and every
-# other actuator is dropped.
-KEEP_JOINTS = ("L_hip_test", "R_hip_test", "L_knee_test", "R_knee_test")
+# 6-servo stance: hips, knees and ankles stay actuated (ankles give the
+# push-off a gait needs). The other hinges are welded (joint elements removed)
+# and every other actuator is dropped.
+KEEP_JOINTS = ("L_hip_test", "R_hip_test", "L_knee_test", "R_knee_test",
+               "L_ankle_test", "R_ankle_test")
 WELD = True
 
 # Collision geometry. The reference enables 26 mesh geoms across the two legs,

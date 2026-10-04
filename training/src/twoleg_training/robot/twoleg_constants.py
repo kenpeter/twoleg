@@ -22,14 +22,16 @@ def get_spec() -> mujoco.MjSpec:
     return mujoco.MjSpec.from_file(str(TWOLEG_XML))
 
 
-# 4 actuated joints only: hip and knee on each leg. Everything else
+# 6 actuated joints: hip, knee and ankle on each leg. Everything else
 # is welded in training/assets/twoleg.xml; see
 # training/scripts/generate_twoleg_model.py KEEP_JOINTS/WELD.
 JOINT_NAMES: tuple[str, ...] = (
     "L_hip_test",
     "L_knee_test",
+    "L_ankle_test",
     "R_hip_test",
     "R_knee_test",
+    "R_ankle_test",
 )
 
 # HOME pose = the model's own zero pose (straight legs, arms down), with the

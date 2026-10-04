@@ -99,9 +99,9 @@ def main():
     # Agent-R's timely-revision principle: walk-then-fall only passes if it
     # stays up for the whole window.
     WINDOW = max(10, args.steps // 5)
-    # per-step uprightness: 1=upright, -1=inverted
+    # per-step uprightness: projected_gravity_b z is -1 upright, +1 inverted
     step_up = up  # [steps, envs]
-    upright_step = step_up > FRAME_ALT_CEIL              # [steps, envs]
+    upright_step = step_up < FRAME_ALT_CEIL              # [steps, envs]
     # per-step mean duty (both feet share load on average) -> use the per-step
     # contact found, not the collapsed mean, so flight phases are allowed.
     left_step = left   # [steps, envs]
