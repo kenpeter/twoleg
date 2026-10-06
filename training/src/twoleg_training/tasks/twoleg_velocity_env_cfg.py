@@ -28,6 +28,7 @@ from mjlab.sensor import (
 )
 from mjlab.tasks.velocity.mdp import UniformVelocityCommandCfg
 from mjlab.tasks.velocity.mdp.rewards import self_collision_cost
+from twoleg_training.tasks.mdp import both_feet_air_time
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
 
 from twoleg_training.robot.twoleg_constants import get_twoleg_robot_cfg
@@ -160,10 +161,23 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         params={"sensor_name": "self_collision"},
     )
 
-    # NOTE: both_feet_air_time (our H2 anti-hop term) is REMOVED to follow
-    # microduck_rl exactly -- microduck achieves symmetric two-legged gait via the
-    # reward + curricula below, not an explicit both-feet term. If one-leg hopping
-    # returns, re-add it (weight 5.0, func both_feet_air_time).
+    # NOTE: both_feet_air_time (our H2 anti-hop term) is re-added (2026-10-07)
+    # because the loop found a pure hopping attractor: air_time + track_lin_vel
+    # reward a bouncing gait that covers ground while airborne, and the verifier
+    # correctly rejected it (no real L<->R stance alternation). This term pays a
+    # foot's swing ONLY while the OTHER foot is planted, so a hop earns nothing
+    # and an alternating gait earns on every phase. Weight 5.0 per the original note.
+    cfg.rewards["both_feet_air_time"] = RewardTermCfg(
+        func=both_feet_air_time,
+        weight=5.0,
+        params={
+            "sensor_name": "feet_ground_contact",
+            "threshold_min": 0.125,
+            "threshold_max": 0.300,
+            "command_name": "twist",
+            "command_threshold": COMMAND_THRESHOLD,
+        },
+    )
 
     cfg.rewards["track_linear_velocity"].weight = 2.0
     cfg.rewards["track_linear_velocity"].params["std"] = math.sqrt(0.1)
