@@ -50,6 +50,7 @@ def _cfg():
     return load_env_cfg(TASK, play=True)
 
 
+@pytest.mark.pin
 def test_reward_weights_match_microduck_exact():
     """Every gait reward weight/std equals the microduck_rl reference.
 
@@ -86,6 +87,7 @@ def test_standing_envs_starts_small():
         f"rel_standing_envs should be 0.02, got {cfg.commands['twist'].rel_standing_envs}"
 
 
+@pytest.mark.pin
 def test_symmetry_matches_microduck():
     """Symmetry config matches microduck: data_aug off, mirror coeff 0.5.
 
