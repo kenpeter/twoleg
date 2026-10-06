@@ -35,6 +35,9 @@ LOG_TSV = os.path.join(AUDIT, "twoleg-walk.tsv")
 LOG_SH = ("/home/kenpeter/work/pp/.opencode/skills/show-me-your-work/scripts/log.sh")
 TASK = "Mjlab-Velocity-Flat-TwoLeg"
 
+sys.path.insert(0, HERE)
+import loop_changes  # whitelisted, git-committed, test-gated code edits
+
 # Reflection registry lives in code as the FIRST hypothesis; after that the
 # reflector appends. Seed with the standing open questions so round 1 has a
 # direction if state is fresh.
@@ -158,6 +161,9 @@ def verify(run, ckpt):
     if not os.path.exists(ckpt_path):
         raise RuntimeError(f"verify: checkpoint missing: {ckpt_path}")
     env = dict(os.environ)  # no MUJOCO_GL needed (verify_metrics has no render)
+    sidecar_path = os.path.join(TRAINING, "logs", "rsl_rl", "velocity", run,
+                                "verify_metrics_cmd0.10.json")
+    before = os.path.getmtime(sidecar_path) if os.path.exists(sidecar_path) else 0.0
     r = subprocess.run(
         ["uv", "run", "--no-sync", "python", "scripts/verify_metrics.py",
          "--checkpoint", ckpt_path, "--command", "0.1",
@@ -166,12 +172,22 @@ def verify(run, ckpt):
     print(r.stdout[-1500:] if r.stdout else "")
     if r.stderr:
         print("ERR:", r.stderr[-800:])
-    sidecar = {}
-    sp = os.path.join(TRAINING, "logs", "rsl_rl", "velocity", run,
-                      f"verify_metrics_cmd0.10.json")
-    if os.path.exists(sp):
-        with open(sp) as fh:
-            sidecar = json.load(fh)
+    if not os.path.exists(sidecar_path):
+        raise RuntimeError(f"verify: no sidecar written for {ckpt}")
+    if os.path.getmtime(sidecar_path) <= before:
+        raise RuntimeError(
+            f"verify: sidecar is stale (not rewritten for {ckpt}); refusing to "
+            "gate on an older checkpoint's numbers")
+    with open(sidecar_path) as fh:
+        sidecar = json.load(fh)
+    REQUIRED = ("verdict", "valid_frac", "left_duty_mean", "right_duty_mean",
+                "speed_mean", "last_frame_alt_mean", "switch_hz_mean",
+                "double_support_frac", "knee_flex_min_rad", "hip_swing_min_rad",
+                "stance_knee_bend_rad", "articulated_frac", "rolling_pass_frac")
+    missing = [k for k in REQUIRED if k not in sidecar]
+    if missing:
+        raise RuntimeError(f"verify: sidecar missing keys {missing}; the gate "
+                           f"would read defaults, not measurements")
     return sidecar.get("verdict") == "WALKS", sidecar
 
 
@@ -249,7 +265,7 @@ def decide(state, new_run, new_ckpt):
 
     1. HARD EVIDENCE (deterministic, from contact sensors) is the PRIMARY gate.
        - STOP  if the measured evidence clearly shows walking: torso upright at
-         the end (frame_alt > -0.2), BOTH feet share load (duty > 0.2 each),
+         the end (frame_alt < -0.2, since proj_gravity_z is -1 upright), BOTH feet share load (duty > 0.2 each),
          forward motion (speed > 0.05), and the rolling upright window held.
        - CONTINUE if evidence clearly shows failure (inverted/fallen/one-leg/
          collapsed).
@@ -268,8 +284,8 @@ def decide(state, new_run, new_ckpt):
     sp = info.get("speed_mean", 0.0)
     roll = info.get("rolling_pass_frac", 0.0)
 
-    walks_evidence = (fa > -0.2) and (l_d > 0.2) and (r_d > 0.2) and (sp > 0.05) and (roll > 0.5)
-    fails_evidence = (fa < -0.5) or (l_d < 0.2) or (r_d < 0.2) or (roll < 0.5)
+    walks_evidence = (fa < -0.2) and (l_d > 0.2) and (r_d > 0.2) and (sp > 0.05) and (roll > 0.5)
+    fails_evidence = (fa > -0.5) or (l_d < 0.2) or (r_d < 0.2) or (roll < 0.5)
 
     if walks_evidence:
         return "stop", f"HARD EVIDENCE walks: frame_alt={fa} L={l_d} R={r_d} spd={sp} roll={roll}"
@@ -311,6 +327,31 @@ def decide(state, new_run, new_ckpt):
     except Exception as e:
         # Subagent down in the ambiguous zone -> default CONTINUE (keep training).
         return "continue", f"subagent down, default continue ({e})"
+
+
+def propose_change(state, info):
+    """Turn a NO-WALK verdict into ONE whitelisted code change.
+
+    The reflector (disabled here) would read the verdict + video and return a
+    structured change dict. When disabled we use a deterministic, safe rotation
+    over the whitelist so each round nudges a different knob instead of retraining
+    identical weights. Every applied change is git-committed + test-gated inside
+    loop_changes.apply_change(); a bad change auto-reverts and we just retrain.
+    """
+    if not getattr(propose_change, "_rot", None):
+        propose_change._rot = iter([
+            {"target": "reward_weight", "term": "both_feet_air_time", "weight": 6.0},
+            {"target": "reward_weight", "term": "air_time", "weight": 4.0},
+            {"target": "symmetry", "field": "mirror_loss_coeff", "value": 0.8},
+            {"target": "reward_weight", "term": "penalize_held_foot", "weight": 1.0},
+            {"target": "env_param", "param": "fell_over_limit_angle", "value": 35.0},
+        ])
+    try:
+        change = next(propose_change._rot)
+    except StopIteration:
+        propose_change._rot = None
+        return propose_change(state, info)  # restart rotation
+    return change
 
 
 def main():
@@ -390,6 +431,12 @@ def main():
                     why, f"logs/rsl_rl/velocity/{new_run}/{new_ckpt}", "done")
             sys.exit(0)
         print(f"round {state['rounds_done']} NO-WALK -> {why} -> continuing (infinite loop)")
+        # Agentic code-change: propose ONE whitelisted edit from the verdict and
+        # apply it (git-committed + test-gated; auto-reverts on failure) so the
+        # next round trains on a nudged config instead of identical weights.
+        change = propose_change(state, info)
+        res = loop_changes.apply_change(change)
+        print(f"  code-change: {res}")
         # brief pause so we never spin on a bad state; then loop forever.
         time.sleep(5)
 
