@@ -1,3 +1,0 @@
-ts	phase	decision	why	evidence	result
-2026-10-03T04:27:35Z	loop	round 1: continue-1 FRESH	reflector disabled; continuing microduck-exact resume	logs/rsl_rl/velocity/None/None	training
-2026-10-03T04:35:35Z	loop	continue-1 failed to produce a run	see loop log	/tmp/opencode/loop_continue-1.log	failed
