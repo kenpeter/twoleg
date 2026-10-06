@@ -130,7 +130,7 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # AIR_TIME window follows microduck_rl EXACTLY: 0.125-0.300 s. Our earlier
     # 0.04-0.10 window was unreachable for TwoLeg's ~3.7-step flight at 0.02s
     # control, so stepping paid nothing and the policy fell into one-leg balance.
-    cfg.rewards["air_time"].weight = 3.0
+    cfg.rewards["air_time"].weight = 4.0
     cfg.rewards["air_time"].params["threshold_min"] = 0.125
     cfg.rewards["air_time"].params["threshold_max"] = 0.300
     cfg.rewards["air_time"].params["command_threshold"] = COMMAND_THRESHOLD
