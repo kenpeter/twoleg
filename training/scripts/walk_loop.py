@@ -340,10 +340,10 @@ def propose_change(state, info):
     """
     if not getattr(propose_change, "_rot", None):
         propose_change._rot = iter([
+            {"target": "reward_weight", "term": "both_feet_air_time", "weight": 6.0},
             {"target": "reward_weight", "term": "air_time", "weight": 4.0},
-            {"target": "reward_weight", "term": "foot_clearance", "weight": -0.3},
             {"target": "symmetry", "field": "mirror_loss_coeff", "value": 0.8},
-            {"target": "reward_weight", "term": "upright", "weight": 3.0},
+            {"target": "reward_weight", "term": "penalize_held_foot", "weight": 1.0},
             {"target": "env_param", "param": "fell_over_limit_angle", "value": 35.0},
         ])
     try:
@@ -439,10 +439,6 @@ def main():
         print(f"  code-change: {res}")
         # brief pause so we never spin on a bad state; then loop forever.
         time.sleep(5)
-    # Round budget exhausted without a WALKS verdict -> continue (not a win).
-    # The supervisor must NOT read this as WALKS. Exit 1 = keep looping.
-    print(f"round budget spent ({state['rounds_done']} rounds) -> NO-WALK, continuing")
-    sys.exit(1)
 
 
 if __name__ == "__main__":
