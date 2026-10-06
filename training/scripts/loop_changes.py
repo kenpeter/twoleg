@@ -188,13 +188,17 @@ def apply_change(change: dict) -> dict:
                     "reason": f"unknown target: {target}"}
 
         if not run_tests():
-            git("checkout", "--", ".")
+            # Revert ONLY the file this change touched (never '.'), so a bad
+            # whitelist edit can never wipe unrelated committed loop code.
+            git("checkout", "--", REWARD_WEIGHT_FILE)
             return {"ok": False, "reverted": True,
                     "reason": "tests failed after change; reverted"}
         commit = git_commit(f"loop auto-change: {summary}")
         return {"ok": True, "commit": commit, "summary": summary}
     except Exception as e:
-        git("checkout", "--", ".")
+        # Revert ONLY the file this change touched (never '.'), so a bad
+        # whitelist edit can never wipe unrelated committed loop code.
+        git("checkout", "--", REWARD_WEIGHT_FILE)
         return {"ok": False, "reverted": True, "reason": f"{type(e).__name__}: {e}"}
 
 
