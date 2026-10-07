@@ -368,6 +368,7 @@ def main():
     args = ap.parse_args()
 
     state = load_state()
+    fresh_override = False  # becomes True when state is FRESH (no run to resume)
     run = args.from_run or state["run"]
     ckpt = args.from_checkpoint or state["checkpoint"]
     if not run or not ckpt:
@@ -376,6 +377,11 @@ def main():
         else:
             print("need --from-run and --from-checkpoint (or a saved state)")
             sys.exit(2)
+    # AUTHORITATIVE fresh guard: a FRESH state (run is None, no --from-run) MUST
+    # train from random init. This prevents a racy/stale state file from
+    # injecting resume flags and reloading a broken checkpoint.
+    if run is None and args.from_run is None:
+        run, ckpt, fresh_override = None, None, True
 
     if args.reflect_only:
         st = reflect(state)
@@ -397,7 +403,7 @@ def main():
     for step in range(args.rounds) if args.rounds and args.rounds > 0 else iter(int, 1):
         st = pick_strategy(state)
         append_strategy(st)
-        fresh = (state.get("run") is None)  # first ever run = fresh from init
+        fresh = fresh_override or (state.get("run") is None)  # fresh from init if FRESH state
         log_row("loop", f"round {state['rounds_done'] + 1}: {st['name']} "
                 f"{'FRESH' if fresh else 'from ' + ckpt}",
                 st.get("why", ""), f"logs/rsl_rl/velocity/{run}/{ckpt}",
