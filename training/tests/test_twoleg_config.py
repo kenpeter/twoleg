@@ -66,6 +66,7 @@ def test_reward_weights_match_microduck_exact():
         assert abs(got - val) < 1e-5, f"{key}: got {got}, expected {val}"
 
 
+@pytest.mark.pin
 def test_both_feet_air_time_present():
     """We re-ADDED both_feet_air_time (weight 5.0) as the anti-hop term.
 
@@ -80,6 +81,7 @@ def test_both_feet_air_time_present():
     assert cfg.rewards["both_feet_air_time"].weight == 5.0
 
 
+@pytest.mark.pin
 def test_duty_balance_present():
     """duty_balance (weight 2.0) forces both feet to lift, breaking the
     one-leg standstill (right foot glued, left foot dead). Intentional addition.

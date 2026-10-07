@@ -189,7 +189,7 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # and an alternating gait earns on every phase. Weight 5.0 per the original note.
     cfg.rewards["both_feet_air_time"] = RewardTermCfg(
         func=both_feet_air_time,
-        weight=5.0,
+        weight=2.0,
         params={
             "sensor_name": "feet_ground_contact",
             "threshold_min": 0.125,
