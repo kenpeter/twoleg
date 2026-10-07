@@ -31,7 +31,7 @@ ALLOWED_REWARD_TERMS = {
     "air_time", "foot_clearance", "foot_swing_height", "upright",
     "track_lin_vel", "track_ang_vel", "action_rate", "action_smoothness",
     "standing_envs", "gait_contact", "both_feet_air_time", "penalize_held_foot",
-    "duty_balance",
+    "duty_balance", "no_fly", "feet_moving",
 }
 
 # Env-config scalar params we allow the loop to tune.

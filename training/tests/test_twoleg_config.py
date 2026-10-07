@@ -89,6 +89,19 @@ def test_duty_balance_present():
     assert cfg.rewards["duty_balance"].weight == 2.0
 
 
+def test_antifreeze_terms_present():
+    """H6 anti-squat-freeze terms: no_fly (3.0) rewards exactly-one-foot-down
+    (single support), feet_moving (2.0) rewards any foot lifted. Together they
+    break the symmetric planted-squat local optimum (both feet down, no stepping,
+    switch_hz 0, double_support 0) the loop found at round 2.
+    """
+    cfg = _cfg()
+    assert "no_fly" in cfg.rewards, "no_fly must be present (anti-idle/anti-double-stance)"
+    assert cfg.rewards["no_fly"].weight == 3.0
+    assert "feet_moving" in cfg.rewards, "feet_moving must be present (any-lift reward)"
+    assert cfg.rewards["feet_moving"].weight == 2.0
+
+
 def test_standing_envs_starts_small():
     """rel_standing_envs must open at 0.02 (microduck), not 0.1.
 

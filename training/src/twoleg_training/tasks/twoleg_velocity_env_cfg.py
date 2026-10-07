@@ -28,7 +28,12 @@ from mjlab.sensor import (
 )
 from mjlab.tasks.velocity.mdp import UniformVelocityCommandCfg
 from mjlab.tasks.velocity.mdp.rewards import self_collision_cost
-from twoleg_training.tasks.mdp import both_feet_air_time, duty_balance
+from twoleg_training.tasks.mdp import (
+    both_feet_air_time,
+    duty_balance,
+    no_fly,
+    feet_moving,
+)
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
 
 from twoleg_training.robot.twoleg_constants import get_twoleg_robot_cfg
@@ -184,6 +189,35 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # own air_time above a low floor independently, so a dead foot MUST lift.
     cfg.rewards["duty_balance"] = RewardTermCfg(
         func=duty_balance,
+        weight=2.0,
+        params={
+            "sensor_name": "feet_ground_contact",
+            "threshold_min": 0.04,
+            "command_name": "twist",
+            "command_threshold": COMMAND_THRESHOLD,
+        },
+    )
+
+    # H6: no_fly -- anti-idle / anti-double-stance. Ported from legged_gym
+    # Cassie. Rewards exactly-ONE-foot-down (true single support) and 0 when both
+    # feet are planted (the squat-freeze) or both up (hop). Breaks the symmetric
+    # planted-squat local optimum the loop found at round 2 (duty 0.39/0.39,
+    # switch_hz 0.0, double_support 0.0, knee 1.32, speed 0.058). Weight 3.0.
+    cfg.rewards["no_fly"] = RewardTermCfg(
+        func=no_fly,
+        weight=3.0,
+        params={
+            "sensor_name": "feet_ground_contact",
+            "command_name": "twist",
+            "command_threshold": COMMAND_THRESHOLD,
+        },
+    )
+
+    # H6 companion: feet_moving -- rewards ANY foot being airborne (any lift),
+    # gated on command. With no_fly (exactly-one-down) this forces alternating
+    # single support: a planted squat earns neither, a real gait earns both.
+    cfg.rewards["feet_moving"] = RewardTermCfg(
+        func=feet_moving,
         weight=2.0,
         params={
             "sensor_name": "feet_ground_contact",

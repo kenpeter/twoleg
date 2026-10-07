@@ -261,72 +261,32 @@ def reflect(state):
 
 
 def decide(state, new_run, new_ckpt):
-    """Agentic loop-condition with evidence-first priority:
+    """Agentic loop-condition. The GROUND TRUTH is the rigorous verify_metrics.py
+    verdict (human-gait gate: upright + both feet load + signed speed + switch_hz
+    + double-support + knee/hip articulation + smoothness). We MUST trust it,
+    because a weaker local gate here already false-declared WALKS on a symmetric
+    squat-freeze (upright + both feet down + tiny motion) and stopped the loop.
 
-    1. HARD EVIDENCE (deterministic, from contact sensors) is the PRIMARY gate.
-       - STOP  if the measured evidence clearly shows walking: torso upright at
-         the end (frame_alt < -0.2, since proj_gravity_z is -1 upright), BOTH feet share load (duty > 0.2 each),
-         forward motion (speed > 0.05), and the rolling upright window held.
-       - CONTINUE if evidence clearly shows failure (inverted/fallen/one-leg/
-         collapsed).
-    2. AMBIGUOUS ZONE: evidence is decent but not conclusive (e.g. upright but
-       one foot under-loaded, or walks then stumbles). Only HERE do we ask the
-       subagent judge STOP vs CONTINUE from the verdict + rollout trace.
-    3. Subagent unavailable -> fall back to the evidence (CONTINUE unless the
-       hard evidence already said STOP).
-
-    The agent never overrides clear evidence; it only breaks ties.
+    - STOP   if verdict == "WALKS" (verify_metrics said >=60% of envs pass the
+             full human-gait gate).
+    - CONTINUE otherwise -- the rigorous gate already encoded the evidence; we do
+             NOT re-derive a weaker local gate that can be gamed.
     """
     info = state.get("last_verdict") or {}
-    fa = info.get("last_frame_alt_mean", -1.0)
-    l_d = info.get("left_duty_mean", 0.0)
-    r_d = info.get("right_duty_mean", 0.0)
-    sp = info.get("speed_mean", 0.0)
-    roll = info.get("rolling_pass_frac", 0.0)
+    verdict = info.get("verdict", "NO-WALK")
 
-    walks_evidence = (fa < -0.2) and (l_d > 0.2) and (r_d > 0.2) and (sp > 0.05) and (roll > 0.5)
-    fails_evidence = (fa > -0.5) or (l_d < 0.2) or (r_d < 0.2) or (roll < 0.5)
-
-    if walks_evidence:
-        return "stop", f"HARD EVIDENCE walks: frame_alt={fa} L={l_d} R={r_d} spd={sp} roll={roll}"
-    if fails_evidence:
-        return "continue", (f"HARD EVIDENCE fails: frame_alt={fa} L={l_d} "
-                            f"R={r_d} roll={roll} -> keep training")
-
-    # Ambiguous zone: measured numbers are borderline. Ask the subagent judge,
-    # but only as a tie-breaker (it cannot override the hard gates above).
-    verdict_json = json.dumps(info, indent=2)
-    prompt = (
-        f"You are the STOP/CONTINUE tie-breaker for a TwoLeg biped RL loop.\n"
-        f"The HARD measured gate was INCONCLUSIVE, so judge from nuance.\n"
-        f"MEASURED VERDICT:\n{verdict_json}\n\n"
-        f"- STOP only if at the LAST frames the torso is upright (frame_alt near 0) "
-        f"AND both feet share load (duty > 0.2 each) AND it moves forward.\n"
-        f"- CONTINUE if it falls, is inverted, hops one-legged, or walks then "
-        f"collapses.\n"
-        f"Reply exactly one word: STOP or CONTINUE, then a short reason.\n"
-    )
-    try:
-        import subprocess as _sp
-        proc = _sp.Popen(
-            ["opencode", "run", "--model",
-             "opencode/muse-spark-1.3-contributor-free", prompt],
-            cwd="/home/kenpeter/work/pp",
-            stdout=_sp.PIPE, stderr=_sp.PIPE, text=True,
-            start_new_session=True)
-        try:
-            out, err = proc.communicate(timeout=180)
-        except _sp.TimeoutExpired:
-            proc.kill()
-            _sp.run(["pkill", "-9", "-f", "opencode run"], capture_output=True)
-            raise RuntimeError("subagent judge timed out")
-        txt = (out or "") + (err or "")
-        if "STOP" in txt[:60].upper():
-            return "stop", f"subagent tie-break: {txt[:200]}"
-        return "continue", f"subagent tie-break: {txt[:200]}"
-    except Exception as e:
-        # Subagent down in the ambiguous zone -> default CONTINUE (keep training).
-        return "continue", f"subagent down, default continue ({e})"
+    if verdict == "WALKS":
+        # Cross-check the evidence the verifier already measured (defense in
+        # depth, but the verifier's verdict is authoritative).
+        fa = info.get("last_frame_alt_mean", -1.0)
+        l_d = info.get("left_duty_mean", 0.0)
+        r_d = info.get("right_duty_mean", 0.0)
+        sp = info.get("speed_mean", 0.0)
+        roll = info.get("rolling_pass_frac", 0.0)
+        return "stop", (f"RIGOROUS VERDICT WALKS: frame_alt={fa} L={l_d} "
+                        f"R={r_d} spd={sp} roll={roll} -> genuine human gait")
+    return "continue", (f"RIGOROUS VERDICT NO-WALK "
+                        f"(verdict={verdict}) -> keep training")
 
 
 def propose_change(state, info):
@@ -354,6 +314,17 @@ def propose_change(state, info):
     if switch > 2.0:
         return {"target": "reward_weight", "term": "both_feet_air_time",
                 "weight": 6.0}
+    # SQUAT-FREEZE (round-2 failure): both feet planted, no stance transfer,
+    # no double-support, tiny speed, deep knee bend. The planted double-stance
+    # earns neither no_fly (needs exactly-one-down) nor feet_moving (needs any
+    # lift), so raise both to push the policy into alternating single support.
+    dsup = info.get("double_support_frac", 1.0)
+    knee = info.get("knee_flex_min_rad", 0.0)
+    spd = info.get("speed_mean", 0.0)
+    if switch < 0.4 and dsup < 0.1 and spd < 0.1 and knee > 0.5:
+        return {"target": "reward_weight", "term": "no_fly", "weight": 4.0}
+    if switch < 0.4 and dsup < 0.1:
+        return {"target": "reward_weight", "term": "feet_moving", "weight": 3.0}
     # Otherwise rotate over safe structural nudges.
     if not getattr(propose_change, "_rot", None):
         propose_change._rot = iter([

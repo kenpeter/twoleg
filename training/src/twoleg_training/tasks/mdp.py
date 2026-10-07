@@ -82,6 +82,69 @@ def duty_balance(
     return reward
 
 
+def no_fly(
+    env: ManagerBasedRlEnv,
+    sensor_name: str,
+    command_name: str | None = None,
+    command_threshold: float = 0.01,
+) -> torch.Tensor:
+    """Anti-idle / anti-double-stance penalty (ported from legged_gym Cassie).
+
+    H6: the loop found a SYMMETRIC SQUAT-FREEZE -- both feet planted
+    (duty ~0.39 each), no stance transfer (switch_hz 0.0), double_support 0.0,
+    deep knee bend (1.32 rad), tiny forward speed (0.058). duty_balance only
+    rewards lifting, so standing still scores 0 but is never penalized and is a
+    stable local optimum. Cassie's no_fly term punishes BOTH feet being airborne;
+    the dual failure here is BOTH feet being ON THE GROUND with no stepping. So
+    we penalize the idle double-stance: reward is high when exactly ONE foot is
+    in contact (true single support) and low when both are down (freeze) or both
+    up (hop). This forces the policy off the planted squat and into alternation.
+    """
+    sensor: ContactSensor = env.scene[sensor_name]
+    found = sensor.data.found
+    assert found is not None
+    left_down = (found[:, 0] > 0).float()
+    right_down = (found[:, 1] > 0).float()
+    # single support = exactly one foot down -> 1.0 ; double stance or double
+    # flight -> 0.0 (penalized via being the absence of reward).
+    single_support = (left_down + right_down == 1.0).float()
+    reward = single_support
+    env.extras["log"]["Metrics/no_fly_single_support"] = reward.mean()
+    if command_name is not None:
+        command = env.command_manager.get_command(command_name)
+        if command is not None:
+            total = torch.norm(command[:, :2], dim=1) + torch.abs(command[:, 2])
+            reward = reward * (total > command_threshold).float()
+    return reward
+
+
+def feet_moving(
+    env: ManagerBasedRlEnv,
+    sensor_name: str,
+    threshold_min: float = 0.04,
+    command_name: str | None = None,
+    command_threshold: float = 0.01,
+) -> torch.Tensor:
+    """Reward EITHER foot being airborne (any lift), gated on command.
+
+    Companion to no_fly: together they push the policy into alternating single
+    support (no_fly rewards exactly-one-down, feet_moving rewards any-up). A
+    planted squat earns neither; a real gait earns both on alternating phases.
+    """
+    sensor: ContactSensor = env.scene[sensor_name]
+    current_air_time = sensor.data.current_air_time
+    assert current_air_time is not None
+    lifted = (current_air_time > threshold_min).any(dim=1).float()
+    reward = lifted
+    env.extras["log"]["Metrics/feet_moving"] = reward.mean()
+    if command_name is not None:
+        command = env.command_manager.get_command(command_name)
+        if command is not None:
+            total = torch.norm(command[:, :2], dim=1) + torch.abs(command[:, 2])
+            reward = reward * (total > command_threshold).float()
+    return reward
+
+
 def reward_weight(
     env: ManagerBasedRlEnv,
     env_ids: torch.Tensor,
