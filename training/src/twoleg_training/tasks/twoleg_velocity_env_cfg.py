@@ -204,7 +204,7 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # own air_time above a low floor independently, so a dead foot MUST lift.
     cfg.rewards["duty_balance"] = RewardTermCfg(
         func=duty_balance,
-        weight=2.0,
+        weight=4.0,
         params={
             "sensor_name": "feet_ground_contact",
             "threshold_min": 0.04,
