@@ -9,6 +9,7 @@ carried 0, for the entire run. This module pays only when both feet swing.
 import torch
 
 from mjlab.envs import ManagerBasedRlEnv
+from mjlab.managers.scene_entity_config import SceneEntityCfg
 from mjlab.sensor import ContactSensor
 
 
@@ -142,6 +143,76 @@ def feet_moving(
         if command is not None:
             total = torch.norm(command[:, :2], dim=1) + torch.abs(command[:, 2])
             reward = reward * (total > command_threshold).float()
+    return reward
+
+
+def feet_air_time_first_contact(
+    env: ManagerBasedRlEnv,
+    sensor_name: str,
+    threshold_min: float = 0.125,
+    command_name: str | None = None,
+    command_threshold: float = 0.01,
+) -> torch.Tensor:
+    """Cassie-style gait reward: pay a foot's air time ONLY on first re-contact.
+
+    H7: mjlab's built-in ``air_time`` sums the time-in-air CONTINUOUSLY across
+    feet, so a double-flight (hop) earns ~2x a single-support step -> the hop
+    attractor. Cassie's recipe (legged_gym) instead rewards
+    ``(air_time - 0.5) * first_contact`` summed across feet, gated on command:
+    the term only pays at the moment a foot TOUCHES DOWN after a clean swing,
+    and pays nothing when there is no command (no idle bouncing). A hop earns
+    ~0 (both feet touch together, no clean alternating first-contact) while a
+    real alternating gait earns on every step. This kills the hop attractor at
+    the source, complementing both_feet_air_time / no_fly.
+    """
+    sensor: ContactSensor = env.scene[sensor_name]
+    current_air_time = sensor.data.current_air_time
+    assert current_air_time is not None
+    found = sensor.data.found
+    assert found is not None
+    # contact filter (or with last to debounce PhysX flicker)
+    contact = found > 0
+    last = getattr(sensor.data, "last_contacts", None)
+    if last is None:
+        last = contact
+        sensor.data.last_contacts = contact.clone()  # type: ignore[attr-defined]
+    contact_filt = contact | last
+    sensor.data.last_contacts = contact.clone()  # type: ignore[attr-defined]
+    first_contact = (current_air_time > threshold_min) & contact_filt
+    # accumulate air time (senor already tracks it); reward on first contact
+    reward = torch.sum((current_air_time - 0.5) * first_contact.float(), dim=1)
+    # gate on command so idle (no cmd) earns nothing
+    if command_name is not None:
+        command = env.command_manager.get_command(command_name)
+        if command is not None:
+            total = torch.norm(command[:, :2], dim=1) + torch.abs(command[:, 2])
+            reward = reward * (total > command_threshold).float()
+    env.extras["log"]["Metrics/feet_air_time_fc"] = reward.mean()
+    return reward
+
+
+def legs_energy(
+    env: ManagerBasedRlEnv,
+    asset_cfg: SceneEntityCfg,
+    weight_scale: float = 1.0,
+) -> torch.Tensor:
+    """Mechanical power penalty (ported from robust_robot_walker, ICRA 2025).
+
+    H7: penalize torque * joint_velocity (mechanical power) to force EFFICIENT,
+    non-flailing motion. robust_robot_walker uses weight -1e-6 to -2e-5
+    (torque^2 * vel^2 is large, so the scale must be tiny). Discourages the
+    high-torque thrash / hop our early fresh runs show; an efficient alternating
+    gait costs less. Uses qfrc_actuator (PD actuator force in joint space) x
+    joint_vel, summed over leg DOFs.
+    """
+    asset = env.scene[asset_cfg.name]
+    torque = asset.data.qfrc_actuator  # [B, nv]
+    jvel = asset.data.joint_vel  # [B, nv]
+    # restrict to the asset's joint indices (legs only if asset_cfg selects them)
+    idx = asset_cfg.joint_ids if hasattr(asset_cfg, "joint_ids") else slice(None)
+    power = (torque[:, idx] * jvel[:, idx]) ** 2
+    reward = -weight_scale * power.sum(dim=1)
+    env.extras["log"]["Metrics/legs_energy"] = reward.mean()
     return reward
 
 

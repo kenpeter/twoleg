@@ -28,7 +28,7 @@ TASK = "Mjlab-Velocity-Flat-TwoLeg"
 
 # microduck_rl exact reference values (single source of truth).
 EXPECT = {
-    "air_time.weight": 3.0,
+    "air_time.weight": 1.0,
     "air_time.threshold_min": 0.125,
     "air_time.threshold_max": 0.300,
     "foot_clearance.weight": -0.1,
@@ -100,6 +100,22 @@ def test_antifreeze_terms_present():
     assert cfg.rewards["no_fly"].weight == 3.0
     assert "feet_moving" in cfg.rewards, "feet_moving must be present (any-lift reward)"
     assert cfg.rewards["feet_moving"].weight == 2.0
+
+
+def test_h7_ports_present():
+    """H7: ported from the 3 reference repos --
+    - feet_air_time_fc (4.0): Cassie first-contact-gated air time, kills the
+      hop attractor at source (mjlab's continuous-sum air_time made hops pay 2x).
+    - legs_energy (-1e-5): robust_robot_walker mechanical-power penalty, forces
+      efficient non-flailing motion.
+    """
+    cfg = _cfg()
+    assert "feet_air_time_fc" in cfg.rewards, "feet_air_time_fc must be present (cassie)"
+    assert cfg.rewards["feet_air_time_fc"].weight == 4.0
+    assert "legs_energy" in cfg.rewards, "legs_energy must be present (robust_robot_walker)"
+    assert cfg.rewards["legs_energy"].weight == -1e-5
+    # air_time is now the mild complement (1.0), not the 3.0 hop-optimal form
+    assert cfg.rewards["air_time"].weight == 1.0
 
 
 def test_standing_envs_starts_small():

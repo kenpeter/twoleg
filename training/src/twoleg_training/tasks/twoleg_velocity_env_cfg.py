@@ -33,6 +33,8 @@ from twoleg_training.tasks.mdp import (
     duty_balance,
     no_fly,
     feet_moving,
+    feet_air_time_first_contact,
+    legs_energy,
 )
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
 
@@ -131,15 +133,28 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # --- Rewards: restore the gait terms, sized for a 0.2 m leg on a 1.26 kg body. ---
     cfg.rewards.pop("soft_landing", None)  # Dropped in microduck_rl's reward set too.
 
-    # command_threshold is 0.01, not the base 0.5: these terms gate on
-    # norm(cmd_xy) + abs(cmd_yaw), which tops out near 0.7 over our ranges.
-    # AIR_TIME window follows microduck_rl EXACTLY: 0.125-0.300 s. Our earlier
-    # 0.04-0.10 window was unreachable for TwoLeg's ~3.7-step flight at 0.02s
-    # control, so stepping paid nothing and the policy fell into one-leg balance.
-    cfg.rewards["air_time"].weight = 3.0
+    # AIR_TIME: replace mjlab's continuous-sum air_time (which makes a HOP pay
+    # ~2x a single-support step -> the hop attractor) with Cassie's
+    # first-contact-gated version (H7). Pays (air_time-0.5) at the moment a foot
+    # touches down after a clean swing, gated on command, so a hop earns ~0 and a
+    # real alternating gait earns on every step. Keep a small built-in air_time
+    # too (weight 1.0) as a mild continuous complement, but the first-contact term
+    # is the primary gait driver.
+    cfg.rewards["air_time"].weight = 1.0
     cfg.rewards["air_time"].params["threshold_min"] = 0.125
     cfg.rewards["air_time"].params["threshold_max"] = 0.300
     cfg.rewards["air_time"].params["command_threshold"] = COMMAND_THRESHOLD
+
+    cfg.rewards["feet_air_time_fc"] = RewardTermCfg(
+        func=feet_air_time_first_contact,
+        weight=4.0,
+        params={
+            "sensor_name": "feet_ground_contact",
+            "threshold_min": 0.125,
+            "command_name": "twist",
+            "command_threshold": COMMAND_THRESHOLD,
+        },
+    )
 
     # foot_clearance / foot_swing_height: microduck_rl uses -0.1 (NOT our -2.0 /
     # -0.25). Our over-strong values penalized any foot lift and killed the gait.
@@ -224,6 +239,27 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
             "threshold_min": 0.04,
             "command_name": "twist",
             "command_threshold": COMMAND_THRESHOLD,
+        },
+    )
+
+    # H7: legs_energy -- mechanical power penalty (robust_robot_walker, ICRA
+    # 2025). Penalize qfrc_actuator * joint_vel squared (mechanical power) to
+    # force efficient, non-flailing motion. Scale -1e-5 (robust_robot_walker
+    # uses -1e-6..-2e-5; torque^2*vel^2 is large so the scale is tiny). Targets
+    # ALL leg DOFs so it discourages the high-torque thrash / hop our fresh runs
+    # showed; an efficient alternating gait costs less power.
+    cfg.rewards["legs_energy"] = RewardTermCfg(
+        func=legs_energy,
+        weight=-1e-5,
+        params={
+            "asset_cfg": SceneEntityCfg(
+                "robot",
+                joint_names=(
+                    "L_hip_test", "L_knee_test", "L_ankle_test",
+                    "R_hip_test", "R_knee_test", "R_ankle_test",
+                ),
+            ),
+            "weight_scale": 1.0,
         },
     )
 
