@@ -10,7 +10,7 @@ LOG=/tmp/opencode/loop_forever.log
 echo "[loop_forever] start $(date -Is)" >> "$LOG"
 while true; do
     echo "[loop_forever] invoke $(date -Is)" >> "$LOG"
-    uv run --no-sync python scripts/walk_loop.py --rounds 1 >> "$LOG" 2>&1
+    uv run --no-sync python scripts/walk_loop.py --rounds 1 --no-reflect >> "$LOG" 2>&1
     rc=$?
     echo "[loop_forever] walk_loop exited rc=$rc $(date -Is)" >> "$LOG"
     if [ "$rc" -eq 0 ]; then
