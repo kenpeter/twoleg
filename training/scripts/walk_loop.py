@@ -313,21 +313,21 @@ def propose_change(state, info):
     # Hopping came back (high switch_hz but no real double-support / duty fails):
     # strengthen the anti-hop term.
     if switch > 2.0:
-        return {"target": "reward_weight", "term": "both_feet_air_time",
-                "weight": 6.0}
+        return {"target": "reward_weight", "term": "feet_gait",
+                "weight": 0.8}
     # ONE-FOOT FLAIL-RUN (the H7 round-1/2 failure you caught): high forward
     # speed but one foot NEVER loads (right_duty~0), no double-support, no
-    # stance alternation. The air-time rewards (feet_air_time_fc 4.0 +
-    # both_feet_air_time 5.0 = 9.0) dominate, so the policy lifts one leg and
-    # bounces on the other, never planting. FIX: cut the air-time rewards hard
-    # and force load-bearing via duty_balance (each foot must lift AND land).
+    # stance alternation. The old air-time rewards dominated, so the policy
+    # bounced on one foot. FIX (H9): with air-time removed, push the phase-locked
+    # feet_gait weight up so alternating contact is mandatory, and duty_balance so
+    # a dead foot must bear load.
     dsup = info.get("double_support_frac", 1.0)
     r_d = info.get("right_duty_mean", 1.0)
     l_d = info.get("left_duty_mean", 1.0)
     if spd > 0.5 and min(l_d, r_d) < 0.1 and dsup < 0.1:
-        # Halve both air-time terms so landing is no longer punished, and push
+        # Raise feet_gait so the phase-locked alternation is enforced, and push
         # duty_balance up so a dead foot must bear load. One-line reversible.
-        return {"target": "reward_weight", "term": "feet_air_time_fc", "weight": 1.0}
+        return {"target": "reward_weight", "term": "feet_gait", "weight": 1.0}
     # SQUAT-FREEZE (round-2 failure): both feet planted, no stance transfer,
     # no double-support, tiny speed, deep knee bend. The planted double-stance
     # earns neither no_fly (needs exactly-one-down) nor feet_moving (needs any

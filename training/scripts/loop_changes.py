@@ -28,10 +28,11 @@ ENV_CFG_FILE = "src/twoleg_training/tasks/twoleg_velocity_env_cfg.py"
 
 # Reward term names we allow the loop to rescale (cfg.rewards["<name>"].weight).
 ALLOWED_REWARD_TERMS = {
-    "air_time", "foot_clearance", "foot_swing_height", "upright",
+    "foot_clearance", "foot_swing_height", "upright",
     "track_lin_vel", "track_ang_vel", "action_rate", "action_smoothness",
-    "standing_envs", "gait_contact", "both_feet_air_time", "penalize_held_foot",
-    "duty_balance", "no_fly", "feet_moving", "feet_air_time_fc", "legs_energy",
+    "standing_envs", "gait_contact", "penalize_held_foot",
+    "feet_gait", "stand_still", "body_orientation_l2",
+    "duty_balance", "no_fly", "feet_moving", "legs_energy",
 }
 
 # Env-config scalar params we allow the loop to tune.

@@ -13,42 +13,6 @@ from mjlab.managers.scene_entity_config import SceneEntityCfg
 from mjlab.sensor import ContactSensor
 
 
-def both_feet_air_time(
-    env: ManagerBasedRlEnv,
-    sensor_name: str,
-    threshold_min: float = 0.04,
-    threshold_max: float = 0.30,
-    command_name: str | None = None,
-    command_threshold: float = 0.01,
-) -> torch.Tensor:
-    """Reward a foot's swing only while the other foot is in stance.
-
-    H3: the old minimum-across-feet form only pays when both feet are
-    simultaneously in-window, which is the double-flight phase of a hop, so
-    raising its weight bought hopping (both-up 23 pct), not walking. Gating
-    each foot's swing on the other foot's contact pays single support: an
-    alternating gait earns on every phase, a hop earns nothing, and a skim
-    never reaches the window. Takes the max across feet.
-    """
-    sensor: ContactSensor = env.scene[sensor_name]
-    current_air_time = sensor.data.current_air_time
-    assert current_air_time is not None
-    found = sensor.data.found
-    assert found is not None
-    in_range = (current_air_time > threshold_min) & (current_air_time < threshold_max)
-    other_down = torch.stack([(found[:, 1] > 0), (found[:, 0] > 0)], dim=1)
-    reward = torch.max((in_range & other_down).float(), dim=1).values
-    env.extras["log"]["Metrics/min_air_time"] = reward.mean()
-    asymmetry = torch.abs(current_air_time[:, 0] - current_air_time[:, 1])
-    env.extras["log"]["Metrics/foot_air_asymmetry"] = asymmetry.mean()
-    if command_name is not None:
-        command = env.command_manager.get_command(command_name)
-        if command is not None:
-            total = torch.norm(command[:, :2], dim=1) + torch.abs(command[:, 2])
-            reward = reward * (total > command_threshold).float()
-    return reward
-
-
 def duty_balance(
     env: ManagerBasedRlEnv,
     sensor_name: str,
@@ -146,51 +110,6 @@ def feet_moving(
     return reward
 
 
-def feet_air_time_first_contact(
-    env: ManagerBasedRlEnv,
-    sensor_name: str,
-    threshold_min: float = 0.125,
-    command_name: str | None = None,
-    command_threshold: float = 0.01,
-) -> torch.Tensor:
-    """Cassie-style gait reward: pay a foot's air time ONLY on first re-contact.
-
-    H7: mjlab's built-in ``air_time`` sums the time-in-air CONTINUOUSLY across
-    feet, so a double-flight (hop) earns ~2x a single-support step -> the hop
-    attractor. Cassie's recipe (legged_gym) instead rewards
-    ``(air_time - 0.5) * first_contact`` summed across feet, gated on command:
-    the term only pays at the moment a foot TOUCHES DOWN after a clean swing,
-    and pays nothing when there is no command (no idle bouncing). A hop earns
-    ~0 (both feet touch together, no clean alternating first-contact) while a
-    real alternating gait earns on every step. This kills the hop attractor at
-    the source, complementing both_feet_air_time / no_fly.
-    """
-    sensor: ContactSensor = env.scene[sensor_name]
-    current_air_time = sensor.data.current_air_time
-    assert current_air_time is not None
-    found = sensor.data.found
-    assert found is not None
-    # contact filter (or with last to debounce PhysX flicker)
-    contact = found > 0
-    last = getattr(sensor.data, "last_contacts", None)
-    if last is None:
-        last = contact
-        sensor.data.last_contacts = contact.clone()  # type: ignore[attr-defined]
-    contact_filt = contact | last
-    sensor.data.last_contacts = contact.clone()  # type: ignore[attr-defined]
-    first_contact = (current_air_time > threshold_min) & contact_filt
-    # accumulate air time (senor already tracks it); reward on first contact
-    reward = torch.sum((current_air_time - 0.5) * first_contact.float(), dim=1)
-    # gate on command so idle (no cmd) earns nothing
-    if command_name is not None:
-        command = env.command_manager.get_command(command_name)
-        if command is not None:
-            total = torch.norm(command[:, :2], dim=1) + torch.abs(command[:, 2])
-            reward = reward * (total > command_threshold).float()
-    env.extras["log"]["Metrics/feet_air_time_fc"] = reward.mean()
-    return reward
-
-
 def legs_energy(
     env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg,
@@ -261,3 +180,88 @@ def standing_envs_curriculum(
         if env.common_step_counter > stage["step"]:
             cfg.rel_standing_envs = stage["rel_standing_envs"]
     return torch.tensor([cfg.rel_standing_envs])
+
+
+def feet_gait(
+    env: ManagerBasedRlEnv,
+    period: float,
+    offset: list[float],
+    threshold: float,
+    command_threshold: float,
+    command_name: str,
+    sensor_name: str,
+) -> torch.Tensor:
+    """Phase-locked alternating-gait reward (ported from unitree_rl_mjlab).
+
+    H9: this is the PROVEN gait shaper that replaces air-time rewards. It pays
+    when each foot's ACTUAL contact matches the EXPECTED contact phase: left
+    offset 0.0, right offset 0.5 (half-period apart), stance = leg_phase <
+    threshold. A hop/flail (both feet airborne together, or one foot never
+    planting) earns ~0 because actual contact desynchronizes from the phase.
+    This structurally prevents the hop attractor that air-time rewards caused.
+    Needs only ContactSensor.current_contact_time + env.episode_length_buf/
+    step_dt, all present in our mjlab.
+    """
+    sensor: ContactSensor = env.scene[sensor_name]
+    is_contact = sensor.data.current_contact_time > 0
+    global_phase = ((env.episode_length_buf * env.step_dt) / period).unsqueeze(1)
+    offsets = torch.as_tensor(offset, device=env.device, dtype=global_phase.dtype).view(1, -1)
+    leg_phase = (global_phase + offsets) % 1.0
+    is_stance = (leg_phase < threshold)
+    reward = (is_stance == is_contact).float().mean(dim=1)
+    if command_name is not None:
+        command = env.command_manager.get_command(command_name)
+        if command is not None:
+            linear_norm = torch.norm(command[:, :2], dim=1)
+            angular_norm = torch.abs(command[:, 2])
+            total_command = linear_norm + angular_norm
+            scale = (total_command > command_threshold).float()
+            reward = reward * scale
+    env.extras["log"]["Metrics/feet_gait"] = reward.mean()
+    return reward
+
+
+def stand_still(
+    env: ManagerBasedRlEnv,
+    command_name: str,
+    command_threshold: float = 0.1,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """Penalize joint deviation from default when command ~0 (unitree_rl_mjlab).
+
+    H9: prevents idle thrash / camping at zero command. Only active when the
+    command norm is below threshold, so it never taxes walking. Forces the
+    policy to hold a calm default pose when told to stand.
+    """
+    asset = env.scene[asset_cfg.name]
+    jids = asset_cfg.joint_ids if hasattr(asset_cfg, "joint_ids") and asset_cfg.joint_ids else slice(None)
+    diff_angle = asset.data.joint_pos[:, jids] - asset.data.default_joint_pos[:, jids]
+    reward = torch.sum(torch.square(diff_angle), dim=1)
+    if command_name is not None:
+        command = env.command_manager.get_command(command_name)
+        if command is not None:
+            linear_norm = torch.norm(command[:, :2], dim=1)
+            angular_norm = torch.abs(command[:, 2])
+            total_command = linear_norm + angular_norm
+            scale = (total_command <= command_threshold).float()
+            reward = reward * scale
+    env.extras["log"]["Metrics/stand_still"] = reward.mean()
+    return reward
+
+
+def body_orientation_l2(
+    env: ManagerBasedRlEnv,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """Reward flat base orientation / upright torso (unitree_rl_mjlab).
+
+    H9: complement to our `upright` term. Uses the body's projected gravity
+    (z = -1 when upright) to penalize tilt, keeping the torso upright during
+    gait. Our mjlab exposes projected_gravity_b on the articulation data.
+    """
+    asset = env.scene[asset_cfg.name]
+    proj = asset.data.projected_gravity_b[:, 2]  # -1 upright, +1 inverted
+    reward = -torch.square(proj - (-1.0))
+    env.extras["log"]["Metrics/body_orientation_l2"] = reward.mean()
+    return reward
+

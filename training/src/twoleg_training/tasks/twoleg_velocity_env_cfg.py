@@ -27,19 +27,20 @@ from mjlab.sensor import (
     TerrainHeightSensorCfg,
 )
 from mjlab.tasks.velocity.mdp import UniformVelocityCommandCfg
-from mjlab.tasks.velocity.mdp.rewards import self_collision_cost
+from mjlab.tasks.velocity.mdp.rewards import self_collision_cost, soft_landing
 from twoleg_training.tasks.mdp import (
-    both_feet_air_time,
     duty_balance,
     no_fly,
     feet_moving,
-    feet_air_time_first_contact,
     legs_energy,
+    feet_gait,
+    stand_still,
+    body_orientation_l2,
 )
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
 
 from twoleg_training.robot.twoleg_constants import get_twoleg_robot_cfg
-from twoleg_training.tasks.curriculum import air_time_window, walk_command_ramp
+from twoleg_training.tasks.curriculum import walk_command_ramp
 from twoleg_training.tasks.mdp import reward_weight, standing_envs_curriculum
 
 # Slow-walk command envelope. Forward is body -y (face side: chest servos /
@@ -130,29 +131,35 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     cfg.observations["actor"].terms["joint_pos"].noise = Unoise(n_min=-0.001, n_max=0.001)
     cfg.observations["actor"].terms["joint_vel"].noise = Unoise(n_min=-0.25, n_max=0.25)
 
-    # --- Rewards: restore the gait terms, sized for a 0.2 m leg on a 1.26 kg body. ---
-    cfg.rewards.pop("soft_landing", None)  # Dropped in microduck_rl's reward set too.
+    # --- Rewards: ALIGNED TO unitree_rl_mjlab (native mjlab velocity recipe). ---
+    # H9: the proven gait shaper is feet_gait (phase-locked alternating contact),
+    # NOT air-time rewards. Air-time rewards made a hop pay ~2x a step -> the
+    # one-foot flail we kept hitting. Unitree's recipe drops air_time entirely
+    # and shapes gait via feet_gait + foot_clearance + foot_slip + soft_landing.
+    # We port feet_gait/stand_still/body_orientation_l2 and keep our anti-
+    # attractor layer (duty_balance/no_fly/feet_moving) as a duck-specific
+    # safety net on top.
+    cfg.rewards.pop("soft_landing", None)  # re-added below with unitree weight
 
-    # AIR_TIME: replace mjlab's continuous-sum air_time (which makes a HOP pay
-    # ~2x a single-support step -> the hop attractor) with Cassie's
-    # first-contact-gated version (H7). Pays (air_time-0.5) at the moment a foot
-    # touches down after a clean swing, gated on command, so a hop earns ~0 and a
-    # real alternating gait earns on every step. Keep a small built-in air_time
-    # too (weight 1.0) as a mild continuous complement, but the first-contact term
-    # is the primary gait driver.
-    cfg.rewards["air_time"].weight = 1.0
-    cfg.rewards["air_time"].params["threshold_min"] = 0.125
-    cfg.rewards["air_time"].params["threshold_max"] = 0.300
-    cfg.rewards["air_time"].params["command_threshold"] = COMMAND_THRESHOLD
+    # Drop the air-time rewards (the flail cause). Both mjlab air_time and our
+    # custom both_feet_air_time / feet_air_time_fc are removed from the active set.
+    for _t in ("air_time", "both_feet_air_time", "feet_air_time_fc"):
+        cfg.rewards.pop(_t, None)
 
-    cfg.rewards["feet_air_time_fc"] = RewardTermCfg(
-        func=feet_air_time_first_contact,
-        weight=1.0,
+    # feet_gait: THE phase-locked alternating-gait reward. left offset 0.0,
+    # right offset 0.5 (half-period apart), stance threshold 0.56, period 0.6s
+    # (same as Unitree G1). Pays when actual contact matches expected phase;
+    # a hop/flail earns ~0. This is the structural hop preventer.
+    cfg.rewards["feet_gait"] = RewardTermCfg(
+        func=feet_gait,
+        weight=0.5,
         params={
-            "sensor_name": "feet_ground_contact",
-            "threshold_min": 0.125,
-            "command_name": "twist",
+            "period": 0.6,
+            "offset": [0.0, 0.5],
+            "threshold": 0.56,
             "command_threshold": COMMAND_THRESHOLD,
+            "command_name": "twist",
+            "sensor_name": "feet_ground_contact",
         },
     )
 
@@ -175,36 +182,60 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         "robot", site_names=FOOT_SITES
     )
 
+    # soft_landing (unitree -1e-3): penalize hard landings, encourages smooth gait.
+    # Uses the base mjlab term (make_velocity_env_cfg already defines it); just
+    # set unitree's weight.
+    cfg.rewards["soft_landing"] = RewardTermCfg(
+        func=soft_landing,
+        weight=-1e-3,
+        params={
+            "sensor_name": "feet_ground_contact",
+            "command_name": "twist",
+            "command_threshold": COMMAND_THRESHOLD,
+        },
+    )
+
     cfg.rewards["self_collisions"] = RewardTermCfg(
         func=self_collision_cost,
         weight=-1.0,
         params={"sensor_name": "self_collision"},
     )
 
-    # NOTE: both_feet_air_time (our H2 anti-hop term) is re-added (2026-10-07)
-    # because the loop found a pure hopping attractor: air_time + track_lin_vel
-    # reward a bouncing gait that covers ground while airborne, and the verifier
-    # correctly rejected it (no real L<->R stance alternation). This term pays a
-    # foot's swing ONLY while the OTHER foot is planted, so a hop earns nothing
-    # and an alternating gait earns on every phase. Weight 5.0 per the original note.
-    cfg.rewards["both_feet_air_time"] = RewardTermCfg(
-        func=both_feet_air_time,
+    # stand_still (unitree -1.0): penalize joint deviation from default when
+    # command ~0. Prevents idle thrash / camping at zero command.
+    cfg.rewards["stand_still"] = RewardTermCfg(
+        func=stand_still,
+        weight=-1.0,
+        params={
+            "command_name": "twist",
+            "command_threshold": COMMAND_THRESHOLD,
+            "asset_cfg": SceneEntityCfg("robot", joint_names=(r".*",)),
+        },
+    )
+
+    # body_orientation_l2 (unitree -1.0): keep torso upright during gait.
+    cfg.rewards["body_orientation_l2"] = RewardTermCfg(
+        func=body_orientation_l2,
+        weight=-1.0,
+        params={"asset_cfg": SceneEntityCfg("robot", body_names=("torso",))},
+    )
+
+    # feet_moving + no_fly: duck-specific anti-attractor safety net. feet_moving
+    # rewards any lift (breaks planted squat); no_fly rewards exactly-one-down
+    # (single support). These complement feet_gait (which handles alternation);
+    # kept because our 0.2m duck has weaker symmetry priors than a G1.
+    cfg.rewards["no_fly"] = RewardTermCfg(
+        func=no_fly,
         weight=2.0,
         params={
             "sensor_name": "feet_ground_contact",
-            "threshold_min": 0.125,
-            "threshold_max": 0.300,
             "command_name": "twist",
             "command_threshold": COMMAND_THRESHOLD,
         },
     )
-
-    # H5: duty_balance -- forces BOTH feet to lift in turn, breaking the
-    # one-leg standstill (right foot glued, left foot dead). Rewards each foot's
-    # own air_time above a low floor independently, so a dead foot MUST lift.
-    cfg.rewards["duty_balance"] = RewardTermCfg(
-        func=duty_balance,
-        weight=4.0,
+    cfg.rewards["feet_moving"] = RewardTermCfg(
+        func=feet_moving,
+        weight=1.5,
         params={
             "sensor_name": "feet_ground_contact",
             "threshold_min": 0.04,
@@ -213,26 +244,10 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         },
     )
 
-    # H6: no_fly -- anti-idle / anti-double-stance. Ported from legged_gym
-    # Cassie. Rewards exactly-ONE-foot-down (true single support) and 0 when both
-    # feet are planted (the squat-freeze) or both up (hop). Breaks the symmetric
-    # planted-squat local optimum the loop found at round 2 (duty 0.39/0.39,
-    # switch_hz 0.0, double_support 0.0, knee 1.32, speed 0.058). Weight 3.0.
-    cfg.rewards["no_fly"] = RewardTermCfg(
-        func=no_fly,
-        weight=3.0,
-        params={
-            "sensor_name": "feet_ground_contact",
-            "command_name": "twist",
-            "command_threshold": COMMAND_THRESHOLD,
-        },
-    )
-
-    # H6 companion: feet_moving -- rewards ANY foot being airborne (any lift),
-    # gated on command. With no_fly (exactly-one-down) this forces alternating
-    # single support: a planted squat earns neither, a real gait earns both.
-    cfg.rewards["feet_moving"] = RewardTermCfg(
-        func=feet_moving,
+    # duty_balance: our one-leg-collapse breaker. Rewards each foot lifting in
+    # turn so a dead foot MUST move. Kept as the duck-specific safety net.
+    cfg.rewards["duty_balance"] = RewardTermCfg(
+        func=duty_balance,
         weight=2.0,
         params={
             "sensor_name": "feet_ground_contact",
