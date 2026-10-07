@@ -28,7 +28,7 @@ from mjlab.sensor import (
 )
 from mjlab.tasks.velocity.mdp import UniformVelocityCommandCfg
 from mjlab.tasks.velocity.mdp.rewards import self_collision_cost
-from twoleg_training.tasks.mdp import both_feet_air_time
+from twoleg_training.tasks.mdp import both_feet_air_time, duty_balance
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
 
 from twoleg_training.robot.twoleg_constants import get_twoleg_robot_cfg
@@ -174,6 +174,20 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
             "sensor_name": "feet_ground_contact",
             "threshold_min": 0.125,
             "threshold_max": 0.300,
+            "command_name": "twist",
+            "command_threshold": COMMAND_THRESHOLD,
+        },
+    )
+
+    # H5: duty_balance -- forces BOTH feet to lift in turn, breaking the
+    # one-leg standstill (right foot glued, left foot dead). Rewards each foot's
+    # own air_time above a low floor independently, so a dead foot MUST lift.
+    cfg.rewards["duty_balance"] = RewardTermCfg(
+        func=duty_balance,
+        weight=2.0,
+        params={
+            "sensor_name": "feet_ground_contact",
+            "threshold_min": 0.04,
             "command_name": "twist",
             "command_threshold": COMMAND_THRESHOLD,
         },

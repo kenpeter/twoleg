@@ -48,6 +48,40 @@ def both_feet_air_time(
     return reward
 
 
+def duty_balance(
+    env: ManagerBasedRlEnv,
+    sensor_name: str,
+    threshold_min: float = 0.04,
+    command_name: str | None = None,
+    command_threshold: float = 0.01,
+) -> torch.Tensor:
+    """Force BOTH feet to lift in turn; break the one-leg freeze.
+
+    H5: the policy collapsed to a one-leg standstill (right foot glued down,
+    left foot never lifts, contact_alt ~3.4). air_time/both_feet_air_time only
+    pay swing *in a narrow window*, so a dead foot that never lifts scores 0 but
+    is never penalized. This term rewards EACH foot's own air_time above a low
+    floor independently, so the dead foot MUST lift to earn anything. Summed
+    across feet, a true two-legged gait (both feet airborne periodically) earns
+    ~2x a one-leg freeze (only the live foot scores). Gated on command so it
+    only applies when told to move.
+    """
+    sensor: ContactSensor = env.scene[sensor_name]
+    current_air_time = sensor.data.current_air_time
+    assert current_air_time is not None
+    found = sensor.data.found
+    assert found is not None
+    lifted = (current_air_time > threshold_min).float()  # [N, legs]
+    reward = lifted.sum(dim=1)  # each lifted foot contributes 1.0
+    env.extras["log"]["Metrics/duty_balance"] = reward.mean()
+    if command_name is not None:
+        command = env.command_manager.get_command(command_name)
+        if command is not None:
+            total = torch.norm(command[:, :2], dim=1) + torch.abs(command[:, 2])
+            reward = reward * (total > command_threshold).float()
+    return reward
+
+
 def reward_weight(
     env: ManagerBasedRlEnv,
     env_ids: torch.Tensor,

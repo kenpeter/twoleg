@@ -66,14 +66,27 @@ def test_reward_weights_match_microduck_exact():
         assert abs(got - val) < 1e-5, f"{key}: got {got}, expected {val}"
 
 
-def test_both_feet_air_time_absent():
-    """We removed both_feet_air_time to follow microduck exactly.
+def test_both_feet_air_time_present():
+    """We re-ADDED both_feet_air_time (weight 5.0) as the anti-hop term.
 
-    Catches: accidental re-add of the H2 term that gamed one-leg hopping.
+    Catches: accidental removal that lets the one-leg hopping attractor return
+    (air_time + track_lin_vel reward a bouncing gait that covers ground airborne;
+    this term pays a foot's swing only while the OTHER foot is planted, so a hop
+    earns nothing). This is an intentional deviation from microduck-exact.
     """
     cfg = _cfg()
-    assert "both_feet_air_time" not in cfg.rewards, \
-        "both_feet_air_time must stay removed (microduck has none)"
+    assert "both_feet_air_time" in cfg.rewards, \
+        "both_feet_air_time must be present (anti-hop term)"
+    assert cfg.rewards["both_feet_air_time"].weight == 5.0
+
+
+def test_duty_balance_present():
+    """duty_balance (weight 2.0) forces both feet to lift, breaking the
+    one-leg standstill (right foot glued, left foot dead). Intentional addition.
+    """
+    cfg = _cfg()
+    assert "duty_balance" in cfg.rewards, "duty_balance must be present"
+    assert cfg.rewards["duty_balance"].weight == 2.0
 
 
 def test_standing_envs_starts_small():

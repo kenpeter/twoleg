@@ -333,17 +333,35 @@ def propose_change(state, info):
     """Turn a NO-WALK verdict into ONE whitelisted code change.
 
     The reflector (disabled here) would read the verdict + video and return a
-    structured change dict. When disabled we use a deterministic, safe rotation
-    over the whitelist so each round nudges a different knob instead of retraining
-    identical weights. Every applied change is git-committed + test-gated inside
-    loop_changes.apply_change(); a bad change auto-reverts and we just retrain.
+    structured change dict. When disabled we use a CAUSAL fallback: inspect the
+    measured verdict and pick the change that addresses the actual failure
+    mode, falling back to a safe rotation over the whitelist. Every applied
+    change is git-committed + test-gated inside loop_changes.apply_change(); a
+    bad change auto-reverts and we just retrain identical weights.
     """
+    info = info or {}
+    l_d = info.get("left_duty_mean", 0.0)
+    r_d = info.get("right_duty_mean", 0.0)
+    c_alt = info.get("contact_alt_mean", 0.0)
+    switch = info.get("switch_hz_mean", 0.0)
+    # One-leg dominance / dead leg: the failing foot barely contacts while the
+    # other is always down (high contact asymmetry). Break it with duty_balance.
+    min_duty = min(l_d, r_d)
+    if min_duty < 0.2 or c_alt > 0.5:
+        return {"target": "reward_weight", "term": "duty_balance", "weight": 3.0}
+    # Hopping came back (high switch_hz but no real double-support / duty fails):
+    # strengthen the anti-hop term.
+    if switch > 2.0:
+        return {"target": "reward_weight", "term": "both_feet_air_time",
+                "weight": 6.0}
+    # Otherwise rotate over safe structural nudges.
     if not getattr(propose_change, "_rot", None):
         propose_change._rot = iter([
             {"target": "reward_weight", "term": "air_time", "weight": 4.0},
             {"target": "reward_weight", "term": "foot_clearance", "weight": -0.3},
             {"target": "symmetry", "field": "mirror_loss_coeff", "value": 0.8},
             {"target": "reward_weight", "term": "upright", "weight": 3.0},
+            {"target": "reward_weight", "term": "duty_balance", "weight": 3.0},
             {"target": "env_param", "param": "fell_over_limit_angle", "value": 35.0},
         ])
     try:
