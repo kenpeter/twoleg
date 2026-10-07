@@ -147,7 +147,7 @@ def make_twoleg_velocity_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
 
     cfg.rewards["feet_air_time_fc"] = RewardTermCfg(
         func=feet_air_time_first_contact,
-        weight=4.0,
+        weight=1.0,
         params={
             "sensor_name": "feet_ground_contact",
             "threshold_min": 0.125,

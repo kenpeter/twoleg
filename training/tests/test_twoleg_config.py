@@ -89,6 +89,7 @@ def test_duty_balance_present():
     assert cfg.rewards["duty_balance"].weight == 2.0
 
 
+@pytest.mark.pin
 def test_antifreeze_terms_present():
     """H6 anti-squat-freeze terms: no_fly (3.0) rewards exactly-one-foot-down
     (single support), feet_moving (2.0) rewards any foot lifted. Together they
@@ -102,6 +103,7 @@ def test_antifreeze_terms_present():
     assert cfg.rewards["feet_moving"].weight == 2.0
 
 
+@pytest.mark.pin
 def test_h7_ports_present():
     """H7: ported from the 3 reference repos --
     - feet_air_time_fc (4.0): Cassie first-contact-gated air time, kills the

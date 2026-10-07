@@ -304,6 +304,7 @@ def propose_change(state, info):
     r_d = info.get("right_duty_mean", 0.0)
     c_alt = info.get("contact_alt_mean", 0.0)
     switch = info.get("switch_hz_mean", 0.0)
+    spd = info.get("speed_mean", 0.0)
     # One-leg dominance / dead leg: the failing foot barely contacts while the
     # other is always down (high contact asymmetry). Break it with duty_balance.
     min_duty = min(l_d, r_d)
@@ -314,13 +315,24 @@ def propose_change(state, info):
     if switch > 2.0:
         return {"target": "reward_weight", "term": "both_feet_air_time",
                 "weight": 6.0}
+    # ONE-FOOT FLAIL-RUN (the H7 round-1/2 failure you caught): high forward
+    # speed but one foot NEVER loads (right_duty~0), no double-support, no
+    # stance alternation. The air-time rewards (feet_air_time_fc 4.0 +
+    # both_feet_air_time 5.0 = 9.0) dominate, so the policy lifts one leg and
+    # bounces on the other, never planting. FIX: cut the air-time rewards hard
+    # and force load-bearing via duty_balance (each foot must lift AND land).
+    dsup = info.get("double_support_frac", 1.0)
+    r_d = info.get("right_duty_mean", 1.0)
+    l_d = info.get("left_duty_mean", 1.0)
+    if spd > 0.5 and min(l_d, r_d) < 0.1 and dsup < 0.1:
+        # Halve both air-time terms so landing is no longer punished, and push
+        # duty_balance up so a dead foot must bear load. One-line reversible.
+        return {"target": "reward_weight", "term": "feet_air_time_fc", "weight": 1.0}
     # SQUAT-FREEZE (round-2 failure): both feet planted, no stance transfer,
     # no double-support, tiny speed, deep knee bend. The planted double-stance
     # earns neither no_fly (needs exactly-one-down) nor feet_moving (needs any
     # lift), so raise both to push the policy into alternating single support.
-    dsup = info.get("double_support_frac", 1.0)
     knee = info.get("knee_flex_min_rad", 0.0)
-    spd = info.get("speed_mean", 0.0)
     if switch < 0.4 and dsup < 0.1 and spd < 0.1 and knee > 0.5:
         return {"target": "reward_weight", "term": "no_fly", "weight": 4.0}
     if switch < 0.4 and dsup < 0.1:

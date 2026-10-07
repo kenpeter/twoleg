@@ -81,9 +81,25 @@ def _set_reward_weight(term: str, weight: float) -> None:
     pat = re.compile(
         r'(cfg\.rewards\["' + re.escape(term) + r'"\]\.weight\s*=\s*)([-0-9.eE+]+)')
     m = pat.search(src)
-    if not m:
+    if m:
+        new_src = pat.sub(lambda mm: f"{mm.group(1)}{weight!r}", src, count=1)
+        with open(path, "w") as fh:
+            fh.write(new_src)
+        return
+    # New-style terms use RewardTermCfg(func=..., weight=X, ...) over multiple
+    # lines; match the weight= arg inside that term's assignment block.
+    block = re.compile(
+        r'(cfg\.rewards\["' + re.escape(term) + r'"\]\s*=\s*RewardTermCfg\()'
+        r'(.*?)(\n\s*\))', re.DOTALL)
+    bm = block.search(src)
+    if not bm:
         raise ValueError(f"could not find weight assignment for reward '{term}'")
-    new_src = pat.sub(lambda mm: f"{mm.group(1)}{weight!r}", src, count=1)
+    inner = bm.group(2)
+    wpat = re.compile(r'(weight\s*=\s*)([-0-9.eE+]+)')
+    if not wpat.search(inner):
+        raise ValueError(f"no weight= in RewardTermCfg for '{term}'")
+    new_inner = wpat.sub(lambda mm: f"{mm.group(1)}{weight!r}", inner, count=1)
+    new_src = block.sub(lambda mm: f"{mm.group(1)}{new_inner}{mm.group(3)}", src, count=1)
     with open(path, "w") as fh:
         fh.write(new_src)
 
