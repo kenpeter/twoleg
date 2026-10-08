@@ -28,8 +28,8 @@ TORSO_BODY = "torso"
 # are duck-scaled (small 0.2 m, 1.26 kg robot).
 TWOLEG_ACTUATOR = BuiltinPositionActuatorCfg(
     target_names_expr=(
-        "L_hip_test", "L_knee_test", "L_ankle_test",
-        "R_hip_test", "R_knee_test", "R_ankle_test",
+        "L_waist_yaw_test", "L_hip_test", "L_knee_test", "L_ankle_test",
+        "R_waist_yaw_test", "R_hip_test", "R_knee_test", "R_ankle_test",
     ),
     stiffness=40.0,
     damping=0.5,
@@ -44,9 +44,11 @@ TWOLEG_ARTICULATION = EntityArticulationInfoCfg(
 # Per-joint action scale (rad). Unitree uses 0.25 as the base; the duck's small
 # servos stay within the same range and the policy learns the gait from there.
 TWOLEG_ACTION_SCALE: dict[str, float] = {
+    "L_waist_yaw_test": 0.25,
     "L_hip_test": 0.25,
     "L_knee_test": 0.25,
     "L_ankle_test": 0.25,
+    "R_waist_yaw_test": 0.25,
     "R_hip_test": 0.25,
     "R_knee_test": 0.25,
     "R_ankle_test": 0.25,
