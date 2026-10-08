@@ -1,0 +1,1598 @@
+{
+ "_project": "twoleg",
+ "_robot": {
+  "actuator_names": [
+   "head",
+   "shoulder_test",
+   "elbow_test",
+   "wrist_test",
+   "shoulder_test_R",
+   "elbow_test_R",
+   "wrist_test_R",
+   "L_waist_test",
+   "L_ankle_test",
+   "L_knee_test",
+   "L_hip_test",
+   "R_waist_test",
+   "R_ankle_test",
+   "R_knee_test",
+   "R_hip_test"
+  ],
+  "declared_joint_names": [
+   "head",
+   "shoulder_test",
+   "elbow_test",
+   "wrist_test",
+   "shoulder_test_R",
+   "elbow_test_R",
+   "wrist_test_R",
+   "L_waist_test",
+   "L_ankle_test",
+   "L_knee_test",
+   "L_hip_test",
+   "R_waist_test",
+   "R_ankle_test",
+   "R_knee_test",
+   "R_hip_test"
+  ],
+  "n_actuators": 15,
+  "n_bodies": 123,
+  "n_geoms": 266,
+  "n_xml_joints": 16,
+  "total_mass_kg": 4.5024
+ },
+ "_runner": {
+  "__class__": "mjlab.rl.config.RslRlOnPolicyRunnerCfg",
+  "actor": {
+   "__class__": "mjlab.rl.config.RslRlModelCfg",
+   "activation": "elu",
+   "class_name": "MLPModel",
+   "cnn_cfg": null,
+   "distribution_cfg": {
+    "class_name": "GaussianDistribution",
+    "init_std": 1.0,
+    "std_type": "scalar"
+   },
+   "hidden_dims": [
+    512,
+    256,
+    128
+   ],
+   "obs_normalization": true,
+   "rnn_hidden_dim": 256,
+   "rnn_num_layers": 1,
+   "rnn_type": null
+  },
+  "algorithm": {
+   "__class__": "mjlab.rl.config.RslRlPpoAlgorithmCfg",
+   "class_name": "PPO",
+   "clip_param": 0.2,
+   "desired_kl": 0.01,
+   "entropy_coef": 0.01,
+   "gamma": 0.99,
+   "lam": 0.95,
+   "learning_rate": 0.001,
+   "max_grad_norm": 1.0,
+   "normalize_advantage_per_mini_batch": false,
+   "num_learning_epochs": 5,
+   "num_mini_batches": 4,
+   "optimizer": "adam",
+   "schedule": "adaptive",
+   "share_cnn_encoders": false,
+   "use_clipped_value_loss": true,
+   "value_loss_coef": 1.0
+  },
+  "class_name": "OnPolicyRunner",
+  "clip_actions": null,
+  "critic": {
+   "__class__": "mjlab.rl.config.RslRlModelCfg",
+   "activation": "elu",
+   "class_name": "MLPModel",
+   "cnn_cfg": null,
+   "distribution_cfg": null,
+   "hidden_dims": [
+    512,
+    256,
+    128
+   ],
+   "obs_normalization": true,
+   "rnn_hidden_dim": 256,
+   "rnn_num_layers": 1,
+   "rnn_type": null
+  },
+  "experiment_name": "velocity",
+  "load_checkpoint": "model_.*.pt",
+  "load_run": ".*",
+  "logger": "tensorboard",
+  "max_iterations": 5000,
+  "num_steps_per_env": 24,
+  "obs_groups": {
+   "actor": [
+    "actor"
+   ],
+   "critic": [
+    "critic"
+   ]
+  },
+  "resume": false,
+  "run_name": "velocity",
+  "save_interval": 500,
+  "seed": 42,
+  "upload_model": true,
+  "wandb_project": "twoleg",
+  "wandb_tags": []
+ },
+ "actions": {
+  "joint_pos": {
+   "__class__": "mjlab.envs.mdp.actions.actions.JointPositionActionCfg",
+   "actuator_names": [
+    ".*"
+   ],
+   "clip": null,
+   "entity_name": "robot",
+   "offset": 0.0,
+   "preserve_order": false,
+   "scale": 1.0,
+   "transmission_type": "joint",
+   "use_default_offset": true
+  }
+ },
+ "commands": {
+  "twist": {
+   "__class__": "mjlab.tasks.velocity.mdp.velocity_command.UniformVelocityCommandCfg",
+   "debug_vis": true,
+   "entity_name": "robot",
+   "heading_command": true,
+   "heading_control_stiffness": 0.5,
+   "init_velocity_prob": 0.0,
+   "ranges": {
+    "__class__": "mjlab.tasks.velocity.mdp.velocity_command.UniformVelocityCommandCfg.Ranges",
+    "ang_vel_z": [
+     -1.0,
+     1.0
+    ],
+    "heading": [
+     -3.14159265359,
+     3.14159265359
+    ],
+    "lin_vel_x": [
+     -0.4,
+     0.4
+    ],
+    "lin_vel_y": [
+     -0.3,
+     0.3
+    ]
+   },
+   "rel_forward_envs": 0.2,
+   "rel_heading_envs": 0.0,
+   "rel_standing_envs": 0.02,
+   "rel_turn_in_place_envs": 0.15,
+   "rel_world_envs": 0.0,
+   "resampling_time_range": [
+    3.0,
+    8.0
+   ],
+   "viz": {
+    "__class__": "mjlab.tasks.velocity.mdp.velocity_command.UniformVelocityCommandCfg.VizCfg",
+    "scale": 0.5,
+    "z_offset": 0.2
+   }
+  }
+ },
+ "curriculum": {
+  "action_rate_weight": {
+   "__class__": "mjlab.managers.curriculum_manager.CurriculumTermCfg",
+   "func": {
+    "__func__": "twoleg_training.tasks.mdp.reward_weight"
+   },
+   "params": {
+    "reward_name": "action_rate_l2",
+    "weight_stages": [
+     {
+      "step": 0,
+      "weight": -0.1
+     },
+     {
+      "step": 12000,
+      "weight": -0.2
+     },
+     {
+      "step": 18000,
+      "weight": -0.4
+     },
+     {
+      "step": 24000,
+      "weight": -0.6
+     },
+     {
+      "step": 30000,
+      "weight": -0.8
+     },
+     {
+      "step": 36000,
+      "weight": -1.0
+     }
+    ]
+   }
+  },
+  "standing_envs": {
+   "__class__": "mjlab.managers.curriculum_manager.CurriculumTermCfg",
+   "func": {
+    "__func__": "twoleg_training.tasks.mdp.standing_envs_curriculum"
+   },
+   "params": {
+    "command_name": "twist",
+    "standing_stages": [
+     {
+      "rel_standing_envs": 0.02,
+      "step": 0
+     },
+     {
+      "rel_standing_envs": 0.05,
+      "step": 12000
+     },
+     {
+      "rel_standing_envs": 0.1,
+      "step": 18000
+     },
+     {
+      "rel_standing_envs": 0.15,
+      "step": 24000
+     },
+     {
+      "rel_standing_envs": 0.2,
+      "step": 36000
+     },
+     {
+      "rel_standing_envs": 0.25,
+      "step": 48000
+     }
+    ]
+   }
+  }
+ },
+ "env": {
+  "decimation": 4,
+  "episode_length_s": 20.0
+ },
+ "events": {
+  "base_com": {
+   "__class__": "mjlab.managers.event_manager.EventTermCfg",
+   "func": {
+    "__func__": "mjlab.envs.mdp.dr.body.body_com_offset"
+   },
+   "interval_range_s": null,
+   "is_global_time": false,
+   "min_step_count_between_reset": 0,
+   "mode": "startup",
+   "params": {
+    "asset_cfg": {
+     "__class__": "mjlab.managers.scene_entity_config.SceneEntityCfg",
+     "actuator_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "actuator_names": null,
+     "body_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "body_names": [
+      "torso"
+     ],
+     "camera_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "camera_names": null,
+     "geom_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "geom_names": null,
+     "joint_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "joint_names": null,
+     "light_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "light_names": null,
+     "material_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "material_names": null,
+     "name": "robot",
+     "pair_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "pair_names": null,
+     "preserve_order": false,
+     "site_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "site_names": null,
+     "tendon_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "tendon_names": null
+    },
+    "operation": "add",
+    "ranges": {
+     "0": [
+      -0.025,
+      0.025
+     ],
+     "1": [
+      -0.025,
+      0.025
+     ],
+     "2": [
+      -0.03,
+      0.03
+     ]
+    }
+   }
+  },
+  "encoder_bias": {
+   "__class__": "mjlab.managers.event_manager.EventTermCfg",
+   "func": {
+    "__func__": "mjlab.envs.mdp.dr.joint.encoder_bias"
+   },
+   "interval_range_s": null,
+   "is_global_time": false,
+   "min_step_count_between_reset": 0,
+   "mode": "startup",
+   "params": {
+    "asset_cfg": {
+     "__class__": "mjlab.managers.scene_entity_config.SceneEntityCfg",
+     "actuator_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "actuator_names": null,
+     "body_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "body_names": null,
+     "camera_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "camera_names": null,
+     "geom_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "geom_names": null,
+     "joint_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "joint_names": null,
+     "light_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "light_names": null,
+     "material_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "material_names": null,
+     "name": "robot",
+     "pair_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "pair_names": null,
+     "preserve_order": false,
+     "site_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "site_names": null,
+     "tendon_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "tendon_names": null
+    },
+    "bias_range": [
+     -0.015,
+     0.015
+    ]
+   }
+  },
+  "foot_friction": {
+   "__class__": "mjlab.managers.event_manager.EventTermCfg",
+   "func": {
+    "__func__": "mjlab.envs.mdp.dr.geom.geom_friction"
+   },
+   "interval_range_s": null,
+   "is_global_time": false,
+   "min_step_count_between_reset": 0,
+   "mode": "startup",
+   "params": {
+    "asset_cfg": {
+     "__class__": "mjlab.managers.scene_entity_config.SceneEntityCfg",
+     "actuator_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "actuator_names": null,
+     "body_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "body_names": null,
+     "camera_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "camera_names": null,
+     "geom_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "geom_names": [
+      "L_foot_collision",
+      "R_foot_collision"
+     ],
+     "joint_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "joint_names": null,
+     "light_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "light_names": null,
+     "material_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "material_names": null,
+     "name": "robot",
+     "pair_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "pair_names": null,
+     "preserve_order": false,
+     "site_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "site_names": null,
+     "tendon_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "tendon_names": null
+    },
+    "operation": "abs",
+    "ranges": [
+     0.7,
+     1.3
+    ],
+    "shared_random": true
+   }
+  },
+  "push_robot": {
+   "__class__": "mjlab.managers.event_manager.EventTermCfg",
+   "func": {
+    "__func__": "mjlab.envs.mdp.events.push_by_setting_velocity"
+   },
+   "interval_range_s": [
+    3.0,
+    6.0
+   ],
+   "is_global_time": false,
+   "min_step_count_between_reset": 0,
+   "mode": "interval",
+   "params": {
+    "velocity_range": {
+     "x": [
+      -0.2,
+      0.2
+     ],
+     "y": [
+      -0.2,
+      0.2
+     ]
+    }
+   }
+  },
+  "reset_base": {
+   "__class__": "mjlab.managers.event_manager.EventTermCfg",
+   "func": {
+    "__func__": "mjlab.envs.mdp.events.reset_root_state_uniform"
+   },
+   "interval_range_s": null,
+   "is_global_time": false,
+   "min_step_count_between_reset": 0,
+   "mode": "reset",
+   "params": {
+    "pose_range": {
+     "x": [
+      -0.5,
+      0.5
+     ],
+     "y": [
+      -0.5,
+      0.5
+     ],
+     "yaw": [
+      -3.14,
+      3.14
+     ],
+     "z": [
+      0.31,
+      0.33
+     ]
+    },
+    "velocity_range": {}
+   }
+  },
+  "reset_robot_joints": {
+   "__class__": "mjlab.managers.event_manager.EventTermCfg",
+   "func": {
+    "__func__": "mjlab.envs.mdp.events.reset_joints_by_offset"
+   },
+   "interval_range_s": null,
+   "is_global_time": false,
+   "min_step_count_between_reset": 0,
+   "mode": "reset",
+   "params": {
+    "asset_cfg": {
+     "__class__": "mjlab.managers.scene_entity_config.SceneEntityCfg",
+     "actuator_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "actuator_names": null,
+     "body_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "body_names": null,
+     "camera_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "camera_names": null,
+     "geom_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "geom_names": null,
+     "joint_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "joint_names": [
+      ".*"
+     ],
+     "light_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "light_names": null,
+     "material_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "material_names": null,
+     "name": "robot",
+     "pair_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "pair_names": null,
+     "preserve_order": false,
+     "site_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "site_names": null,
+     "tendon_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "tendon_names": null
+    },
+    "position_range": [
+     0.0,
+     0.0
+    ],
+    "velocity_range": [
+     0.0,
+     0.0
+    ]
+   }
+  }
+ },
+ "observations": {
+  "actor": {
+   "concatenate_terms": true,
+   "enable_corruption": true,
+   "terms": {
+    "actions": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.last_action"
+     },
+     "history_length": 0,
+     "noise": null,
+     "params": {},
+     "scale": null
+    },
+    "base_ang_vel": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.builtin_sensor"
+     },
+     "history_length": 0,
+     "noise": {
+      "__class__": "mjlab.utils.noise.noise_cfg.UniformNoiseCfg",
+      "n_max": 0.03,
+      "n_min": -0.03,
+      "operation": "add"
+     },
+     "params": {
+      "sensor_name": "robot/imu_ang_vel"
+     },
+     "scale": null
+    },
+    "base_lin_vel": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.builtin_sensor"
+     },
+     "history_length": 0,
+     "noise": {
+      "__class__": "mjlab.utils.noise.noise_cfg.UniformNoiseCfg",
+      "n_max": 0.5,
+      "n_min": -0.5,
+      "operation": "add"
+     },
+     "params": {
+      "sensor_name": "robot/imu_lin_vel"
+     },
+     "scale": null
+    },
+    "command": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.generated_commands"
+     },
+     "history_length": 0,
+     "noise": null,
+     "params": {
+      "command_name": "twist"
+     },
+     "scale": null
+    },
+    "joint_pos": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.joint_pos_rel"
+     },
+     "history_length": 0,
+     "noise": {
+      "__class__": "mjlab.utils.noise.noise_cfg.UniformNoiseCfg",
+      "n_max": 0.001,
+      "n_min": -0.001,
+      "operation": "add"
+     },
+     "params": {},
+     "scale": null
+    },
+    "joint_vel": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.joint_vel_rel"
+     },
+     "history_length": 0,
+     "noise": {
+      "__class__": "mjlab.utils.noise.noise_cfg.UniformNoiseCfg",
+      "n_max": 0.25,
+      "n_min": -0.25,
+      "operation": "add"
+     },
+     "params": {},
+     "scale": null
+    },
+    "projected_gravity": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.projected_gravity"
+     },
+     "history_length": 0,
+     "noise": {
+      "__class__": "mjlab.utils.noise.noise_cfg.UniformNoiseCfg",
+      "n_max": 0.01,
+      "n_min": -0.01,
+      "operation": "add"
+     },
+     "params": {},
+     "scale": null
+    }
+   }
+  },
+  "critic": {
+   "concatenate_terms": true,
+   "enable_corruption": false,
+   "terms": {
+    "actions": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.last_action"
+     },
+     "history_length": 0,
+     "noise": null,
+     "params": {},
+     "scale": null
+    },
+    "base_ang_vel": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.builtin_sensor"
+     },
+     "history_length": 0,
+     "noise": {
+      "__class__": "mjlab.utils.noise.noise_cfg.UniformNoiseCfg",
+      "n_max": 0.03,
+      "n_min": -0.03,
+      "operation": "add"
+     },
+     "params": {
+      "sensor_name": "robot/imu_ang_vel"
+     },
+     "scale": null
+    },
+    "base_lin_vel": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.builtin_sensor"
+     },
+     "history_length": 0,
+     "noise": {
+      "__class__": "mjlab.utils.noise.noise_cfg.UniformNoiseCfg",
+      "n_max": 0.5,
+      "n_min": -0.5,
+      "operation": "add"
+     },
+     "params": {
+      "sensor_name": "robot/imu_lin_vel"
+     },
+     "scale": null
+    },
+    "command": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.generated_commands"
+     },
+     "history_length": 0,
+     "noise": null,
+     "params": {
+      "command_name": "twist"
+     },
+     "scale": null
+    },
+    "foot_air_time": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.tasks.velocity.mdp.observations.foot_air_time"
+     },
+     "history_length": 0,
+     "noise": null,
+     "params": {
+      "sensor_name": "feet_ground_contact"
+     },
+     "scale": null
+    },
+    "foot_contact": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.tasks.velocity.mdp.observations.foot_contact"
+     },
+     "history_length": 0,
+     "noise": null,
+     "params": {
+      "sensor_name": "feet_ground_contact"
+     },
+     "scale": null
+    },
+    "foot_contact_forces": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.tasks.velocity.mdp.observations.foot_contact_forces"
+     },
+     "history_length": 0,
+     "noise": null,
+     "params": {
+      "sensor_name": "feet_ground_contact"
+     },
+     "scale": null
+    },
+    "foot_height": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.tasks.velocity.mdp.observations.foot_height"
+     },
+     "history_length": 0,
+     "noise": null,
+     "params": {
+      "sensor_name": "foot_height_scan"
+     },
+     "scale": null
+    },
+    "joint_pos": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.joint_pos_rel"
+     },
+     "history_length": 0,
+     "noise": {
+      "__class__": "mjlab.utils.noise.noise_cfg.UniformNoiseCfg",
+      "n_max": 0.001,
+      "n_min": -0.001,
+      "operation": "add"
+     },
+     "params": {},
+     "scale": null
+    },
+    "joint_vel": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.joint_vel_rel"
+     },
+     "history_length": 0,
+     "noise": {
+      "__class__": "mjlab.utils.noise.noise_cfg.UniformNoiseCfg",
+      "n_max": 0.25,
+      "n_min": -0.25,
+      "operation": "add"
+     },
+     "params": {},
+     "scale": null
+    },
+    "projected_gravity": {
+     "__class__": "mjlab.managers.observation_manager.ObservationTermCfg",
+     "clip": null,
+     "delay_hold_prob": 0.0,
+     "delay_max_lag": 0,
+     "delay_min_lag": 0,
+     "delay_per_env": true,
+     "delay_per_env_phase": true,
+     "delay_update_period": 0,
+     "flatten_history_dim": true,
+     "func": {
+      "__func__": "mjlab.envs.mdp.observations.projected_gravity"
+     },
+     "history_length": 0,
+     "noise": {
+      "__class__": "mjlab.utils.noise.noise_cfg.UniformNoiseCfg",
+      "n_max": 0.01,
+      "n_min": -0.01,
+      "operation": "add"
+     },
+     "params": {},
+     "scale": null
+    }
+   }
+  }
+ },
+ "rewards": {
+  "action_rate_l2": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.envs.mdp.rewards.action_rate_l2"
+   },
+   "params": {},
+   "weight": -0.1
+  },
+  "air_time": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.feet_air_time"
+   },
+   "params": {
+    "command_name": "twist",
+    "command_threshold": 0.01,
+    "sensor_name": "feet_ground_contact",
+    "threshold_max": 0.3,
+    "threshold_min": 0.125
+   },
+   "weight": 3.0
+  },
+  "angular_momentum": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.angular_momentum_penalty"
+   },
+   "params": {
+    "sensor_name": "robot/root_angmom"
+   },
+   "weight": -0.02
+  },
+  "body_ang_vel": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.body_angular_velocity_penalty"
+   },
+   "params": {
+    "asset_cfg": {
+     "__class__": "mjlab.managers.scene_entity_config.SceneEntityCfg",
+     "actuator_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "actuator_names": null,
+     "body_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "body_names": [
+      "torso"
+     ],
+     "camera_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "camera_names": null,
+     "geom_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "geom_names": null,
+     "joint_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "joint_names": null,
+     "light_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "light_names": null,
+     "material_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "material_names": null,
+     "name": "robot",
+     "pair_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "pair_names": null,
+     "preserve_order": false,
+     "site_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "site_names": null,
+     "tendon_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "tendon_names": null
+    }
+   },
+   "weight": -0.05
+  },
+  "both_feet_air_time": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "twoleg_training.tasks.mdp.both_feet_air_time"
+   },
+   "params": {
+    "command_name": "twist",
+    "command_threshold": 0.01,
+    "sensor_name": "feet_ground_contact",
+    "threshold_max": 0.3,
+    "threshold_min": 0.125
+   },
+   "weight": 5.0
+  },
+  "dof_pos_limits": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.envs.mdp.rewards.joint_pos_limits"
+   },
+   "params": {},
+   "weight": -1.0
+  },
+  "foot_clearance": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.feet_clearance"
+   },
+   "params": {
+    "asset_cfg": {
+     "__class__": "mjlab.managers.scene_entity_config.SceneEntityCfg",
+     "actuator_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "actuator_names": null,
+     "body_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "body_names": null,
+     "camera_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "camera_names": null,
+     "geom_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "geom_names": null,
+     "joint_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "joint_names": null,
+     "light_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "light_names": null,
+     "material_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "material_names": null,
+     "name": "robot",
+     "pair_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "pair_names": null,
+     "preserve_order": false,
+     "site_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "site_names": [
+      "left_foot",
+      "right_foot"
+     ],
+     "tendon_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "tendon_names": null
+    },
+    "command_name": "twist",
+    "command_threshold": 0.01,
+    "height_sensor_name": "foot_height_scan",
+    "target_height": 0.02
+   },
+   "weight": -0.1
+  },
+  "foot_slip": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.feet_slip"
+   },
+   "params": {
+    "asset_cfg": {
+     "__class__": "mjlab.managers.scene_entity_config.SceneEntityCfg",
+     "actuator_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "actuator_names": null,
+     "body_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "body_names": null,
+     "camera_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "camera_names": null,
+     "geom_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "geom_names": null,
+     "joint_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "joint_names": null,
+     "light_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "light_names": null,
+     "material_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "material_names": null,
+     "name": "robot",
+     "pair_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "pair_names": null,
+     "preserve_order": false,
+     "site_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "site_names": [
+      "left_foot",
+      "right_foot"
+     ],
+     "tendon_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "tendon_names": null
+    },
+    "command_name": "twist",
+    "command_threshold": 0.01,
+    "sensor_name": "feet_ground_contact"
+   },
+   "weight": -0.1
+  },
+  "foot_swing_height": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.feet_swing_height"
+   },
+   "params": {
+    "command_name": "twist",
+    "command_threshold": 0.01,
+    "height_sensor_name": "foot_height_scan",
+    "sensor_name": "feet_ground_contact",
+    "target_height": 0.02
+   },
+   "weight": -0.1
+  },
+  "pose": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.variable_posture"
+   },
+   "params": {
+    "asset_cfg": {
+     "__class__": "mjlab.managers.scene_entity_config.SceneEntityCfg",
+     "actuator_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "actuator_names": null,
+     "body_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "body_names": null,
+     "camera_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "camera_names": null,
+     "geom_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "geom_names": null,
+     "joint_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "joint_names": [
+      ".*"
+     ],
+     "light_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "light_names": null,
+     "material_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "material_names": null,
+     "name": "robot",
+     "pair_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "pair_names": null,
+     "preserve_order": false,
+     "site_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "site_names": null,
+     "tendon_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "tendon_names": null
+    },
+    "command_name": "twist",
+    "running_threshold": 1.5,
+    "std_running": {
+     ".*ankle.*": 0.25,
+     ".*elbow.*": 0.4,
+     ".*head.*": 0.3,
+     ".*hip.*": 0.4,
+     ".*knee.*": 0.4,
+     ".*shoulder.*": 0.4,
+     ".*waist.*": 0.4,
+     ".*wrist.*": 0.4
+    },
+    "std_standing": {
+     ".*ankle.*": 0.1,
+     ".*elbow.*": 0.1,
+     ".*head.*": 0.1,
+     ".*hip.*": 0.1,
+     ".*knee.*": 0.1,
+     ".*shoulder.*": 0.1,
+     ".*waist.*": 0.1,
+     ".*wrist.*": 0.1
+    },
+    "std_walking": {
+     ".*ankle.*": 0.25,
+     ".*elbow.*": 0.4,
+     ".*head.*": 0.3,
+     ".*hip.*": 0.4,
+     ".*knee.*": 0.4,
+     ".*shoulder.*": 0.4,
+     ".*waist.*": 0.4,
+     ".*wrist.*": 0.4
+    },
+    "walking_threshold": 0.05
+   },
+   "weight": 1.0
+  },
+  "self_collisions": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.self_collision_cost"
+   },
+   "params": {
+    "sensor_name": "self_collision"
+   },
+   "weight": -1.0
+  },
+  "track_angular_velocity": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.track_angular_velocity"
+   },
+   "params": {
+    "command_name": "twist",
+    "std": 0.707106781187
+   },
+   "weight": 2.0
+  },
+  "track_linear_velocity": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.track_linear_velocity"
+   },
+   "params": {
+    "command_name": "twist",
+    "std": 0.316227766017
+   },
+   "weight": 2.0
+  },
+  "upright": {
+   "__class__": "mjlab.managers.reward_manager.RewardTermCfg",
+   "func": {
+    "__func__": "mjlab.tasks.velocity.mdp.rewards.upright"
+   },
+   "params": {
+    "asset_cfg": {
+     "__class__": "mjlab.managers.scene_entity_config.SceneEntityCfg",
+     "actuator_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "actuator_names": null,
+     "body_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "body_names": [
+      "torso"
+     ],
+     "camera_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "camera_names": null,
+     "geom_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "geom_names": null,
+     "joint_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "joint_names": null,
+     "light_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "light_names": null,
+     "material_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "material_names": null,
+     "name": "robot",
+     "pair_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "pair_names": null,
+     "preserve_order": false,
+     "site_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "site_names": null,
+     "tendon_ids": {
+      "__repr__": "slice(None, None, None)"
+     },
+     "tendon_names": null
+    },
+    "std": 0.22360679775
+   },
+   "weight": 2.0
+  }
+ },
+ "scene": {
+  "entities": [
+   "robot"
+  ],
+  "sensors": [
+   "feet_ground_contact:ContactSensorCfg",
+   "foot_height_scan:TerrainHeightSensorCfg",
+   "self_collision:ContactSensorCfg"
+  ],
+  "terrain": {
+   "__class__": "mjlab.terrains.terrain_entity.TerrainEntityCfg",
+   "articulation": null,
+   "cameras": [],
+   "collisions": [],
+   "env_spacing": 2.0,
+   "init_state": {
+    "__class__": "mjlab.entity.entity.EntityCfg.InitialStateCfg",
+    "ang_vel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "joint_pos": {
+     ".*": 0.0
+    },
+    "joint_vel": {
+     ".*": 0.0
+    },
+    "lin_vel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rot": [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "lights": [
+    {
+     "__class__": "mjlab.utils.spec_config.LightCfg",
+     "body": "world",
+     "castshadow": true,
+     "cutoff": 45.0,
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "exponent": 10.0,
+     "mode": "fixed",
+     "name": "sun",
+     "pos": [
+      0.0,
+      0.0,
+      1.5
+     ],
+     "target": null,
+     "type": "directional"
+    }
+   ],
+   "materials": [
+    {
+     "__class__": "mjlab.utils.spec_config.MaterialCfg",
+     "geom_names_expr": [
+      "terrain$"
+     ],
+     "name": "groundplane",
+     "reflectance": 0.2,
+     "rgba": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "texrepeat": [
+      4.0,
+      4.0
+     ],
+     "texture": "groundplane",
+     "texuniform": true
+    }
+   ],
+   "max_init_terrain_level": 5,
+   "num_envs": 1,
+   "sort_actuators": false,
+   "spec_fn": {
+    "__func__": "mjlab.entity.entity.EntityCfg.<lambda>.<locals>.<lambda>"
+   },
+   "terrain_generator": null,
+   "terrain_type": "plane",
+   "textures": [
+    {
+     "__class__": "mjlab.utils.spec_config.TextureCfg",
+     "builtin": "checker",
+     "height": 300,
+     "mark": "edge",
+     "markrgb": [
+      0.8,
+      0.8,
+      0.8
+     ],
+     "name": "groundplane",
+     "rgb1": [
+      0.2,
+      0.3,
+      0.4
+     ],
+     "rgb2": [
+      0.1,
+      0.2,
+      0.3
+     ],
+     "type": "2d",
+     "width": 300
+    }
+   ]
+  }
+ },
+ "sim": {
+  "contact_sensor_maxmatch": 200,
+  "ls_parallel": true,
+  "mujoco": {
+   "__class__": "mjlab.sim.sim.MujocoCfg",
+   "ccd_iterations": 50,
+   "cone": "pyramidal",
+   "disableflags": [],
+   "enableflags": [],
+   "gravity": [
+    0.0,
+    0.0,
+    -9.81
+   ],
+   "impratio": 1.0,
+   "integrator": "implicitfast",
+   "iterations": 10,
+   "jacobian": "auto",
+   "ls_iterations": 20,
+   "ls_tolerance": 0.01,
+   "solver": "newton",
+   "timestep": 0.005,
+   "tolerance": 1e-08
+  },
+  "nan_guard": {
+   "__class__": "mjlab.utils.nan_guard.NanGuardCfg",
+   "buffer_size": 100,
+   "enabled": false,
+   "max_envs_to_dump": 5,
+   "output_dir": "/tmp/mjlab/nan_dumps"
+  },
+  "nconmax": 200,
+  "njmax": 1500
+ },
+ "terminations": {
+  "fell_over": {
+   "__class__": "mjlab.managers.termination_manager.TerminationTermCfg",
+   "func": {
+    "__func__": "mjlab.envs.mdp.terminations.bad_orientation"
+   },
+   "params": {
+    "limit_angle": 0.436332312999
+   },
+   "time_out": false
+  },
+  "time_out": {
+   "__class__": "mjlab.managers.termination_manager.TerminationTermCfg",
+   "func": {
+    "__func__": "mjlab.envs.mdp.terminations.time_out"
+   },
+   "params": {},
+   "time_out": true
+  }
+ }
+}
