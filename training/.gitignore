@@ -1,9 +1,0 @@
-.venv/
-logs/
-__pycache__/
-*.pyc
-*.egg-info/
-wandb/
-
-# loop runtime state (untracked, never auto-wiped)
-.audit/
