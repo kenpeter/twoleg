@@ -227,7 +227,7 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # resolve to an empty std tensor and crash at compute time. Mirror Unitree
     # G1: looser std on hip/knee/ankle (natural stride), tighter elsewhere.
     duck_pose_std = {
-        r".*waist_yaw_test.*": 0.5,
+        r".*hip_roll_test.*": 0.5,
         r".*hip_test.*": 0.5,
         r".*knee_test.*": 0.5,
         r".*ankle_test.*": 0.15,

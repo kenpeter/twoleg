@@ -331,7 +331,7 @@
         <body name="L_waist_link" pos="0.026 -0.001 -0.037449" quat="0.707106781 0 -0.707106781 0">
           <body name="L_leg_top" pos="0.003249 -0.017500 -0.238500" quat="0.707107 0 0 0.707107">
             <body name="waist_L_link" pos="-0.01046 0.002834 0.238034" quat="0.707106781 0 0 -0.707106781">
-              <joint name="L_waist_yaw_test" type="hinge" axis="0 0 1" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+              <joint name="L_hip_roll_test" type="hinge" axis="1 0 0" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
               <body name="waist_servo_L_horn" pos="0.000034 0.000960 -0.000034" quat="0.707107 0 0.707107 0">
                 <geom name="waist_servo_L_horn_v" mesh="horn" class="visual" material="horn" pos="-0.010000 -0.002600 -0.010000" contype="0" conaffinity="0" />
                 <geom name="waist_servo_L_horn_c" mesh="horn" class="collision" material="horn" pos="-0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
@@ -446,7 +446,7 @@
         <body name="R_waist_link" pos="0.026 -0.001 0.037449" quat="0.707106781 0 -0.707106781 0">
           <body name="R_leg_top" pos="-0.003249 -0.017500 -0.238500" quat="0.707107 0 0 -0.707107">
             <body name="waist_R_link" pos="0.01046 0.002766 0.238034" quat="0.707106781 0 0 0.707106781">
-              <joint name="R_waist_yaw_test" type="hinge" axis="0 0 1" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+              <joint name="R_hip_roll_test" type="hinge" axis="1 0 0" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
               <body name="waist_servo_R_horn" pos="0.000034 0.000960 -0.000034" quat="0.707107 0 0.707107 0">
                 <geom name="waist_servo_R_horn_v" mesh="horn" class="visual" material="horn" pos="-0.010000 -0.002600 -0.010000" contype="0" conaffinity="0" />
                 <geom name="waist_servo_R_horn_c" mesh="horn" class="collision" material="horn" pos="-0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
