@@ -35,11 +35,17 @@ except ImportError:
     from torch_rl_algorithms.algorithms.ppo.model import PPO
 
 
-def build_config(actions, hidden=(256, 256), lr=3e-4, steps=2_000_000):
+def build_config(actions, hidden=(256, 256), lr=3e-4, steps=2_000_000, num_envs=1):
+    # epoch_steps must scale with num_envs or the parallel envs are wasted:
+    # each iteration should roll out ~num_envs * rollout_horizon env-steps so the
+    # GPU buffer saturates. 48 env-steps/env/iter is a standard mjlab/IsaacLab
+    # ratio. With num_envs=1 this stays a small 48-step rollout (safe for tests).
+    rollout_per_env = 48
+    epoch_steps = max(5000, num_envs * rollout_per_env)
     return {
         "train": {
             "steps": steps,
-            "epoch_steps": 5000,
+            "epoch_steps": epoch_steps,
             "checkpoint_path": str(Path(REPO) / "logs" / "twoleg_ppo"),
             "save_steps": 10_000,
             "test_episodes": 1,
@@ -94,7 +100,7 @@ def main():
         enable_mirroring=args.enable_mirroring,
     )
 
-    cfg = build_config(env.action_space.shape[0], hidden=hidden, lr=args.lr, steps=args.steps)
+    cfg = build_config(env.action_space.shape[0], hidden=hidden, lr=args.lr, steps=args.steps, num_envs=args.num_envs)
 
     model = PPO(
         env,
