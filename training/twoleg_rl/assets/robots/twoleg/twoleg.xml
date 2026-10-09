@@ -361,6 +361,8 @@
             <inertial pos="0 0 0" mass="0.002565" diaginertia="9.920648e-08 5.286116e-08 5.286409e-08" /></body>
             <body name="L_hip_link" pos="0.017000 -0.014000 0.153940">
               <joint name="L_hip_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+              <!-- self-collision capsule: thigh (hip joint -> knee joint) -->
+              <geom name="L_hip_capsule" type="capsule" fromto="0 0 0 0 0 -0.075" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
               <body name="L_multi_3" pos="0.001250 0.022000 -0.064950" quat="0.000000 0.707107 0.000000 0.707107">
                 <geom name="L_multi_3_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125" contype="0" conaffinity="0" />
                 <geom name="L_multi_3_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700" contype="0" conaffinity="0" />
@@ -385,6 +387,8 @@
               </body>
               <body name="L_knee_link" pos="0.000500 0.000000 -0.075190">
                 <joint name="L_knee_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 0" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+                <!-- self-collision capsule: shank (knee joint -> ankle joint) -->
+                <geom name="L_knee_capsule" type="capsule" fromto="0 0 0 0 0 -0.062" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
                 <body name="L_little_u" pos="0.000000 0.024000 -0.032000" quat="0.7071068 0 0 0.7071068">
                   <geom name="L_screw_1" type="cylinder" size="0.0016 0.004" pos="0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
                   <geom name="L_screw_2" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
@@ -418,6 +422,8 @@
                 </body>
                 <body name="L_ankle_link" pos="-0.024500 0.024000 -0.062000">
                   <joint name="L_ankle_test" type="hinge" axis="1 0 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+                  <!-- self-collision capsule: ankle (ankle joint -> foot) -->
+                  <geom name="L_ankle_capsule" type="capsule" fromto="0 0 0 0 0 -0.017" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
                   <body name="L_ankle_pivot_shaft" pos="0.048500 0.000000 0.000000">
                     <geom name="L_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
                   <inertial pos="0 0 0" mass="0.000075" diaginertia="3.015929e-10 3.015929e-10 1.507964e-10" /></body>
@@ -476,6 +482,8 @@
             <inertial pos="0 0 0" mass="0.002565" diaginertia="9.920648e-08 5.286116e-08 5.286409e-08" /></body>
             <body name="R_hip_link" pos="-0.017000 -0.014000 0.153940">
               <joint name="R_hip_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+              <!-- self-collision capsule: thigh (hip joint -> knee joint) -->
+              <geom name="R_hip_capsule" type="capsule" fromto="0 0 0 0 0 -0.075" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
               <body name="R_multi_3" pos="-0.001250 0.022000 -0.064950" quat="0.000000 0.707107 0.000000 -0.707107">
                 <geom name="R_multi_3_v" mesh="multi_r" class="visual" material="bracket" pos="0.029 -0.0185 -0.0125" contype="0" conaffinity="0" />
                 <geom name="R_multi_3_c" mesh="multi_r" class="collision" pos="0.029 -0.0185 -0.0125" density="2700" contype="0" conaffinity="0" />
@@ -500,6 +508,8 @@
               </body>
               <body name="R_knee_link" pos="-0.000500 0.000000 -0.075190">
                 <joint name="R_knee_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 0" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+                <!-- self-collision capsule: shank (knee joint -> ankle joint) -->
+                <geom name="R_knee_capsule" type="capsule" fromto="0 0 0 0 0 -0.062" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
                 <body name="R_little_u" pos="0.000000 0.024000 -0.032000" quat="0.7071068 0 0 -0.7071068">
                   <geom name="R_screw_1" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
                   <geom name="R_screw_2" type="cylinder" size="0.0016 0.004" pos="0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
@@ -533,6 +543,8 @@
                 </body>
                 <body name="R_ankle_link" pos="0.024500 0.024000 -0.062000">
                   <joint name="R_ankle_test" type="hinge" axis="1 0 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+                  <!-- self-collision capsule: ankle (ankle joint -> foot) -->
+                  <geom name="R_ankle_capsule" type="capsule" fromto="0 0 0 0 0 -0.017" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
                   <body name="R_ankle_pivot_shaft" pos="-0.048500 0.000000 0.000000">
                     <geom name="R_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 -0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
                   <inertial pos="0 0 0" mass="0.000075" diaginertia="3.015929e-10 3.015929e-10 1.507964e-10" /></body>

@@ -90,6 +90,7 @@ def get_twoleg_robot_cfg() -> EntityCfg:
         # giving the leg links a few non-overlapping capsules and adding a
         # CollisionCfg with condim=1 for them.
         collisions=(
+            # Foot/terrain contact: full friction (condim=3), highest priority.
             CollisionCfg(
                 geom_names_expr=(r".*_foot_collision$",),
                 condim=3,
@@ -97,6 +98,17 @@ def get_twoleg_robot_cfg() -> EntityCfg:
                 contype=1,
                 priority=1,
                 friction=(0.6,),
+            ),
+            # Leg-link self-collision: thin capsules (one per main link) get
+            # condim=1 so legs can't interpenetrate each other. The decorative
+            # mesh colliders stay contype=0 (XML default), so only these
+            # capsules collide -- no overlap-at-rest explosion.
+            CollisionCfg(
+                geom_names_expr=(r".*_(hip|knee|ankle)_capsule$",),
+                condim=1,
+                conaffinity=1,
+                contype=1,
+                priority=0,
             ),
         ),
     )
