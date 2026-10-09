@@ -9,6 +9,9 @@ mapping, and duck-scaled action scale differ.
 from mjlab.envs import ManagerBasedRlEnvCfg
 from mjlab.envs import mdp as envs_mdp
 from mjlab.envs.mdp.actions import JointPositionActionCfg
+from twoleg_rl.tasks.velocity.config.twoleg.dc_motor_action import (
+    DCMotorEffortActionCfg,
+)
 from mjlab.managers.event_manager import EventTermCfg
 from mjlab.managers.reward_manager import RewardTermCfg
 from mjlab.managers.scene_entity_config import SceneEntityCfg
@@ -71,9 +74,19 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     if cfg.scene.terrain is not None and cfg.scene.terrain.terrain_generator is not None:
         cfg.scene.terrain.terrain_generator.curriculum = True
 
-    joint_pos_action = cfg.actions["joint_pos"]
-    assert isinstance(joint_pos_action, JointPositionActionCfg)
-    joint_pos_action.scale = TWOLEG_ACTION_SCALE
+    # --- Torque control (matches BipedRobot's DC-motor effort model) ---------
+    # Policy commands torque directly; the four-quadrant STS3215 envelope is
+    # applied inside DCMotorEffortAction. scale maps normalized action [-1,1]
+    # to the rated continuous torque (EFFORT_LIMIT = 0.98 N-m).
+    from twoleg_rl.tasks.velocity.config.twoleg.dc_motor_action import (
+        DCMotorEffortActionCfg,
+        EFFORT_LIMIT,
+    )
+    cfg.actions["joint_pos"] = DCMotorEffortActionCfg(
+        entity_name="robot",
+        actuator_names=(r"^(L|R)_(hip_roll|hip|knee|ankle)_test$",),
+        scale=EFFORT_LIMIT,
+    )
 
     cfg.viewer.body_name = TORSO_BODY
 

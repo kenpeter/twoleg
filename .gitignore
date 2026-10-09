@@ -7,3 +7,10 @@ __pycache__/
 
 # loop runtime state (untracked, never auto-wiped)
 .audit/
+
+# training artifacts (logs, checkpoints, videos, tensorboard)
+training/logs/
+training/runs/
+training/**/*.mp4
+training/**/MUJOCO_LOG.TXT
+training/latest_walk*.mp4
