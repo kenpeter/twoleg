@@ -93,8 +93,12 @@ class TwoLegGymEnv:
         return self._to_trainer_obs(self._maybe_mirror_obs(obs))
 
     def step(self, actions):
-        # actions: numpy [N, A] (from the Trainer). Scale normalized -> radians.
-        actions_np = np.asarray(actions, dtype=np.float32)
+        # actions: numpy [N, A] (from the Trainer) OR a torch tensor (PPO may
+        # return CUDA tensors directly). Normalize to host numpy first.
+        if hasattr(actions, "cpu"):
+            actions_np = np.asarray(actions.detach().cpu().numpy(), dtype=np.float32)
+        else:
+            actions_np = np.asarray(actions, dtype=np.float32)
         if self._mirror_active:
             actions_np = self._mirror_action(actions_np)
         actions_t = torch.tensor(actions_np, dtype=torch.float32, device=self.device)
@@ -103,7 +107,8 @@ class TwoLegGymEnv:
         self._episode_steps += 1
 
         # timeout termination (mjlab don't separate truncated; fold into infos)
-        truncated = self._episode_steps >= self.max_episode_steps
+        # keep on the same device as dones (cuda when device=cuda)
+        truncated = (self._episode_steps >= self.max_episode_steps).to(dones.device)
         term = dones.bool() | truncated
 
         infos_out = {
