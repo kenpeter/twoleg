@@ -1,10 +1,9 @@
-"""TwoLeg (0.2 m duck biped) robot asset wiring for the mjlab velocity task.
+"""TwoLeg (iw) robot asset wiring for the mjlab velocity task.
 
 Mirrors unitree_rl_mjlab's ``unitree_g1`` constants: provide the robot EntityCfg
 (via a spec_fn returning a mujoco.MjSpec) and the per-joint action scale. The
-duck has 6 actuated joints (L/R hip, knee, ankle) and two foot bodies
-(L_foot / R_foot) with contact-collision geoms and sites ``left_foot`` /
-``right_foot``.
+iw has 8 actuated leg joints (L/R: hip_roll, hip, knee, ankle) = 15-DOF budget
+with head(1) + hands(3+3). ~4.5 kg real mass (MuJoCo auto 4.50 kg).
 """
 
 from pathlib import Path
@@ -63,8 +62,23 @@ def get_spec() -> "mujoco.MjSpec":
 
 def get_twoleg_robot_cfg() -> EntityCfg:
     """Build the TwoLeg entity config from twoleg.xml."""
+    # Standing spawn: at the zero-pose the foot boxes sit 0.251 m BELOW the
+    # floor (root at world origin), so the contact solver ejects the robot on
+    # step 0. Raise the root to z=0.251 so the feet rest on the ground, and
+    # bend the legs slightly so it stands instead of collapsing.
+    STANDING_KEYFRAME = EntityCfg.InitialStateCfg(
+        pos=(0.0, 0.0, 0.251),
+        joint_pos={
+            ".*_hip_test": 0.0,
+            ".*_knee_test": 0.0,
+            ".*_ankle_test": 0.0,
+            ".*_hip_roll_test": 0.0,
+        },
+        joint_vel={".*": 0.0},
+    )
     return EntityCfg(
         spec_fn=get_spec,
         articulation=TWOLEG_ARTICULATION,
+        init_state=STANDING_KEYFRAME,
     )
 

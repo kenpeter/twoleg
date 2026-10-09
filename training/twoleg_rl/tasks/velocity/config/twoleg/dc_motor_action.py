@@ -20,10 +20,15 @@ from mjlab.envs.mdp.actions.actions import BaseActionCfg, BaseAction
 from mjlab.actuator.actuator import TransmissionType
 
 
-# --- STS3215-class DC-motor constants (from BipedRobot biped_env_v2) ---------
-SATURATION_EFFORT = 2.94   # N-m, stall @ 12 V (physical torque-speed curve)
-EFFORT_LIMIT = 0.98        # N-m, rated continuous @ 12 V (drive clamp)
-VELOCITY_LIMIT = 4.71      # rad/s, no-load speed (45 RPM)
+# --- iw DC-motor constants (45 kg-class servos) ------------------------------
+# BipedRobot uses STS3215-class (25 kg) servos: stall 2.94, rated 0.98,
+# no-load 4.71 rad/s. Our iw servos are 45 kg-class -> scale x1.8.
+#   stall: 2.94 * 1.8 = 5.29 N-m
+#   rated: 0.98 * 1.8 = 1.76 N-m
+#   no-load speed: 4.71 * 1.8 = 8.48 rad/s
+SATURATION_EFFORT = 5.29   # N-m, stall @ 12 V (physical torque-speed curve)
+EFFORT_LIMIT = 1.76        # N-m, rated continuous @ 12 V (drive clamp)
+VELOCITY_LIMIT = 8.48      # rad/s, no-load speed (45 kg-class servo)
 _VEL_AT_EFFORT_LIM = VELOCITY_LIMIT * (1.0 + EFFORT_LIMIT / SATURATION_EFFORT)
 
 
