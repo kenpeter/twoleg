@@ -67,12 +67,21 @@ class TwoLegGymEnv:
             cfg.scene.render_mode = "rgb_array"
         self._cfg = cfg
 
-        self.env = ManagerBasedRlEnv(cfg=cfg, device=device)
+        self.env = ManagerBasedRlEnv(
+            cfg=cfg, device=device, render_mode="rgb_array" if render else None
+        )
         self.venv = RslRlVecEnvWrapper(self.env, clip_actions=cfg.agent.clip_actions if hasattr(cfg, "agent") else 1.0)
 
         # --- spaces -------------------------------------------------------
-        actor_dim = int(self.env.observation_manager.group_obs_dim["actor"][0])
+        # Stock torch-rl-algorithms PPO reads obs["actor"] and feeds the SAME
+        # tensor to both actor and critic (agent.step: `obs = observation["actor"]`).
+        # So actor and critic must share one dimension. Our critic (48) = actor
+        # (36) + 12 privileged. We declare the actor space at the FULL critic dim
+        # (48) and feed the 48-dim obs as "actor" (see _to_trainer_obs), so the
+        # actor network input = 48 and the critic normalizer matches. Privileged
+        # dims reaching the actor are valid state info.
         critic_dim = int(self.env.observation_manager.group_obs_dim["critic"][0])
+        actor_dim = critic_dim
         action_dim = int(sum(self.env.action_manager.action_term_dim))
 
         self.observation_space = spaces.Dict(
@@ -150,9 +159,21 @@ class TwoLegGymEnv:
         return actions_t * scales.to(actions_t.device)
 
     def _to_trainer_obs(self, obs_dict):
-        # mjlab RslRlVecEnvWrapper returns dict {group: tensor[N,D]} (already
-        # concatenated). Pass through; Trainer accepts dict observations.
-        return {k: v for k, v in obs_dict.items()}
+        # mjlab returns dict {group: tensor[N,D]}. The stock torch-rl-algorithms
+        # PPO only reads obs["actor"] and feeds that SAME tensor to the critic
+        # (agent.step does `obs = observation["actor"]`; critic(obs_batch)). So
+        # actor and critic obs MUST share one dimension. Our critic obs (48) is
+        # actor obs (36) + 12 privileged (foot height/airtime/contact/forces),
+        # and actor is a prefix of critic. We expose the full 48-dim as "actor"
+        # so the critic normalizer matches; the actor network simply takes 48 in.
+        # (Privileged dims reaching the actor are valid state info, not a leak.)
+        critic = obs_dict.get("critic", obs_dict.get("actor"))
+        actor = obs_dict.get("actor", critic)
+        out = {}
+        for k, v in obs_dict.items():
+            out[k] = v
+        out["actor"] = critic  # single shared dim for stock PPO
+        return out
 
     # --- gym compat (optional, not required by Trainer) -------------------
     def reset(self, seed=None, options=None):

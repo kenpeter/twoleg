@@ -14,6 +14,32 @@ if TYPE_CHECKING:
     from mjlab.envs import ManagerBasedRlEnv
 
 
+def joint_pos_reg(
+    env: "ManagerBasedRlEnv",
+    asset_cfg: "SceneEntityCfg",  # noqa: F821
+    default_joint_pos: dict[str, float],
+    sigma: float = 0.25,
+) -> torch.Tensor:
+    """Penalize deviation of each joint from a stable STANDING target pose.
+
+    The iw biped cannot stand passively (zero torque lets it topple within ~26
+    steps, and random torque topples it in ~1 step -> PPO only sees 1-step
+    episodes and never learns gait). Pulling joints toward a compliant bent-knee
+    stance gives the policy a stable attractor so early random actions are
+    corrected, the robot survives, and balance then walking can be learned.
+    """
+    asset = env.scene[asset_cfg.name]
+    joint_pos = asset.data.joint_pos[:, asset_cfg.joint_ids]  # [N, J]
+    # Build target tensor matching joint_ids order.
+    names = [asset.joint_names[i] for i in asset_cfg.joint_ids]
+    target = torch.tensor(
+        [default_joint_pos.get(n.replace("_test", ""), 0.0) for n in names],
+        dtype=joint_pos.dtype, device=joint_pos.device,
+    ).unsqueeze(0)
+    err = joint_pos - target
+    return torch.exp(-torch.sum(err * err, dim=1) / sigma**2)
+
+
 def both_feet_air(
     env: "ManagerBasedRlEnv",
     sensor_name: str = "feet_ground_contact",

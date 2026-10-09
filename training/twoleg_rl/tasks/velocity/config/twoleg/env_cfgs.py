@@ -20,7 +20,7 @@ from mjlab.tasks.velocity import mdp
 from mjlab.tasks.velocity.mdp import UniformVelocityCommandCfg
 from mjlab.tasks.velocity.mdp.rewards import self_collision_cost, soft_landing
 from src.tasks.velocity.mdp.rewards import feet_gait, stand_still, body_orientation_l2
-from twoleg_rl.tasks.velocity.config.twoleg.rewards import knee_flexion, both_feet_air, vertical_velocity_penalty, contact_continuity, com_height_cap, biped_torso_centering, biped_swing_height
+from twoleg_rl.tasks.velocity.config.twoleg.rewards import knee_flexion, both_feet_air, vertical_velocity_penalty, contact_continuity, com_height_cap, biped_torso_centering, biped_swing_height, joint_pos_reg
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
 
 from twoleg_rl.assets.robots.twoleg.twoleg_constants import (
@@ -76,16 +76,15 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
 
     # --- Torque control (matches BipedRobot's DC-motor effort model) ---------
     # Policy commands torque directly; the four-quadrant STS3215 envelope is
-    # applied inside DCMotorEffortAction. scale maps normalized action [-1,1]
-    # to the rated continuous torque (EFFORT_LIMIT = 0.98 N-m).
-    from twoleg_rl.tasks.velocity.config.twoleg.dc_motor_action import (
-        DCMotorEffortActionCfg,
-        EFFORT_LIMIT,
-    )
-    cfg.actions["joint_pos"] = DCMotorEffortActionCfg(
+    # PD JOINT-POSITION control: action = target joint angle (offset from
+    # default). Zero action holds the standing pose -> the robot can actually
+    # stand, and the policy learns balance/deviations. (Torque control could not
+    # hold a pose, so the robot toppled in 1 step and never learned.)
+    cfg.actions["joint_pos"] = JointPositionActionCfg(
         entity_name="robot",
         actuator_names=(r"^(L|R)_(hip_roll|hip|knee|ankle)_test$",),
-        scale=EFFORT_LIMIT,
+        scale=0.3,
+        use_default_offset=True,
     )
 
     cfg.viewer.body_name = TORSO_BODY
@@ -185,10 +184,42 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         weight=-1.0,
         params={"cap": 0.12, "scale": 10.0},
     )
-    # Stand still + upright (unitree).
+    # FORWARD-VELOCITY TRACKING — the actual locomotion driver. Without this the
+    # policy only learns to stand (anti-hop + stand_still favor stillness). This
+    # rewards matching the commanded base linear velocity (xy). Weight 1.5 sits
+    # above feet_gait (0.15) to clearly drive movement, but below the -3.0 anti-
+    # hop terms so a launch still costs more per step than a walking episode's
+    # forward reward. std=0.35 matches BipedRobot's tuning.
+    cfg.rewards["track_lin_vel"] = RewardTermCfg(
+        func=mdp.rewards.track_linear_velocity,
+        weight=1.5,
+        params={"std": 0.35, "command_name": "twist"},
+    )
+    # STANDING-POSE REGULARIZATION — the balance scaffold. The iw biped cannot
+    # stand passively (zero torque topples in ~26 steps; random torque in ~1).
+    # Without a stable attractor PPO only sees 1-step episodes and never learns
+    # gait. This rewards holding a compliant bent-knee stance (knees bent -0.4,
+    # hips/ankles +0.2 to keep torso over feet), giving the policy a survivor
+    # basin so it learns balance first, then walking. Weight 2.0 < anti-hop -3.0
+    # so a launch still costs more, but high enough to dominate random jitter.
+    cfg.rewards["joint_pos_reg"] = RewardTermCfg(
+        func=joint_pos_reg,
+        weight=2.0,
+        params={
+            "asset_cfg": SceneEntityCfg("robot", joint_names=(r".*_test",)),
+            "default_joint_pos": {
+                "L_hip": 0.2, "L_knee": -0.4, "L_ankle": 0.2, "L_hip_roll": 0.0,
+                "R_hip": 0.2, "R_knee": -0.4, "R_ankle": 0.2, "R_hip_roll": 0.0,
+            },
+            "sigma": 0.25,
+        },
+    )
+    # Stand still + upright (unitree). Softened from -1.0 -> -0.3 so it damps
+    # joint jitter without blocking commanded locomotion (the forward-tracking
+    # term must be able to pull the robot into motion).
     cfg.rewards["stand_still"] = RewardTermCfg(
         func=stand_still,
-        weight=-1.0,
+        weight=-0.3,
         params={
             "command_name": "twist",
             "command_threshold": 0.1,

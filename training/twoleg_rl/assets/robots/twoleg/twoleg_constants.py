@@ -68,7 +68,7 @@ def get_twoleg_robot_cfg() -> EntityCfg:
     # step 0. Raise the root to z=0.251 so the feet rest on the ground, and
     # bend the legs slightly so it stands instead of collapsing.
     STANDING_KEYFRAME = EntityCfg.InitialStateCfg(
-        pos=(0.0, 0.0, 0.251),
+        pos=(0.0, 0.0, 0.0),
         joint_pos={
             ".*_hip_test": 0.0,
             ".*_knee_test": 0.0,

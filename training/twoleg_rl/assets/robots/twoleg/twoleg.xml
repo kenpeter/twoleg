@@ -70,7 +70,7 @@
         <inertial pos="0 0 0" mass="0.074170" diaginertia="2.300784e-05 1.724104e-05 1.141975e-05" /></body>
         <body name="horn_center" pos="-0.067 0.01385 0" quat="0.5 0.5 -0.5 0.5">
           <geom name="horn_center_v" mesh="horn" class="visual" material="horn" pos="-0.010000 -0.002600 -0.010000" contype="0" conaffinity="0" />
-          <geom name="horn_center_c" mesh="horn" class="collision" pos="-0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
+          <geom name="horn_center_c" mesh="horn" class="collision" material="horn" pos="-0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
           <geom name="horn_center_s0" type="cylinder" size="0.0016 0.004" pos="0.007000 0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
           <geom name="horn_center_s1" type="cylinder" size="0.0016 0.004" pos="-0.007000 0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
           <geom name="horn_center_s2" type="cylinder" size="0.0016 0.004" pos="0.007000 -0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
@@ -78,7 +78,7 @@
         <inertial pos="0 0 0" mass="0.002822" diaginertia="1.121465e-07 7.983859e-08 6.722506e-08" /></body>
         <body name="horn_base_L" pos="-0.017 0.004 -0.03" quat="0.5 0.5 -0.5 0.5">
           <geom name="horn_base_L_v" mesh="horn" class="visual" material="horn" pos="-0.010000 -0.002600 -0.010000" contype="0" conaffinity="0" />
-          <geom name="horn_base_L_c" mesh="horn" class="collision" pos="-0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
+          <geom name="horn_base_L_c" mesh="horn" class="collision" material="horn" pos="-0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
           <geom name="horn_base_L_s0" type="cylinder" size="0.0016 0.004" pos="0.007000 0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
           <geom name="horn_base_L_s1" type="cylinder" size="0.0016 0.004" pos="-0.007000 0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
           <geom name="horn_base_L_s2" type="cylinder" size="0.0016 0.004" pos="0.007000 -0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
@@ -86,7 +86,7 @@
         <inertial pos="0 0 0" mass="0.002822" diaginertia="1.121465e-07 7.983859e-08 6.722506e-08" /></body>
         <body name="horn_base_R" pos="-0.017 0.004 0.03" quat="0.5 0.5 -0.5 0.5">
           <geom name="horn_base_R_v" mesh="horn" class="visual" material="horn" pos="-0.010000 -0.002600 -0.010000" contype="0" conaffinity="0" />
-          <geom name="horn_base_R_c" mesh="horn" class="collision" pos="-0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
+          <geom name="horn_base_R_c" mesh="horn" class="collision" material="horn" pos="-0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
           <geom name="horn_base_R_s0" type="cylinder" size="0.0016 0.004" pos="0.007000 0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
           <geom name="horn_base_R_s1" type="cylinder" size="0.0016 0.004" pos="-0.007000 0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
           <geom name="horn_base_R_s2" type="cylinder" size="0.0016 0.004" pos="0.007000 -0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
@@ -328,248 +328,51 @@
             <inertial pos="0 0 0" mass="0.000844" diaginertia="5.983962e-07 4.493512e-07 1.802465e-07" /></body>
           </body>
         </body>
-        <body name="L_waist_link" pos="0.026 -0.001 -0.037449" quat="0.707106781 0 -0.707106781 0">
-          <body name="L_leg_top" pos="0.003249 -0.017500 -0.238500" quat="0.707107 0 0 0.707107">
-            <body name="waist_L_link" pos="-0.01046 0.002834 0.238034" quat="0.707106781 0 0 -0.707106781">
-              <joint name="L_hip_roll_test" type="hinge" axis="1 0 0" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
-              <body name="waist_servo_L_horn" pos="0.000034 0.000960 -0.000034" quat="0.707107 0 0.707107 0">
-                <geom name="waist_servo_L_horn_v" mesh="horn" class="visual" material="horn" pos="-0.010000 -0.002600 -0.010000" contype="0" conaffinity="0" />
-                <geom name="waist_servo_L_horn_c" mesh="horn" class="collision" material="horn" pos="-0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.002565" diaginertia="9.920648e-08 5.286116e-08 5.286409e-08" /></body>
-            </body>
-            <body name="L_little_u_top" pos="0.017500 0.003000 0.206210" quat="0.7071068 0 0 0.7071068">
-              <geom name="L_top_screw_1" type="cylinder" size="0.0016 0.004" pos="0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="L_top_screw_2" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="L_top_screw_3" type="cylinder" size="0.0016 0.004" pos="0 0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="L_top_screw_4" type="cylinder" size="0.0016 0.004" pos="0 -0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="L_top_nut_1" type="cylinder" size="0.003 0.0012" pos="0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="L_top_nut_2" type="cylinder" size="0.003 0.0012" pos="-0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="L_top_nut_3" type="cylinder" size="0.003 0.0012" pos="0 0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="L_top_nut_4" type="cylinder" size="0.003 0.0012" pos="0 -0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-              <body name="L_longU_top" pos="0 0 -0.03225" quat="-0.7071068 0.7071068 0 0">
-                <geom name="L_longU_top_visual" mesh="longU" class="visual" material="bracket" pos="-0.027 -0.03225 -0.0125" contype="0" conaffinity="0" />
-                <geom name="L_longU_top_collision" mesh="longU" class="collision" pos="-0.027 -0.03225 -0.0125" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.197620" diaginertia="1.170188e-04 7.335962e-05 5.678343e-05" /></body>
-              <body name="L_shortU_top" pos="0 0 0.02225" quat="0.5 0.5 -0.5 -0.5">
-                <geom name="L_shortU_top_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125" contype="0" conaffinity="0" />
-                <geom name="L_shortU_top_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.130173" diaginertia="5.891799e-05 4.811747e-05 1.952287e-05" /></body>
-            <inertial pos="0 0 0" mass="0.000529" diaginertia="2.866959e-08 1.880584e-08 1.759797e-08" /></body>
-            <body name="L_horn_2" pos="0.017500 -0.021000 0.153990" quat="0.000000 0.000000 1.000000 0.000000">
-              <geom name="L_horn_2_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01" contype="0" conaffinity="0" />
-              <geom name="L_horn_2_c" mesh="horn" class="collision" pos="-0.01 -0.0026 -0.01" density="2700" contype="0" conaffinity="0" />
-            <inertial pos="0 0 0" mass="0.002565" diaginertia="9.920648e-08 5.286116e-08 5.286409e-08" /></body>
-            <body name="L_hip_link" pos="0.017000 -0.014000 0.153940">
-              <joint name="L_hip_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
-              <!-- self-collision capsule: thigh (hip joint -> knee joint) -->
-              <geom name="L_hip_capsule" type="capsule" fromto="0 0 0 0 0 -0.075" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
-              <body name="L_multi_3" pos="0.001250 0.022000 -0.064950" quat="0.000000 0.707107 0.000000 0.707107">
-                <geom name="L_multi_3_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125" contype="0" conaffinity="0" />
-                <geom name="L_multi_3_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.074170" diaginertia="2.300784e-05 1.724104e-05 1.141975e-05" /></body>
-              <body name="L_servo_4" pos="0.000500 0.017000 -0.064950" quat="0.7071068 0.7071068 0 0">
-                <geom name="L_servo_4_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215" contype="0" conaffinity="0" />
-                <geom name="L_servo_4_c" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.085247" diaginertia="2.189620e-05 1.503045e-05 1.185045e-05" /></body>
-              <body name="L_multi_0" pos="0.001250 0.022000 -0.009950" quat="0.000000 0.707107 0.000000 0.707107">
-                <geom name="L_multi_0_v" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125" contype="0" conaffinity="0" />
-                <geom name="L_multi_0_c" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.074170" diaginertia="2.300784e-05 1.724104e-05 1.141975e-05" /></body>
-              <body name="L_servo_1" pos="0.000500 0.017000 -0.009950" quat="0.000000 0.000000 -0.707107 0.707107">
-                <geom name="L_servo_1_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215" contype="0" conaffinity="0" />
-                <geom name="L_servo_1_c" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.085247" diaginertia="2.189620e-05 1.503045e-05 1.185045e-05" /></body>
-              <body name="L_hip_pivot_shaft" pos="0.000000 0.040500 0.000000">
-                <geom name="L_hip_pivot_shaft_g" type="cylinder" size="0.002 0.005000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2" />
-              <inertial pos="0 0 0" mass="0.000126" diaginertia="1.172861e-09 1.172861e-09 2.513274e-10" /></body>
-              <body name="L_hip_pivot_bearing" pos="0.000000 0.043000 0.000000">
-                <geom name="L_hip_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
-              </body>
-              <body name="L_knee_link" pos="0.000500 0.000000 -0.075190">
-                <joint name="L_knee_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 0" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
-                <!-- self-collision capsule: shank (knee joint -> ankle joint) -->
-                <geom name="L_knee_capsule" type="capsule" fromto="0 0 0 0 0 -0.062" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
-                <body name="L_little_u" pos="0.000000 0.024000 -0.032000" quat="0.7071068 0 0 0.7071068">
-                  <geom name="L_screw_1" type="cylinder" size="0.0016 0.004" pos="0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="L_screw_2" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="L_screw_3" type="cylinder" size="0.0016 0.004" pos="0 0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="L_screw_4" type="cylinder" size="0.0016 0.004" pos="0 -0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="L_nut_1" type="cylinder" size="0.003 0.0012" pos="0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="L_nut_2" type="cylinder" size="0.003 0.0012" pos="-0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="L_nut_3" type="cylinder" size="0.003 0.0012" pos="0 0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="L_nut_4" type="cylinder" size="0.003 0.0012" pos="0 -0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-                  <body name="L_shortU_up" pos="0 0 0.02225" quat="0.7071068 0.7071068 0 0">
-                    <geom name="L_shortU_up_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125" contype="0" conaffinity="0" />
-                    <geom name="L_shortU_up_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700" contype="0" conaffinity="0" />
-                  <inertial pos="0 0 0" mass="0.130173" diaginertia="5.891799e-05 4.811747e-05 1.952287e-05" /></body>
-                  <body name="L_shortU_down" pos="0 0 -0.02025" quat="0.5 -0.5 -0.5 0.5">
-                    <geom name="L_shortU_down_visual" mesh="shortU" class="visual" material="bracket" pos="-0.027 -0.02225 -0.0125" contype="0" conaffinity="0" />
-                    <geom name="L_shortU_down_collision" mesh="shortU" class="collision" pos="-0.027 -0.02225 -0.0125" density="2700" contype="0" conaffinity="0" />
-                  <inertial pos="0 0 0" mass="0.130173" diaginertia="5.891799e-05 4.811747e-05 1.952287e-05" /></body>
-                <inertial pos="0 0 0" mass="0.000529" diaginertia="2.866959e-08 1.880584e-08 1.759797e-08" /></body>
-                <body name="L_horn" pos="-0.024500 0.024000 -0.062000" quat="0.5 0.5 0.5 -0.5">
-                  <geom name="L_horn_visual" mesh="horn" class="visual" material="horn" pos="-0.010 -0.0026 -0.010" contype="0" conaffinity="0" />
-                </body>
-                <body name="L_horn_5" pos="0.000000 -0.003000 0.000000" quat="0.000000 0.000000 1.000000 0.000000">
-                  <geom name="L_horn_5_v" mesh="horn" class="visual" material="horn" pos="-0.01 -0.0026 -0.01" contype="0" conaffinity="0" />
-                  <geom name="L_horn_5_c" mesh="horn" class="collision" pos="-0.01 -0.0026 -0.01" density="2700" contype="0" conaffinity="0" />
-                <inertial pos="0 0 0" mass="0.002565" diaginertia="9.920648e-08 5.286116e-08 5.286409e-08" /></body>
-                <body name="L_knee_pivot_shaft" pos="0.000000 0.044000 0.000000">
-                  <geom name="L_knee_pivot_shaft_g" type="cylinder" size="0.002 0.009000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2" />
-                <inertial pos="0 0 0" mass="0.000226" diaginertia="6.333451e-09 6.333451e-09 4.523893e-10" /></body>
-                <body name="L_knee_pivot_bearing" pos="0.000000 0.051000 0.000000">
-                  <geom name="L_knee_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
-                </body>
-                <body name="L_ankle_link" pos="-0.024500 0.024000 -0.062000">
-                  <joint name="L_ankle_test" type="hinge" axis="1 0 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
-                  <!-- self-collision capsule: ankle (ankle joint -> foot) -->
-                  <geom name="L_ankle_capsule" type="capsule" fromto="0 0 0 0 0 -0.017" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
-                  <body name="L_ankle_pivot_shaft" pos="0.048500 0.000000 0.000000">
-                    <geom name="L_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
-                  <inertial pos="0 0 0" mass="0.000075" diaginertia="3.015929e-10 3.015929e-10 1.507964e-10" /></body>
-                  <body name="L_ankle_pivot_bearing" pos="0.051500 0.000000 0.000000" quat="0.7071068 0 0 0.7071068">
-                    <geom name="L_ankle_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
-                  </body>
-                  <body name="L_multi" pos="0.029000 -0.010000 -0.003250" quat="0.70710678 0 0 0.70710678">
-                    <geom name="L_multi_visual" mesh="multi" class="visual" material="bracket" pos="-0.029 -0.0185 -0.0125" contype="0" conaffinity="0" />
-                    <geom name="L_multi_collision" mesh="multi" class="collision" pos="-0.029 -0.0185 -0.0125" density="2700" contype="0" conaffinity="0" />
-                  <inertial pos="0 0 0" mass="0.074170" diaginertia="2.300784e-05 1.724104e-05 1.141975e-05" /></body>
-                  <body name="L_ankle_servo" pos="0.024000 -0.010000 0.000000" quat="0 -0.7071068 0 0.7071068">
-                    <geom name="L_servo_visual" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215" contype="0" conaffinity="0" />
-                    <geom name="L_servo_collision" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="1600" contype="0" conaffinity="0" />
-                  <inertial pos="0 0 0" mass="0.050517" diaginertia="1.297553e-05 8.906936e-06 7.022487e-06" /></body>
-                  <body name="L_foot" pos="0.007000 -0.010000 -0.016750">
-                    <geom name="L_foot_visual" mesh="foot" class="visual" material="bracket" pos="-0.06175 -0.03175 -0.001" contype="0" conaffinity="0" />
-                    <geom name="L_foot_collision" mesh="foot" class="collision" pos="-0.06175 -0.03175 -0.001" density="2700" contype="0" conaffinity="0" />
-                    <site name="left_foot" pos="-1.13115597e-09 2.70113457e-09 -0.00100000006" />
-                    <geom name="left_foot_collision" type="box" size="0.0317500029 0.0617500003 0.005" pos="-1.13115597e-09 2.70113457e-09 0.00399999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
-                  <inertial pos="0 0 0" mass="0.057215" diaginertia="7.901339e-05 6.325231e-05 1.579288e-05" /></body>
-                </body>
-              </body>
+      <!-- ===== LEGS: direct children of torso (identity frame), world-aligned ===== -->
+      <!-- LEFT LEG: hips at y=-0.09, legs extend down world -z. Feet at z~0. -->
+            <!-- LEGS placed in torso frame; R:(x,y,z)->(z,y,-x) so local +x = world down(-z) -->
+      <!-- LEFT LEG: hip at world (0,-0.09,0.30), foot at world (0,-0.09,0) -->
+            <!-- LEGS: torso frame; local +x -> world -z (down). hip world y=+-0.09, z=0.30 -->
+      <body name="L_waist_link" pos="-0.30 -0.09 0">
+        <joint name="L_hip_roll_test" type="hinge" axis="0 0 1" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+        <inertial pos="0 0 0" mass="0.05" diaginertia="1e-5 1e-5 1e-5" />
+        <body name="L_hip_link" pos="0 0 0">
+          <joint name="L_hip_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+          <geom name="L_thigh" type="capsule" fromto="0 0 0 0.13 0 0" size="0.02" density="1500" contype="1" conaffinity="1" group="3" rgba="0.6 0.6 0.65 1" />
+          <body name="L_knee_link" pos="0.13 0 0">
+            <joint name="L_knee_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 0" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+            <geom name="L_shank" type="capsule" fromto="0 0 0 0.10 0 0" size="0.018" density="1500" contype="1" conaffinity="1" group="3" rgba="0.6 0.6 0.65 1" />
+            <body name="L_ankle_link" pos="0.10 0 0">
+              <joint name="L_ankle_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+              <geom name="L_ankle" type="capsule" fromto="0 0 0 0.07 0 0" size="0.018" density="1500" contype="1" conaffinity="1" group="3" rgba="0.6 0.6 0.65 1" />
+              <body name="L_foot" pos="0.07 0 0">
+                <geom name="L_foot_collision" type="box" size="0.02 0.06 0.12" pos="0.01 0 0" contype="1" conaffinity="1" density="1000" rgba="0.9 0.2 0.9 1" />
+                <site name="left_foot" pos="0.01 0 0" />
+              <inertial pos="0 0 0" mass="0.057215" diaginertia="7.901339e-05 6.325231e-05 1.579288e-05" /></body>
             </body>
           </body>
         </body>
-        <body name="R_waist_link" pos="0.026 -0.001 0.037449" quat="0.707106781 0 -0.707106781 0">
-          <body name="R_leg_top" pos="-0.003249 -0.017500 -0.238500" quat="0.707107 0 0 -0.707107">
-            <body name="waist_R_link" pos="0.01046 0.002766 0.238034" quat="0.707106781 0 0 0.707106781">
-              <joint name="R_hip_roll_test" type="hinge" axis="1 0 0" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
-              <body name="waist_servo_R_horn" pos="0.000034 0.000960 -0.000034" quat="0.707107 0 0.707107 0">
-                <geom name="waist_servo_R_horn_v" mesh="horn" class="visual" material="horn" pos="-0.010000 -0.002600 -0.010000" contype="0" conaffinity="0" />
-                <geom name="waist_servo_R_horn_c" mesh="horn" class="collision" material="horn" pos="-0.010000 -0.002600 -0.010000" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.002565" diaginertia="9.920648e-08 5.286116e-08 5.286409e-08" /></body>
-            </body>
-            <body name="R_little_u_top" pos="-0.017500 0.003000 0.206210" quat="0.7071068 0 0 -0.7071068">
-              <geom name="R_top_screw_1" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="R_top_screw_2" type="cylinder" size="0.0016 0.004" pos="0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="R_top_screw_3" type="cylinder" size="0.0016 0.004" pos="0 0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="R_top_screw_4" type="cylinder" size="0.0016 0.004" pos="0 -0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="R_top_nut_1" type="cylinder" size="0.003 0.0012" pos="-0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="R_top_nut_2" type="cylinder" size="0.003 0.0012" pos="0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="R_top_nut_3" type="cylinder" size="0.003 0.0012" pos="0 0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-              <geom name="R_top_nut_4" type="cylinder" size="0.003 0.0012" pos="0 -0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-              <body name="R_longU_top" pos="0 0 -0.03225" quat="-0.7071068 0.7071068 0 0">
-                <geom name="R_longU_top_visual" mesh="longU_r" class="visual" material="bracket" pos="0.027 -0.03225 -0.0125" contype="0" conaffinity="0" />
-                <geom name="R_longU_top_collision" mesh="longU_r" class="collision" pos="0.027 -0.03225 -0.0125" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.197620" diaginertia="1.170188e-04 7.335962e-05 5.678343e-05" /></body>
-              <body name="R_shortU_top" pos="0 0 0.02225" quat="0.5 0.5 0.5 0.5">
-                <geom name="R_shortU_top_visual" mesh="shortU_r" class="visual" material="bracket" pos="0.027 -0.02225 -0.0125" contype="0" conaffinity="0" />
-                <geom name="R_shortU_top_collision" mesh="shortU_r" class="collision" pos="0.027 -0.02225 -0.0125" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.130173" diaginertia="5.891799e-05 4.811747e-05 1.952287e-05" /></body>
-            <inertial pos="0 0 0" mass="0.000529" diaginertia="2.866959e-08 1.880584e-08 1.759797e-08" /></body>
-            <body name="R_horn_2" pos="-0.017500 -0.021000 0.153990" quat="0.000000 0.000000 -1.000000 0.000000">
-              <geom name="R_horn_2_v" mesh="horn_r" class="visual" material="horn" pos="0.01 -0.0026 -0.01" contype="0" conaffinity="0" />
-              <geom name="R_horn_2_c" mesh="horn_r" class="collision" pos="0.01 -0.0026 -0.01" density="2700" contype="0" conaffinity="0" />
-            <inertial pos="0 0 0" mass="0.002565" diaginertia="9.920648e-08 5.286116e-08 5.286409e-08" /></body>
-            <body name="R_hip_link" pos="-0.017000 -0.014000 0.153940">
-              <joint name="R_hip_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
-              <!-- self-collision capsule: thigh (hip joint -> knee joint) -->
-              <geom name="R_hip_capsule" type="capsule" fromto="0 0 0 0 0 -0.075" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
-              <body name="R_multi_3" pos="-0.001250 0.022000 -0.064950" quat="0.000000 0.707107 0.000000 -0.707107">
-                <geom name="R_multi_3_v" mesh="multi_r" class="visual" material="bracket" pos="0.029 -0.0185 -0.0125" contype="0" conaffinity="0" />
-                <geom name="R_multi_3_c" mesh="multi_r" class="collision" pos="0.029 -0.0185 -0.0125" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.074170" diaginertia="2.300784e-05 1.724104e-05 1.141975e-05" /></body>
-              <body name="R_servo_4" pos="-0.000500 0.017000 -0.064950" quat="0.7071068 0.7071068 0 0">
-                <geom name="R_servo_4_v" mesh="servo_r" class="visual" material="dark" pos="0.009752 -0.027 -0.0215" contype="0" conaffinity="0" />
-                <geom name="R_servo_4_c" mesh="servo_r" class="collision" pos="0.009752 -0.027 -0.0215" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.085247" diaginertia="2.189620e-05 1.503045e-05 1.185045e-05" /></body>
-              <body name="R_multi_0" pos="-0.001250 0.022000 -0.009950" quat="0.000000 0.707107 0.000000 -0.707107">
-                <geom name="R_multi_0_v" mesh="multi_r" class="visual" material="bracket" pos="0.029 -0.0185 -0.0125" contype="0" conaffinity="0" />
-                <geom name="R_multi_0_c" mesh="multi_r" class="collision" pos="0.029 -0.0185 -0.0125" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.074170" diaginertia="2.300784e-05 1.724104e-05 1.141975e-05" /></body>
-              <body name="R_servo_1" pos="-0.000500 0.017000 -0.009950" quat="0.000000 0.000000 0.707107 -0.707107">
-                <geom name="R_servo_1_v" mesh="servo_r" class="visual" material="dark" pos="0.009752 -0.027 -0.0215" contype="0" conaffinity="0" />
-                <geom name="R_servo_1_c" mesh="servo_r" class="collision" pos="0.009752 -0.027 -0.0215" density="2700" contype="0" conaffinity="0" />
-              <inertial pos="0 0 0" mass="0.085247" diaginertia="2.189620e-05 1.503045e-05 1.185045e-05" /></body>
-              <body name="R_hip_pivot_shaft" pos="0.000000 0.040500 0.000000">
-                <geom name="R_hip_pivot_shaft_g" type="cylinder" size="0.002 0.005000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2" />
-              <inertial pos="0 0 0" mass="0.000126" diaginertia="1.172861e-09 1.172861e-09 2.513274e-10" /></body>
-              <body name="R_hip_pivot_bearing" pos="0.000000 0.043000 0.000000">
-                <geom name="R_hip_pivot_bearing_g" type="mesh" mesh="bearing_r" class="visual" material="steel" pos="0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
-              </body>
-              <body name="R_knee_link" pos="-0.000500 0.000000 -0.075190">
-                <joint name="R_knee_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 0" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
-                <!-- self-collision capsule: shank (knee joint -> ankle joint) -->
-                <geom name="R_knee_capsule" type="capsule" fromto="0 0 0 0 0 -0.062" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
-                <body name="R_little_u" pos="0.000000 0.024000 -0.032000" quat="0.7071068 0 0 -0.7071068">
-                  <geom name="R_screw_1" type="cylinder" size="0.0016 0.004" pos="-0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="R_screw_2" type="cylinder" size="0.0016 0.004" pos="0.007 0 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="R_screw_3" type="cylinder" size="0.0016 0.004" pos="0 0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="R_screw_4" type="cylinder" size="0.0016 0.004" pos="0 -0.007 0" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="R_nut_1" type="cylinder" size="0.003 0.0012" pos="-0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="R_nut_2" type="cylinder" size="0.003 0.0012" pos="0.007 0 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="R_nut_3" type="cylinder" size="0.003 0.0012" pos="0 0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-                  <geom name="R_nut_4" type="cylinder" size="0.003 0.0012" pos="0 -0.007 0.0052" material="dark" contype="0" conaffinity="0" group="2" />
-                  <body name="R_shortU_up" pos="0 0 0.02225" quat="0.7071068 0.7071068 0 0">
-                    <geom name="R_shortU_up_visual" mesh="shortU_r" class="visual" material="bracket" pos="0.027 -0.02225 -0.0125" contype="0" conaffinity="0" />
-                    <geom name="R_shortU_up_collision" mesh="shortU_r" class="collision" pos="0.027 -0.02225 -0.0125" density="2700" contype="0" conaffinity="0" />
-                  <inertial pos="0 0 0" mass="0.130173" diaginertia="5.891799e-05 4.811747e-05 1.952287e-05" /></body>
-                  <body name="R_shortU_down" pos="0 0 -0.02025" quat="0.5 -0.5 0.5 -0.5">
-                    <geom name="R_shortU_down_visual" mesh="shortU_r" class="visual" material="bracket" pos="0.027 -0.02225 -0.0125" contype="0" conaffinity="0" />
-                    <geom name="R_shortU_down_collision" mesh="shortU_r" class="collision" pos="0.027 -0.02225 -0.0125" density="2700" contype="0" conaffinity="0" />
-                  <inertial pos="0 0 0" mass="0.130173" diaginertia="5.891799e-05 4.811747e-05 1.952287e-05" /></body>
-                <inertial pos="0 0 0" mass="0.000529" diaginertia="2.866959e-08 1.880584e-08 1.759797e-08" /></body>
-                <body name="R_horn" pos="0.024500 0.024000 -0.062000" quat="0.5 0.5 -0.5 0.5">
-                  <geom name="R_horn_visual" mesh="horn_r" class="visual" material="horn" pos="0.010 -0.0026 -0.010" contype="0" conaffinity="0" />
-                </body>
-                <body name="R_horn_5" pos="0.000000 -0.003000 0.000000" quat="0.000000 0.000000 -1.000000 0.000000">
-                  <geom name="R_horn_5_v" mesh="horn_r" class="visual" material="horn" pos="0.01 -0.0026 -0.01" contype="0" conaffinity="0" />
-                  <geom name="R_horn_5_c" mesh="horn_r" class="collision" pos="0.01 -0.0026 -0.01" density="2700" contype="0" conaffinity="0" />
-                <inertial pos="0 0 0" mass="0.002565" diaginertia="9.920648e-08 5.286116e-08 5.286409e-08" /></body>
-                <body name="R_knee_pivot_shaft" pos="0.000000 0.044000 0.000000">
-                  <geom name="R_knee_pivot_shaft_g" type="cylinder" size="0.002 0.009000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2" />
-                <inertial pos="0 0 0" mass="0.000226" diaginertia="6.333451e-09 6.333451e-09 4.523893e-10" /></body>
-                <body name="R_knee_pivot_bearing" pos="0.000000 0.051000 0.000000">
-                  <geom name="R_knee_pivot_bearing_g" type="mesh" mesh="bearing_r" class="visual" material="steel" pos="0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
-                </body>
-                <body name="R_ankle_link" pos="0.024500 0.024000 -0.062000">
-                  <joint name="R_ankle_test" type="hinge" axis="1 0 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
-                  <!-- self-collision capsule: ankle (ankle joint -> foot) -->
-                  <geom name="R_ankle_capsule" type="capsule" fromto="0 0 0 0 0 -0.017" size="0.015" contype="1" conaffinity="1" group="3" rgba="0.8 0.8 0.2 0.4" />
-                  <body name="R_ankle_pivot_shaft" pos="-0.048500 0.000000 0.000000">
-                    <geom name="R_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 -0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
-                  <inertial pos="0 0 0" mass="0.000075" diaginertia="3.015929e-10 3.015929e-10 1.507964e-10" /></body>
-                  <body name="R_ankle_pivot_bearing" pos="-0.051500 0.000000 0.000000" quat="0.7071068 0 0 -0.7071068">
-                    <geom name="R_ankle_pivot_bearing_g" type="mesh" mesh="bearing_r" class="visual" material="steel" pos="0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
-                  </body>
-                  <body name="R_multi" pos="-0.029000 -0.010000 -0.003250" quat="0.70710678 0 0 -0.70710678">
-                    <geom name="R_multi_visual" mesh="multi_r" class="visual" material="bracket" pos="0.029 -0.0185 -0.0125" contype="0" conaffinity="0" />
-                    <geom name="R_multi_collision" mesh="multi_r" class="collision" pos="0.029 -0.0185 -0.0125" density="2700" contype="0" conaffinity="0" />
-                  <inertial pos="0 0 0" mass="0.074170" diaginertia="2.300784e-05 1.724104e-05 1.141975e-05" /></body>
-                  <body name="R_ankle_servo" pos="-0.024000 -0.010000 0.000000" quat="0 -0.7071068 0 -0.7071068">
-                    <geom name="R_servo_visual" mesh="servo_r" class="visual" material="dark" pos="0.009752 -0.027 -0.0215" contype="0" conaffinity="0" />
-                    <geom name="R_servo_collision" mesh="servo_r" class="collision" pos="0.009752 -0.027 -0.0215" density="1600" contype="0" conaffinity="0" />
-                  <inertial pos="0 0 0" mass="0.050517" diaginertia="1.297553e-05 8.906936e-06 7.022487e-06" /></body>
-                  <body name="R_foot" pos="-0.007000 -0.010000 -0.016750">
-                    <geom name="R_foot_visual" mesh="foot_r" class="visual" material="bracket" pos="0.06175 -0.03175 -0.001" contype="0" conaffinity="0" />
-                    <geom name="R_foot_collision" mesh="foot_r" class="collision" pos="0.06175 -0.03175 -0.001" density="2700" contype="0" conaffinity="0" />
-                    <site name="right_foot" pos="1.13115595e-09 2.70113457e-09 -0.00100000006" />
-                    <geom name="right_foot_collision" type="box" size="0.0317500029 0.0617500003 0.005" pos="1.13115595e-09 2.70113457e-09 0.00399999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
-                  <inertial pos="0 0 0" mass="0.057215" diaginertia="7.901339e-05 6.325231e-05 1.579288e-05" /></body>
-                </body>
-              </body>
+      </body>
+      <body name="R_waist_link" pos="-0.30 0.09 0">
+        <joint name="R_hip_roll_test" type="hinge" axis="0 0 1" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+        <inertial pos="0 0 0" mass="0.05" diaginertia="1e-5 1e-5 1e-5" />
+        <body name="R_hip_link" pos="0 0 0">
+          <joint name="R_hip_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+          <geom name="R_thigh" type="capsule" fromto="0 0 0 0.13 0 0" size="0.02" density="1500" contype="1" conaffinity="1" group="3" rgba="0.6 0.6 0.65 1" />
+          <body name="R_knee_link" pos="0.13 0 0">
+            <joint name="R_knee_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 0" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+            <geom name="R_shank" type="capsule" fromto="0 0 0 0.10 0 0" size="0.018" density="1500" contype="1" conaffinity="1" group="3" rgba="0.6 0.6 0.65 1" />
+            <body name="R_ankle_link" pos="0.10 0 0">
+              <joint name="R_ankle_test" type="hinge" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+              <geom name="R_ankle" type="capsule" fromto="0 0 0 0.07 0 0" size="0.018" density="1500" contype="1" conaffinity="1" group="3" rgba="0.6 0.6 0.65 1" />
+              <body name="R_foot" pos="0.07 0 0">
+                <geom name="R_foot_collision" type="box" size="0.02 0.06 0.12" pos="0.01 0 0" contype="1" conaffinity="1" density="1000" rgba="0.9 0.2 0.9 1" />
+                <site name="right_foot" pos="0.01 0 0" />
+              <inertial pos="0 0 0" mass="0.057215" diaginertia="7.901339e-05 6.325231e-05 1.579288e-05" /></body>
             </body>
           </body>
         </body>
+      </body>
       <inertial pos="0 0 0" mass="0.285172" diaginertia="1.692760e-04 1.579869e-04 6.373117e-05" /></body>
       <geom name="front_shaft" type="cylinder" size="0.004 0.07" pos="0 -0.10 0.25" quat="0.7071068 0.7071068 0 0" rgba="1 0.1 0.1 1" contype="0" conaffinity="0" />
       <geom name="front_tip" type="cylinder" size="0.012 0.015" pos="0 -0.19 0.25" quat="0.7071068 0.7071068 0 0" rgba="1 0.1 0.1 1" contype="0" conaffinity="0" />

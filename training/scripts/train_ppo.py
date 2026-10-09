@@ -35,13 +35,18 @@ except ImportError:
     from torch_rl_algorithms.algorithms.ppo.model import PPO
 
 
-def build_config(actions, hidden=(256, 256), lr=3e-4, steps=2_000_000, num_envs=1):
-    # epoch_steps must scale with num_envs or the parallel envs are wasted:
-    # each iteration should roll out ~num_envs * rollout_horizon env-steps so the
-    # GPU buffer saturates. 48 env-steps/env/iter is a standard mjlab/IsaacLab
-    # ratio. With num_envs=1 this stays a small 48-step rollout (safe for tests).
-    rollout_per_env = 48
-    epoch_steps = max(5000, num_envs * rollout_per_env)
+def build_config(actions, hidden=(256, 256), lr=3e-4, steps=2_000_000, num_envs=1, max_episode_steps=250):
+    # epoch_steps = number of env-steps collected per PPO update. This is the
+    # ROLLOUT HORIZON (not the episode length) and sizes the GPU PPO buffer:
+    #   buffer = num_envs * epoch_steps * (obs+act+returns) tensors.
+    # Using num_envs * episode_length (e.g. 3072*250=768k) made the buffer hit
+    # 9.83 GiB and OOM at iter ~2047 (same as the 4096 run). Instead we keep the
+    # horizon small & fixed (48) so the buffer is bounded (~num_envs*48), which
+    # is the standard IsaacLab/rsl_rl setup. Episodes still COMPLETE because the
+    # env's own max_episode_steps (250) resets them and fires infos['resets'],
+    # so episode reward is logged and the policy sees multi-step gait learning.
+    rollout_horizon = 48
+    epoch_steps = num_envs * rollout_horizon
     return {
         "train": {
             "steps": steps,
@@ -72,7 +77,12 @@ def build_config(actions, hidden=(256, 256), lr=3e-4, steps=2_000_000, num_envs=
             "gamma": 0.99,
             "gae_lambda": 0.95,
             "max_grad_norm": 0.5,
-            "num_steps": 2048,
+            # num_steps = PPO rollout horizon (buffer capacity). The GAE update
+            # materializes num_steps * num_envs transitions at once; with 3072
+            # envs, 2048 -> 6.3M transitions -> 1.5 GiB alloc on top of the
+            # buffer -> CUDA OOM at the first update (~iter 2047). 48 keeps the
+            # buffer at 48*num_envs (= epoch_steps) -> bounded, no OOM.
+            "num_steps": 48,
         },
         "actor_lr": lr,
         "critic_lr": lr,
@@ -84,6 +94,7 @@ def main():
     ap.add_argument("--steps", type=int, default=2_000_000)
     ap.add_argument("--device", type=str, default="cuda:0")
     ap.add_argument("--num_envs", type=int, default=1)
+    ap.add_argument("--max_episode_steps", type=int, default=250)
     ap.add_argument("--hidden", type=str, default="256,256")
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--enable_mirroring", action="store_true")
@@ -97,10 +108,11 @@ def main():
     env = TwoLegGymEnv(
         device=device,
         num_envs=args.num_envs,
+        max_episode_steps=args.max_episode_steps,
         enable_mirroring=args.enable_mirroring,
     )
 
-    cfg = build_config(env.action_space.shape[0], hidden=hidden, lr=args.lr, steps=args.steps, num_envs=args.num_envs)
+    cfg = build_config(env.action_space.shape[0], hidden=hidden, lr=args.lr, steps=args.steps, num_envs=args.num_envs, max_episode_steps=args.max_episode_steps)
 
     model = PPO(
         env,
