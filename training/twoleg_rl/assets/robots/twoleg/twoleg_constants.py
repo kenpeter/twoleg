@@ -12,6 +12,7 @@ import mujoco
 
 from mjlab.actuator import BuiltinPositionActuatorCfg
 from mjlab.entity import EntityArticulationInfoCfg, EntityCfg
+from mjlab.utils.spec_config import CollisionCfg
 
 TWOLEG_XML: Path = Path(__file__).resolve().parent / "twoleg.xml"
 # The xml references meshes via "/home/kenpeter/work/twoleg/robot_item" (absolute).
@@ -80,5 +81,23 @@ def get_twoleg_robot_cfg() -> EntityCfg:
         spec_fn=get_spec,
         articulation=TWOLEG_ARTICULATION,
         init_state=STANDING_KEYFRAME,
+        # Leg-link self-collision requires a capsule refit of the 266 decorative
+        # overlapping mesh colliders first (MuJoCo uses convex hulls -> they
+        # interpenetrate at rest and explode). Until then we keep the body geoms
+        # non-colliding (contype=0 in the XML) and only the two foot boxes touch
+        # the ground. This CollisionCfg just formalizes the foot/terrain contact
+        # (condim=3) via the mjlab API; enabling self-collision later means
+        # giving the leg links a few non-overlapping capsules and adding a
+        # CollisionCfg with condim=1 for them.
+        collisions=(
+            CollisionCfg(
+                geom_names_expr=(r".*_foot_collision$",),
+                condim=3,
+                conaffinity=1,
+                contype=1,
+                priority=1,
+                friction=(0.6,),
+            ),
+        ),
     )
 

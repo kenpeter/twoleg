@@ -89,11 +89,15 @@ class TwoLegGymEnv:
     def start(self):
         obs, _ = self.venv.reset()
         self._episode_steps.zero_()
-        return self._to_trainer_obs(obs)
+        self._mirror_active = bool(self.enable_mirroring and np.random.rand() < 0.5)
+        return self._to_trainer_obs(self._maybe_mirror_obs(obs))
 
     def step(self, actions):
         # actions: numpy [N, A] (from the Trainer). Scale normalized -> radians.
-        actions_t = torch.tensor(actions, dtype=torch.float32, device=self.device)
+        actions_np = np.asarray(actions, dtype=np.float32)
+        if self._mirror_active:
+            actions_np = self._mirror_action(actions_np)
+        actions_t = torch.tensor(actions_np, dtype=torch.float32, device=self.device)
         scaled = self._scale(actions_t)
         obs, rewards, dones, infos = self.venv.step(scaled)
         self._episode_steps += 1
@@ -116,7 +120,18 @@ class TwoLegGymEnv:
                 infos_out[k] = v
             except Exception:
                 pass
-        return self._to_trainer_obs(obs), infos_out
+        return self._to_trainer_obs(self._maybe_mirror_obs(obs)), infos_out
+
+    # --- mirroring -------------------------------------------------------
+    def _maybe_mirror_obs(self, obs_dict):
+        if not self._mirror_active:
+            return obs_dict
+        from twoleg_rl.utils.biped_mirroring import mirror_obs_dict
+        return mirror_obs_dict(obs_dict)
+
+    def _mirror_action(self, actions_np):
+        from twoleg_rl.utils.biped_mirroring import mirror_action
+        return mirror_action(actions_np)
 
     # --- helpers ---------------------------------------------------------
     def _scale(self, actions_t):
