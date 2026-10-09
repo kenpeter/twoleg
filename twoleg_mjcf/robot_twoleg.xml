@@ -435,7 +435,7 @@
                     <geom name="L_foot_visual" mesh="foot" class="visual" material="bracket" pos="-0.06175 -0.03175 -0.001" contype="0" conaffinity="0" />
                     <geom name="L_foot_collision" mesh="foot" class="collision" pos="-0.06175 -0.03175 -0.001" density="2700" contype="0" conaffinity="0" />
                     <site name="left_foot" pos="-1.13115597e-09 2.70113457e-09 -0.00100000006" />
-                    <geom name="left_foot_collision" type="box" size="0.0317500029 0.0617500003 0.005" pos="-1.13115597e-09 2.70113457e-09 0.00399999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
+                    <geom name="left_foot_collision" type="box" size="0.0617500003 0.0317500029 0.005" pos="-1.13115597e-09 2.70113457e-09 0.00399999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
                   </body>
                 </body>
               </body>
@@ -549,7 +549,7 @@
                     <geom name="R_foot_visual" mesh="foot_r" class="visual" material="bracket" pos="0.06175 -0.03175 -0.001" contype="0" conaffinity="0" />
                     <geom name="R_foot_collision" mesh="foot_r" class="collision" pos="0.06175 -0.03175 -0.001" density="2700" contype="0" conaffinity="0" />
                     <site name="right_foot" pos="1.13115595e-09 2.70113457e-09 -0.00100000006" />
-                    <geom name="right_foot_collision" type="box" size="0.0317500029 0.0617500003 0.005" pos="1.13115595e-09 2.70113457e-09 0.00399999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
+                    <geom name="right_foot_collision" type="box" size="0.0617500003 0.0317500029 0.005" pos="1.13115595e-09 2.70113457e-09 0.00399999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
                   </body>
                 </body>
               </body>
@@ -557,8 +557,6 @@
           </body>
         </body>
       </body>
-      <geom name="front_shaft" type="cylinder" size="0.004 0.07" pos="0 -0.10 0.25" quat="0.7071068 0.7071068 0 0" rgba="1 0.1 0.1 1" contype="0" conaffinity="0" />
-      <geom name="front_tip" type="cylinder" size="0.012 0.015" pos="0 -0.19 0.25" quat="0.7071068 0.7071068 0 0" rgba="1 0.1 0.1 1" contype="0" conaffinity="0" />
     </body>
   </worldbody>
   <actuator>
