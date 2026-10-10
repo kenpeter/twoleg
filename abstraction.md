@@ -97,22 +97,32 @@ is ~4.5 kg while BipedRobot compiles at 1.468 kg (see ledger below).
 
 ## What twoleg adopted
 
-**measured** (2026-10-08, from the prior adoption audit):
+**measured** (2026-10-10, superseding the 2026-10-08 audit):
 
 - Phased gait-weight curriculum pattern (`0.0` until stable, then ramp) —
-  the lever twoleg's always-on reward terms lacked.
-- `termination_penalty` and `dof_pos_limits` semantics.
+  the lever twoleg's always-on reward terms lacked. **Still deferred**: not
+  implemented, see row 16 of the ledger.
+- `termination_penalty` at `-10.0` and `dof_pos_limits` at `-1.0`, both now
+  live in the resolved config and verified.
+- PD gains aligned to their measured `kp 21.1`, `damping 0.0`;
+  `frictionloss 0.03`; joint limits raised from 2/9 to 8/9 with spans taken
+  from measured flexion direction rather than copied sign-for-blind.
+- The stance itself was solved locally, not copied: their
+  `default_joint_pos` is all zeros, so their GIF shows a policy holding a
+  pose rather than a hand-set one. Our standing stance is an ankle
+  correction (`-0.5`), and every knee above 0 falls.
 - Small portable utilities: `envs/utils/mirroring.py`, `randomizer.py`.
-- The BipedRobot leg geometry is one-sided (`knee` range `0..2.36`), matching
-  twoleg's measured flexion direction; see `.opencode/skills/leg-align/` for
-  the DOF/strength/mass comparison checklist.
+  Their leg geometry is one-sided (`knee` range `0..2.36`); see
+  `.opencode/skills/leg-align/` for the DOF/strength/mass checklist.
 
 **measured**, what does not transfer yet:
 
 - **DOF gap**: BipedRobot actuates 12 joints (6/leg, `nu=12`); twoleg's
-  mjlab model actuates the reduced set aligned to its servo count. Their
+  mjlab model actuates 8 (4/leg: hip_roll, hip, knee, ankle). Their
   policy, env, and reward tensors assume 12; copying the brain onto a
-  smaller action space cannot reproduce their gait.
+  smaller action space cannot reproduce their gait. The two axes twoleg
+  lacks outright are hip abduction and ankle pitch, and both are hardware
+  rather than tuning.
 - **Algorithm gap**: they train SAC (off-policy); twoleg runs on-policy PPO
   under mjlab/rsl_rl. Their SAC code is usable only as a second algorithm
   after the DOF gap closes.
@@ -126,51 +136,93 @@ term had three separate sign/index bugs — the same failure class twoleg
 hit), and the symmetry augmentation. None of them require matching their
 12-DOF body.
 
-## Alignment ledger (2026-10-08, measured)
+## Alignment ledger (2026-10-10, measured)
 
-Aligned:
+Every figure below is read from the compiled MJCF or the resolved config, not
+from a comment. "Was" is the pre-alignment value on this branch.
 
-- **Reward shape, H9**: `foot_gait` 0.15 phased gait term, `stand_still`,
-  `body_orientation_l2`, no air-time jackpots — mirrors the BipedRobot
-  gait-reward philosophy in `envs/rewards/mujoco_reward.py`.
-- **Knee flexion direction**: their knee range `0..2.35619` (one-sided)
-  matches twoleg's measured flexion direction, so flexion sign ports
-  directly.
-- **Patterns imported**: `dof_pos_limits`, `termination` semantics, phased
-  gait weights, mirroring/randomizer utilities (copied from
-  `envs/utils/`).
+| # | Item | BipedRobot | Was | Now | Status |
+|---|---|---|---|---|---|
+| 1 | Spawn height `z` | — | `0.0` (soles 0.251 m inside floor) | `0.251` | fixed |
+| 2 | Stance ankle | `0` (policy-held) | `0.0` | `-0.5` | **stands** |
+| 3 | Stance knee | `0` | `0.0` | `0.0` | verified |
+| 4 | PD gain `kp` | `21.1` | `40.0` | `21.1` | aligned |
+| 5 | PD `damping` | `0.0` | `0.5` | `0.0` | aligned |
+| 6 | `effort_limit` | `±5.0` | `1.0` | `1.0` | kept, see note |
+| 7 | Joints limited | `12/13` | `2/9` | `8/9` | aligned |
+| 8 | Ankle range | `-0.436…1.571` | none | `±1.571` | re-derived |
+| 9 | Hip range | `±2.00713` | none | `±1.2` | aligned |
+| 10 | Knee range | `0…2.35619` | none | `-0.15…1.9` | sign measured |
+| 11 | Hip-roll range | `-0.698…1.571` | `±0.785` | `±0.785` | kept |
+| 12 | `frictionloss` | `0.03` | `0.02` | `0.03` | aligned |
+| 13 | `dof_pos_limits` | `-1.0` | absent | `-1.0` | matched |
+| 14 | `termination_penalty` | `-10.0` | absent | `-10.0` | written, verified |
+| 15 | Upright gate in eval | — | none | `projected_gravity_b z < -0.9` | added |
+| 16 | Ramped gait (4 shapers) | `0.0` then ramp | none | none | **deferred** |
+| 17 | Hip abduction (axis X) | `hip_y` | absent | absent | hardware |
+| 18 | Ankle pitch (axis Y) | `ankle_y` | absent | absent | hardware |
+| 19 | Actuators | `12` (6/leg) | `8` (4/leg) | `8` | hardware |
+| 20 | Compiled mass | `1.468 kg` | `4.482 kg` | `4.482 kg` | kept CAD |
+| 21 | Biped | `123` | `15` | `123` | ours is richer |
+| 22 | Colliding geoms | `18 ngeom` | `2` | `8` | aligned |
+| 23 | Algorithm | SAC + PPO | PPO | PPO | gap |
+| 24 | Sim backend | Isaac Lab / MuJoCo | mjlab + warp | mjlab + warp | gap |
+| 25 | Motion imitation | FBX→NPZ | none | none | not portable |
 
-Not aligned:
+Notes on the non-obvious rows:
 
-- **DOF count**: BipedRobot 12 actuators (6/leg: hip_z, hip_y, hip_x, knee,
-  ankle_y, ankle_x); twoleg H9 has 6 (3/leg: hip pitch, knee, ankle roll),
-  nu=6. Missing: hip yaw, hip roll, ankle pitch. Their policy/env/reward
-  tensors assume 12 and cannot transfer.
-- **Joint ranges**: theirs hip_x ±2.00713, knee 0..2.35619, hip_z
-  -1.5708..0.698, hip_y -1.5708..0.785, ankle_y ±1.91986, ankle_x
-  -1.5708..0.436. Ours still duck defaults: hip ±1.5708, knee
-  -1.5708..0, ankle ±1.5708 (twoleg.xml:362,386,419). The widening was
-  scoped but never applied.
-- **Actuator numbers**: theirs position kp 21.1, forcerange ±5, damping
-  1.084, armature 0.045, frictionloss 0.03 (robot_mujoco.xml:31-32);
-  robotV2 damping 0, armature 0.04, frictionloss 0.2. Ours
-  stiffness 40.0, damping 0.5, effort 1.0, armature 0.01
-  (twoleg_constants.py:35-40), XML damping 0.05, frictionloss 0.02.
-  Effort 1.0 vs their 2.94 N·m rated is not reconciled.
-- **Solver/env**: they train Isaac Lab (primary) + a MuJoCo twin with SAC;
-  twoleg trains mjlab + mujoco_warp with PPO. No Isaac Lab here.
-- **Motion imitation**: their FBX->NPZ pipeline ships no processed NPZ and
-  needs Isaac Lab; not portable.
-- **Mass**: theirs 1.468 kg compiled; our H9 MJCF compiles at ~4.5 kg
-  (2026-10-08 comparison), so a true 1:1 match still pending.
+- **Row 6, effort kept at 1.0.** Raising it to 5.0 moved root height under
+  2 cm across a 3 s rollout. Per kilogram we are 15x weaker
+  (0.223 vs 3.406 N·m/kg), but effort is not what stops this robot standing.
+- **Row 8, ankle re-derived rather than copied.** Mapping the ankle over
+  -2.5…2.0 showed two flat-standing branches (-2.0…-0.4 and +1.0…+2.0) with a
+  toe-edge dead zone between. An earlier `-0.9…0.4` clipped one branch and
+  enclosed the dead zone. `±1.571` is the servo envelope and contains both.
+- **Row 2, the stance is an ankle correction.** Every knee above 0 still
+  falls (65–142 deg tilt). 20 s at `-0.5` holds 0.74 deg tilt, 7 contacts.
+- **Row 15.** `verify_walk.py` gated on contact, speed, duty and alternation
+  with no upright check, so a robot walking on its side passed. Root height
+  barely moves during a side-fall, so height-based gates are blind to the
+  dominant failure mode.
 
-Rule of thumb: everything reward-shaped and conceptual ports; everything
-that assumes 12 DOFs, SAC, or Isaac Lab does not.
+Rule of thumb: everything reward-shaped and conceptual ports; everything that
+assumes 12 DOFs, SAC, or Isaac Lab does not.
 
-## TwoLeg stack in one paragraph (unchanged scope)
+### Stance evidence (2026-10-10)
 
-TwoLeg trains with mjlab 1.3 + MuJoCo Warp + rsl_rl PPO on a 6-actuator
-(3-per-leg) H9 model, 4096 envs, on-policy, with the walk-gate
-(`upright + both-feet load + signed speed + stance-switch rate + knee/hip
-articulation`) as the predicate. BipedRobot contributes patterns and
-reference implementations, not a drop-in replacement.
+Standalone 20 s rollout, gate final tilt < 15 deg:
+
+```
+knee=0, hip=0, hip_roll=0, ankle=-0.5
+  dz=-0.0033 m   TILT=0.74 deg   ncon=7   STANDS
+```
+
+Real runtime, `ManagerBasedRlEnv(cfg, "cpu")`, 8 envs, 600 steps at zero
+action:
+
+```
+upright_frac @100..600 steps = 1.00 throughout
+terminated frac = 0.0        STANCE_HOLDS
+```
+
+`termination_penalty` cases: post-reset `0.0`, terminated `1.0` (-> -10.0),
+truncated `0.0`, both `0.0`. The term excludes time-outs, so falling costs
+more than running out the clock.
+
+## TwoLeg stack (2026-10-10)
+
+TwoLeg trains with mjlab 1.2 + MuJoCo Warp + rsl_rl PPO on an 8-actuator
+(4-per-leg) model compiled from `robot_item/xml/robot_twoleg.xml`, on-policy.
+The model is the single source of truth for both the viewer and the trainer;
+it is declared `nu=0` in XML because mjlab injects one
+`BuiltinPositionActuatorCfg` over 8 targets (mjlab appends actuators rather
+than clearing, so an XML actuator would give 14).
+
+The walk-gate is `upright + both-feet load + signed speed + stance-switch
+rate + knee/hip articulation`, where upright is `projected_gravity_b z < -0.9`.
+BipedRobot contributes patterns and reference implementations, not a drop-in
+replacement.
+
+**measured** state as of this commit: the stance holds (0.74 deg tilt over
+20 s standalone, `upright_frac` 1.00 over 600 steps in the real runtime). No
+PPO iteration has been run against this model yet.
