@@ -9,7 +9,7 @@ mapping, and duck-scaled action scale differ.
 from mjlab.envs import ManagerBasedRlEnvCfg
 from mjlab.envs import mdp as envs_mdp
 from mjlab.envs.mdp.actions import JointPositionActionCfg
-from twoleg_rl.dc_motor_action import (
+from dc_motor_action import (
     DCMotorEffortActionCfg,
 )
 from mjlab.managers.event_manager import EventTermCfg
@@ -19,11 +19,29 @@ from mjlab.sensor import ContactSensorCfg, ContactMatch
 from mjlab.tasks.velocity import mdp
 from mjlab.tasks.velocity.mdp import UniformVelocityCommandCfg
 from mjlab.tasks.velocity.mdp.rewards import self_collision_cost, soft_landing
-from src.tasks.velocity.mdp.rewards import feet_gait, stand_still, body_orientation_l2
-from twoleg_rl.rewards import knee_flexion, both_feet_air, vertical_velocity_penalty, contact_continuity, com_height_cap, biped_torso_centering, biped_swing_height, joint_pos_reg
+from rewards import (
+    biped_swing_height,
+    biped_torso_centering,
+    both_feet_air,
+    com_height_cap,
+    contact_continuity,
+    joint_pos_reg,
+    knee_flexion,
+    termination_penalty,
+    vertical_velocity_penalty,
+)
+
+# Borrowed verbatim from the unitree_rl_mjlab checkout (not defined in our
+# rewards.py). train_twoleg.py puts that repo on sys.path before importing this
+# module; keep both in step or this import fails.
+from src.tasks.velocity.mdp.rewards import (  # noqa: E402
+    body_orientation_l2,
+    feet_gait,
+    stand_still,
+)
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
 
-from twoleg_rl.robot import (
+from robot import (
     TWOLEG_ACTION_SCALE,
     get_twoleg_robot_cfg,
     FOOT_SITES,
@@ -259,6 +277,14 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         func=body_orientation_l2,
         weight=-1.0,
         params={"asset_cfg": SceneEntityCfg("robot", body_names=(TORSO_BODY,))},
+    )
+
+    # Terminal penalty, weight aligned to BipedRobot's measured -10.0. Charging
+    # the episode end makes early termination expensive rather than free, which
+    # is what stops a policy from collecting short episodes.
+    cfg.rewards["termination_penalty"] = RewardTermCfg(
+        func=termination_penalty,
+        weight=-10.0,
     )
 
     # Unitree drops foot_swing_height from the active set (its base class term

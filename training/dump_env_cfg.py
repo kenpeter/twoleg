@@ -107,7 +107,7 @@ def build(project: str) -> dict:
             TwoLegRlCfg,
             make_twoleg_velocity_env_cfg,
         )
-        from twoleg_rl.robot import JOINT_NAMES, TWOLEG_XML
+        from robot import JOINT_NAMES, TWOLEG_XML
 
         cfg = make_twoleg_velocity_env_cfg()
         runner = TwoLegRlCfg

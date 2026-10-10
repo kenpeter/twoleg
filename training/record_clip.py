@@ -33,7 +33,7 @@ from mjlab.utils.torch import configure_torch_backends  # noqa: E402
 
 configure_torch_backends()
 
-import twoleg_rl.register  # noqa: F401  (registers tasks)
+import register  # noqa: F401  (registers tasks)
 from mjlab.envs import ManagerBasedRlEnv  # noqa: E402
 from mjlab.rl.vecenv_wrapper import RslRlVecEnvWrapper  # noqa: E402
 from mjlab.tasks.registry import load_env_cfg, load_rl_cfg  # noqa: E402

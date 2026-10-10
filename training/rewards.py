@@ -250,3 +250,16 @@ def biped_swing_height(
     cmd_mag = torch.norm(cmd[:, :3], dim=-1)
     gate = (cmd_mag > command_threshold).float()
     return reward * gate
+
+
+def termination_penalty(env, asset_cfg=None):
+    """Penalise episodes that end early, weight aligned to BipedRobot's -10.0.
+
+    mjlab ships no termination reward (its `time_out` is a TerminationTermCfg,
+    not a reward term), so this is the only way to charge the episode end.
+    Returns 1.0 only when the robot terminated for a real reason (fell over) and
+    0.0 on a normal time-out, so falling costs more than running out the clock.
+    """
+    del asset_cfg
+    tm = env.termination_manager
+    return (tm.terminated & ~tm.time_outs).float()

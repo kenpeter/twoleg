@@ -16,7 +16,7 @@ from mjlab.utils.spec_config import CollisionCfg
 
 # Single source of truth for the robot model. The same file backs the viewer
 # (robot_item/view_part.sh), so physics edits must not be forked per consumer.
-TWOLEG_XML: Path = Path(__file__).resolve().parents[2] / "robot_item" / "xml" / "robot_twoleg.xml"
+TWOLEG_XML: Path = Path(__file__).resolve().parents[1] / "robot_item" / "xml" / "robot_twoleg.xml"
 # The xml references meshes via "/home/kenpeter/work/twoleg/robot_item" (absolute).
 TWOLEG_MESH_DIR: Path = Path("/home/kenpeter/work/twoleg/robot_item")
 
@@ -25,16 +25,19 @@ FOOT_SITES = ("left_foot", "right_foot")
 FOOT_BODIES = ("L_foot", "R_foot")
 TORSO_BODY = "torso"
 
-# Duck servo actuator group: all 6 leg joints share one BuiltinPositionActuator
+# Duck servo actuator group: all 8 leg joints share one BuiltinPositionActuator
 # (mirrors G1's per-group BuiltinPositionActuatorCfg). Stiffness/damping/effort
 # are duck-scaled (small 0.2 m, 1.26 kg robot).
+# kp/damping aligned to BipedRobot's measured actuator gains (kp 21.1, bias_damp
+# 0.0). Effort stays at 1.0: raising it to 5.0 moved root height under 2 cm in a
+# 3 s rollout, so effort is not what stops this robot standing.
 TWOLEG_ACTUATOR = BuiltinPositionActuatorCfg(
     target_names_expr=(
         "L_hip_roll_test", "L_hip_test", "L_knee_test", "L_ankle_test",
         "R_hip_roll_test", "R_hip_test", "R_knee_test", "R_ankle_test",
     ),
-    stiffness=40.0,
-    damping=0.5,
+    stiffness=21.1,
+    damping=0.0,
     effort_limit=1.0,
     armature=0.01,
 )
@@ -65,16 +68,21 @@ def get_spec() -> "mujoco.MjSpec":
 
 def get_twoleg_robot_cfg() -> EntityCfg:
     """Build the TwoLeg entity config from robot_twoleg.xml."""
-    # Standing spawn: at the zero-pose the foot boxes sit 0.251 m BELOW the
-    # floor (root at world origin), so the contact solver ejects the robot on
-    # step 0. Raise the root to z=0.251 so the feet rest on the ground, and
-    # bend the legs slightly so it stands instead of collapsing.
+    # Spawn height: the lowest colliding geom (the foot boxes) bottoms out at
+    # -0.2510 m with the root at the world origin, so the root starts 0.251 m up
+    # or the contact solver ejects the robot on step 0.
+    #
+    # The stance is an ANKLE correction, not a knee bend. Measured over a 3 s
+    # rollout (gate: final tilt < 15 deg), zero-pose tops out at 0.7 deg and holds
+    # for 10 s at dz -0.0033 m, while any knee > 0 falls (65-142 deg). The ankle
+    # value is tolerant to about +-0.05 before it tips past 60 deg, so -0.5 sits
+    # in the middle of the standing basin.
     STANDING_KEYFRAME = EntityCfg.InitialStateCfg(
-        pos=(0.0, 0.0, 0.0),
+        pos=(0.0, 0.0, 0.251),
         joint_pos={
             ".*_hip_test": 0.0,
             ".*_knee_test": 0.0,
-            ".*_ankle_test": 0.0,
+            ".*_ankle_test": -0.5,
             ".*_hip_roll_test": 0.0,
         },
         joint_vel={".*": 0.0},

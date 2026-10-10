@@ -22,7 +22,7 @@ import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-import twoleg_rl.register  # noqa: F401  (registers TwoLeg tasks)
+import register  # noqa: F401  (registers TwoLeg tasks)
 from mjlab.envs import ManagerBasedRlEnv
 from mjlab.rl import MjlabOnPolicyRunner, RslRlVecEnvWrapper
 from mjlab.tasks.registry import load_env_cfg, load_rl_cfg, load_runner_cls
@@ -76,7 +76,7 @@ def main() -> int:
         with torch.no_grad():
             obs, _, _, _ = venv.step(policy(obs))
 
-    found, speeds, knee, hip = [], [], [], []
+    found, speeds, knee, hip, tilts = [], [], [], [], []
     for _ in range(ROLLOUT_STEPS):
         c = torch.zeros_like(twist.command); c[:, 0] = CMD
         twist.command[:] = c
@@ -89,11 +89,17 @@ def main() -> int:
         jp = env.scene["robot"].data.joint_pos[:, :6]
         knee.append((jp[:, 1] - jp[:, 4]).abs())  # knee flexion proxy
         hip.append((jp[:, 0] - jp[:, 3]).abs())   # hip swing proxy
+        # Tilt gate: projected gravity reads z=-1 upright, 0 at 90 deg. A robot
+        # on its side still satisfies contact, speed and alternation, so upright
+        # must be checked explicitly or a faceplant passes as a walk.
+        pg = env.scene["robot"].data.projected_gravity_b
+        tilts.append(pg[:, 2].detach().clone())
 
     found = torch.stack(found)        # [T,N,2]
     speeds = torch.stack(speeds)      # [T,N]
     knee = torch.stack(knee)          # [T,N]
     hip = torch.stack(hip)            # [T,N]
+    tilt = torch.stack(tilts)         # [T,N] z-component of projected gravity
 
     left_duty = found[:, :, 0].float().mean(0)   # [N]
     right_duty = found[:, :, 1].float().mean(0)  # [N]
@@ -116,8 +122,14 @@ def main() -> int:
 
     # articulation: joints must move (knee/hip swing present)
     articulated = (knee_flex > 0.35).float().mean() + (hip_swing > 0.20).float().mean()
+    # Upright gate: mean projected-gravity z over the window must be < -0.9
+    # (i.e. within ~26 deg of vertical). Without this a robot walking on its
+    # side satisfies every other term.
+    upright_frac = (tilt.mean(0) < -0.9).float().mean().item()
+
     valid = (
-        (left_duty > 0.20).float()
+        (upright_frac > 0.5).float()
+        * (left_duty > 0.20).float()
         * (right_duty > 0.20).float()
         * (speed > 0.05).float()
         * (both_load > 0.10).float() * (both_load < 0.85).float()
@@ -133,10 +145,12 @@ def main() -> int:
         valid_frac >= 0.60
         and switch_ok > 0.5
         and articulated > 0.5
+        and upright_frac > 0.5
     )
     out = {
         "verdict": "WALKS" if verdict else "NO-WALK",
         "valid_frac": round(valid_frac, 3),
+        "upright_frac": round(upright_frac, 3),
         "left_duty_mean": round(left_duty.mean().item(), 3),
         "right_duty_mean": round(right_duty.mean().item(), 3),
         "speed_mean": round(speed.mean().item(), 3),

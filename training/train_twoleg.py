@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 UNITREE_REPO = Path("/home/kenpeter/work/gh-repohub/unitree_rl_mjlab")
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(UNITREE_REPO))  # exposes `scripts.train`
-import twoleg_rl.register  # noqa: F401  (registers tasks)
+import register  # noqa: F401  (registers tasks)
 from scripts.train import main
 
 # The installed pydantic rejects wandb.Settings(start_method="thread") (extra_forbidden),
