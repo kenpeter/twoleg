@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mujoco model="twoleg">
-  <compiler angle="radian" meshdir="../robot_item" autolimits="true" />
+  <compiler angle="radian" meshdir="." autolimits="true" />
   <visual>
     <global offwidth="1024" offheight="1024" />
     <headlight ambient="0.55 0.55 0.55" diffuse="0.6 0.6 0.6" specular="0.2 0.2 0.2" />
