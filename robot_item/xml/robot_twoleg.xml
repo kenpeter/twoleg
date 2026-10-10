@@ -329,7 +329,7 @@
           </body>
         </body>
         <body name="L_waist_link" pos="0.026 -0.001 -0.037449" quat="0.707106781 0 -0.707106781 0">
-          <joint name="L_hip_roll_test" type="hinge" axis="0 0 1" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+          <joint name="L_hip_roll_test" type="hinge" axis="0 0 1" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-2.45 2.45" />
           <body name="L_leg_top" pos="0.003249 -0.017500 -0.238500" quat="0.707107 0 0 0.707107">
             <body name="waist_L_link" pos="-0.01046 0.002834 0.238034" quat="0.707106781 0 0 -0.707106781">
               <body name="waist_servo_L_horn" pos="0.000034 0.000960 -0.000034" quat="0.707107 0 0.707107 0">
@@ -417,7 +417,7 @@
                   <geom name="L_knee_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
                 </body>
                 <body name="L_ankle_link" pos="-0.024500 0.024000 -0.062000">
-                  <joint name="L_ankle_test" type="hinge" axis="1 0 0" damping="0.05" frictionloss="0.03" armature="0.01" limited="true" range="-1.571 1.571" />
+                  <joint name="L_ankle_test" type="hinge" axis="1 0 0" damping="0.05" frictionloss="0.03" armature="0.01" limited="true" range="-2.7 2.7" />
                   <body name="L_ankle_pivot_shaft" pos="0.048500 0.000000 0.000000">
                     <geom name="L_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
                   </body>
@@ -447,7 +447,7 @@
           </body>
         </body>
         <body name="R_waist_link" pos="0.026 -0.001 0.037449" quat="0.707106781 0 -0.707106781 0">
-          <joint name="R_hip_roll_test" type="hinge" axis="0 0 1" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-30 30" />
+          <joint name="R_hip_roll_test" type="hinge" axis="0 0 1" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-2.45 2.45" />
           <body name="R_leg_top" pos="-0.003249 -0.017500 -0.238500" quat="0.707107 0 0 -0.707107">
             <body name="waist_R_link" pos="0.01046 0.002766 0.238034" quat="0.707106781 0 0 0.707106781">
               <body name="waist_servo_R_horn" pos="0.000034 0.000960 -0.000034" quat="0.707107 0 0.707107 0">
@@ -535,7 +535,7 @@
                   <geom name="R_knee_pivot_bearing_g" type="mesh" mesh="bearing_r" class="visual" material="steel" pos="0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
                 </body>
                 <body name="R_ankle_link" pos="0.024500 0.024000 -0.062000">
-                  <joint name="R_ankle_test" type="hinge" axis="1 0 0" damping="0.05" frictionloss="0.03" armature="0.01" limited="true" range="-1.571 1.571" />
+                  <joint name="R_ankle_test" type="hinge" axis="1 0 0" damping="0.05" frictionloss="0.03" armature="0.01" limited="true" range="-2.7 2.7" />
                   <body name="R_ankle_pivot_shaft" pos="-0.048500 0.000000 0.000000">
                     <geom name="R_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 -0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
                   </body>

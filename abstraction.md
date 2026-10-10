@@ -209,6 +209,50 @@ Notes on the non-obvious rows:
 Rule of thumb: everything reward-shaped and conceptual ports; everything that
 assumes 12 DOFs, SAC, or Isaac Lab does not.
 
+### Servo hardware (owner-declared 2026-10-10)
+
+The robot uses 15 servos, one per DOF: head, both arms (shoulder, elbow,
+wrist), and both legs (waist, hip, knee, ankle). Owner-declared spec for the
+part actually fitted:
+
+| Property | Owner-declared |
+|---|---|
+| Rotation | **360 degree** |
+| Weight | **55 g** each |
+| Voltage | **4.8-7.4 V DC** |
+| Control | digital, PWM 500-2500 us |
+
+The owner has confirmed these figures for the fitted parts, and they govern
+every joint range in the model. Servo mass is 15 x 55 g = 825 g, which is
+18.4% of the compiled 4.4818 kg robot. Mass is currently derived from geom
+density, so it is whatever the CAD gives, not what the servos weigh.
+
+A 360-degree travel envelope is +-180 deg = +-3.14159 rad. Measured against it:
+
+| Joint | Range (rad) | Needs | Fits +-180 deg? |
+|---|---|---|---|
+| hip | +-1.2 | 68.8 deg | yes |
+| knee | -0.15..1.9 | 108.9 deg | yes |
+| ankle | +-1.571 | 90.0 deg | yes |
+| hip_roll | +-0.785 | 45.0 deg | yes |
+
+**Every current joint range sits inside the 360-degree envelope, so no limit
+change is due and none should be made.** Do not narrow the knee to +-1.5 or the
+ankle to +-1.4 for a 180-degree servo: that guidance was derived from a
+180-degree product page, it is wrong for these parts, and narrowing the ankle
+would cut its second measured standing basin (+1.0..+2.0 rad) in half.
+
+Torque: the model runs `effort_limit=2.45` in `training/robot.py`, and
+`actuatorfrcrange=-2.45 2.45` on both hip_roll joints. That is ~59% of the
+4.12 N.m stall figure quoted for this class of servo at 7.4 V. If the real
+stall turns out lower, `actuatorfrcrange` is the number to revisit, not the
+effort gain.
+
+Source note: one product page for a 45 kg servo (`rcmega.com`, SKU
+`XINHUIKEJI-45KG-180`) states 180 degree and 65 g. The owner's fitted parts
+are 360 degree and 55 g, and the owner's statement governs. Recorded once so
+the discrepancy is not rediscovered as a surprise; not a live question.
+
 ### Stance evidence (2026-10-10)
 
 Standalone 20 s rollout, gate final tilt < 15 deg:

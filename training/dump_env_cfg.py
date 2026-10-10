@@ -103,15 +103,13 @@ def dump_terms(getter) -> Any:
 
 def build(project: str) -> dict:
     if project == "twoleg":
-        from twoleg_training.tasks.twoleg_velocity_env_cfg import (
-            TwoLegRlCfg,
-            make_twoleg_velocity_env_cfg,
-        )
-        from robot import JOINT_NAMES, TWOLEG_XML
+        from env_cfgs import unitree_twoleg_flat_env_cfg
+        from rl_cfg import unitree_twoleg_ppo_runner_cfg
+        from robot import TWOLEG_ACTUATOR, TWOLEG_XML
 
-        cfg = make_twoleg_velocity_env_cfg()
-        runner = TwoLegRlCfg
-        declared_joints = list(JOINT_NAMES)
+        cfg = unitree_twoleg_flat_env_cfg()
+        runner = unitree_twoleg_ppo_runner_cfg()
+        declared_joints = list(TWOLEG_ACTUATOR.target_names_expr)
         xml_path = TWOLEG_XML
     elif project == "microduck":
         from mjlab_microduck.tasks.microduck_velocity_env_cfg import (
