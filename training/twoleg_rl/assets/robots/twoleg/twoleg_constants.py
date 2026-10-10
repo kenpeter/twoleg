@@ -14,7 +14,9 @@ from mjlab.actuator import BuiltinPositionActuatorCfg
 from mjlab.entity import EntityArticulationInfoCfg, EntityCfg
 from mjlab.utils.spec_config import CollisionCfg
 
-TWOLEG_XML: Path = Path(__file__).resolve().parent / "twoleg.xml"
+# Single source of truth for the robot model. The same file backs the viewer
+# (robot_item/view_part.sh), so physics edits must not be forked per consumer.
+TWOLEG_XML: Path = Path(__file__).resolve().parents[5] / "robot_item" / "xml" / "robot_twoleg.xml"
 # The xml references meshes via "/home/kenpeter/work/twoleg/robot_item" (absolute).
 TWOLEG_MESH_DIR: Path = Path("/home/kenpeter/work/twoleg/robot_item")
 
@@ -62,7 +64,7 @@ def get_spec() -> "mujoco.MjSpec":
 
 
 def get_twoleg_robot_cfg() -> EntityCfg:
-    """Build the TwoLeg entity config from twoleg.xml."""
+    """Build the TwoLeg entity config from robot_twoleg.xml."""
     # Standing spawn: at the zero-pose the foot boxes sit 0.251 m BELOW the
     # floor (root at world origin), so the contact solver ejects the robot on
     # step 0. Raise the root to z=0.251 so the feet rest on the ground, and
