@@ -148,7 +148,7 @@ from a comment. "Was" is the pre-alignment value on this branch.
 | 3 | Stance knee | `0` | `0.0` | `0.0` | verified |
 | 4 | PD gain `kp` | `21.1` | `40.0` | `21.1` | aligned |
 | 5 | PD `damping` | `0.0` | `0.5` | `0.0` | aligned |
-| 6 | `effort_limit` | `±5.0` | `1.0` | `1.0` | kept, see note |
+| 6 | `effort_limit` | `±5.0` (204% of their servo) | `1.0` | `2.45` | aligned to our hardware |
 | 7 | Joints limited | `12/13` | `2/9` | `8/9` | aligned |
 | 8 | Ankle range | `-0.436…1.571` | none | `±1.571` | re-derived |
 | 9 | Hip range | `±2.00713` | none | `±1.2` | aligned |
@@ -166,15 +166,22 @@ from a comment. "Was" is the pre-alignment value on this branch.
 | 20 | Compiled mass | `1.468 kg` | `4.482 kg` | `4.482 kg` | kept CAD |
 | 21 | Biped | `123` | `15` | `123` | ours is richer |
 | 22 | Colliding geoms | `18 ngeom` | `2` | `8` | aligned |
-| 23 | Algorithm | SAC + PPO | PPO | PPO | gap |
+| 23 | Algorithm | SAC + PPO | PPO | PPO | **settled: stay on-policy** |
 | 24 | Sim backend | Isaac Lab / MuJoCo | mjlab + warp | mjlab + warp | gap |
 | 25 | Motion imitation | FBX→NPZ | none | none | not portable |
 
 Notes on the non-obvious rows:
 
-- **Row 6, effort kept at 1.0.** Raising it to 5.0 moved root height under
-  2 cm across a 3 s rollout. Per kilogram we are 15x weaker
-  (0.223 vs 3.406 N·m/kg), but effort is not what stops this robot standing.
+- **Row 6, effort aligned to hardware, not to their sim.** Our servo is a
+  DS3245 at **45 kg·cm = 4.41 N·m**; theirs is 25 kg·cm = 2.45 N·m. We now run
+  2.45, which is 56% of our stall. Their sim runs 5.0, which is **204% of
+  their own servo**, so copying their number would put us at 113% of ours.
+  Effort does not affect standing or recovery (at equilibrium the PD error is
+  ~0, so no torque is requested; measured identical 0.74 deg tilt at every
+  level from 1.0 to 5.0, and identical outcomes under kicks up to 20 rad/s).
+  It does bound large pose changes: commanding the knee 0.0 to 0.8 rad
+  reached 0.710 at 1.0 N·m (11% short) versus 0.808 at 2.45. That is what
+  walking does, which is why this row is now aligned rather than deferred.
 - **Row 8, ankle re-derived rather than copied.** Mapping the ankle over
   -2.5…2.0 showed two flat-standing branches (-2.0…-0.4 and +1.0…+2.0) with a
   toe-edge dead zone between. An earlier `-0.9…0.4` clipped one branch and
@@ -185,6 +192,12 @@ Notes on the non-obvious rows:
   with no upright check, so a robot walking on its side passed. Root height
   barely moves during a side-fall, so height-based gates are blind to the
   dominant failure mode.
+- **Row 23, settled by decision 2026-10-10.** We stay on PPO. mjlab exports
+  only on-policy runners (`MjlabOnPolicyRunner`, `RslRlBaseRunner`,
+  `RslRlOnPolicyRunner`); SAC would need a new off-policy runner or a second
+  training script through the existing gym adapter. Nothing indicates SAC is
+  why BipedRobot walks — the likelier causes are 12 DOF and 1.468 kg, both of
+  which are hardware. This is a choice, not a gap.
 - **Row 16, correction.** An earlier version of this ledger claimed
   BipedRobot ramps gait weights from `0.0`. **It does not.** Their
   `config/config.yaml` ships `swing_foot_height: 1.5` with

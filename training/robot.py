@@ -30,7 +30,16 @@ TORSO_BODY = "torso"
 # are duck-scaled (small 0.2 m, 1.26 kg robot).
 # kp/damping aligned to BipedRobot's measured actuator gains (kp 21.1, bias_damp
 # 0.0). Effort stays at 1.0: raising it to 5.0 moved root height under 2 cm in a
-# 3 s rollout, so effort is not what stops this robot standing.
+# 3 s rollout at the stance, because a standing robot sits at equilibrium and
+# asks for no torque. Effort DOES bound large pose changes: commanding the knee
+# 0.0 -> 0.8 rad reaches only 0.710 rad at 1.0 N.m (11% short) versus 0.808 at
+# 2.45, and that is what walking does.
+#
+# Value anchored to hardware, not to BipedRobot's sim. Ours is a DS3245 at
+# 45 kg.cm = 4.41 N.m, so 2.45 is 56% of stall with headroom for the brownout
+# a real servo shows near stall. BipedRobot runs 5.0 against a 25 kg.cm =
+# 2.45 N.m servo, i.e. 204% of its own hardware; copying that number would put
+# us at 113% of ours.
 TWOLEG_ACTUATOR = BuiltinPositionActuatorCfg(
     target_names_expr=(
         "L_hip_roll_test", "L_hip_test", "L_knee_test", "L_ankle_test",
@@ -38,7 +47,7 @@ TWOLEG_ACTUATOR = BuiltinPositionActuatorCfg(
     ),
     stiffness=21.1,
     damping=0.0,
-    effort_limit=1.0,
+    effort_limit=2.45,
     armature=0.01,
 )
 
