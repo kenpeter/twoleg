@@ -86,6 +86,15 @@ def get_twoleg_robot_cfg() -> EntityCfg:
     # for 10 s at dz -0.0033 m, while any knee > 0 falls (65-142 deg). The ankle
     # value is tolerant to about +-0.05 before it tips past 60 deg, so -0.5 sits
     # in the middle of the standing basin.
+    #
+    # DO NOT "fix" the 1.67 mm foot-foot interpenetration by moving this value.
+    # Re-measured in the mjlab runtime (8 envs, zero action, upright_frac =
+    # fraction of envs with projected_gravity_b z < -0.9): -0.5 -> min 0.12 /
+    # mean 0.62-0.72; -0.70 -> min 0.25 / mean 0.65; 0.0 -> min 0.00 / mean 0.66.
+    # Those differences are within the noise of a stance that is MARGINAL for
+    # every value, so the ankle angle is not what decides whether it stands and
+    # no ankle value clears the 1.67 mm foot overlap while standing. The
+    # clearance has to be closed geometrically, not by picking another angle.
     STANDING_KEYFRAME = EntityCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.251),
         joint_pos={

@@ -212,7 +212,11 @@ assumes 12 DOFs, SAC, or Isaac Lab does not.
 ### Servo hardware (owner-declared 2026-10-10)
 
 The robot uses 15 servos, one per DOF: head, both arms (shoulder, elbow,
-wrist), and both legs (waist, hip, knee, ankle). Owner-declared spec for the
+wrist), and both legs (waist, hip, knee, ankle). The kit listing confirms
+both: "15 DOF Humanoid Dancing Robot Kit" shipping as a
+"complete package (analog servo)". Analog hobby servos are positional PWM
+servos that hold a commanded angle, which is what the model assumes and
+what the stance evidence below measures. Owner-declared spec for the
 part actually fitted:
 
 | Property | Owner-declared |
