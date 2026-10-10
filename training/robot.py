@@ -119,6 +119,9 @@ def get_twoleg_robot_cfg() -> EntityCfg:
         # CollisionCfg with condim=1 for them.
         collisions=(
             # Foot/terrain contact: full friction (condim=3), highest priority.
+            # disable_other_geoms=False is LOAD-BEARING: each CollisionCfg with
+            # the default True disables every NON-matching geom, so a second
+            # entry that matches nothing wipes what the first one enabled.
             CollisionCfg(
                 geom_names_expr=(r".*_foot_collision$",),
                 condim=3,
@@ -126,17 +129,20 @@ def get_twoleg_robot_cfg() -> EntityCfg:
                 contype=1,
                 priority=1,
                 friction=(0.6,),
+                disable_other_geoms=False,
             ),
-            # Leg-link self-collision: thin capsules (one per main link) get
-            # condim=1 so legs can't interpenetrate each other. The decorative
-            # mesh colliders stay contype=0 (XML default), so only these
-            # capsules collide -- no overlap-at-rest explosion.
+            # Leg-link self-collision. The real capsule geoms are named
+            # L/R_{thigh,shank,ankle} with NO "_capsule" suffix, so the old
+            # pattern matched zero geoms and, combined with the default
+            # disable_other_geoms=True, zeroed the foot boxes too -- the soles
+            # could never touch the floor and the robot free-fell to z=-78 m.
             CollisionCfg(
-                geom_names_expr=(r".*_(hip|knee|ankle)_capsule$",),
+                geom_names_expr=(r".*_(thigh|shank|ankle)$",),
                 condim=1,
                 conaffinity=1,
                 contype=1,
                 priority=0,
+                disable_other_geoms=False,
             ),
         ),
     )
