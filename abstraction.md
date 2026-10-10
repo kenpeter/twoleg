@@ -99,9 +99,9 @@ is ~4.5 kg while BipedRobot compiles at 1.468 kg (see ledger below).
 
 **measured** (2026-10-10, superseding the 2026-10-08 audit):
 
-- Phased gait-weight curriculum pattern (`0.0` until stable, then ramp) —
-  the lever twoleg's always-on reward terms lacked. **Still deferred**: not
-  implemented, see row 16 of the ledger.
+- **Withdrawn**: the previously claimed "phased gait-weight curriculum (`0.0`
+  until stable, then ramp)". Reading their `config/config.yaml` directly
+  shows no such ramp exists — see the row 16 correction in the ledger.
 - `termination_penalty` at `-10.0` and `dof_pos_limits` at `-1.0`, both now
   live in the resolved config and verified.
 - PD gains aligned to their measured `kp 21.1`, `damping 0.0`;
@@ -158,7 +158,8 @@ from a comment. "Was" is the pre-alignment value on this branch.
 | 13 | `dof_pos_limits` | `-1.0` | absent | `-1.0` | matched |
 | 14 | `termination_penalty` | `-10.0` | absent | `-10.0` | written, verified |
 | 15 | Upright gate in eval | — | none | `projected_gravity_b z < -0.9` | added |
-| 16 | Ramped gait (4 shapers) | `0.0` then ramp | none | none | **deferred** |
+| 16 | Swing foot height | `1.5` (their one ACTIVE shaper) | `0.5` | `1.5` | aligned |
+| 16b | `step_length` / `knee_bend_touchdown` / `torso_centering` | `0.0` — OFF | `0.15` / `1.0` / `1.0` — ON | kept on | not aligned, see note |
 | 17 | Hip abduction (axis X) | `hip_y` | absent | absent | hardware |
 | 18 | Ankle pitch (axis Y) | `ankle_y` | absent | absent | hardware |
 | 19 | Actuators | `12` (6/leg) | `8` (4/leg) | `8` | hardware |
@@ -184,6 +185,13 @@ Notes on the non-obvious rows:
   with no upright check, so a robot walking on its side passed. Root height
   barely moves during a side-fall, so height-based gates are blind to the
   dominant failure mode.
+- **Row 16, correction.** An earlier version of this ledger claimed
+  BipedRobot ramps gait weights from `0.0`. **It does not.** Their
+  `config/config.yaml` ships `swing_foot_height: 1.5` with
+  `step_length`, `knee_bend_touchdown` and `torso_centering` all at `0.0`,
+  and nothing mutates that table at runtime. The only curriculum in their
+  config is domain randomisation (COM/payload 0 to 100% over 40k steps), not
+  reward weights. There was no ramp to copy.
 
 Rule of thumb: everything reward-shaped and conceptual ports; everything that
 assumes 12 DOFs, SAC, or Isaac Lab does not.

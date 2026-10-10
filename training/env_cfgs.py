@@ -263,7 +263,10 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     )
     cfg.rewards["biped_swing_height"] = RewardTermCfg(
         func=biped_swing_height,
-        weight=0.5,
+        # Aligned to BipedRobot's swing_foot_height, their one ACTIVE gait
+        # shaper at 1.5 (config/config.yaml:69). Their other three
+        # (step_length, knee_bend_touchdown, torso_centering) ship at 0.0.
+        weight=1.5,
         params={
             "asset_cfg": SceneEntityCfg("robot", site_names=FOOT_SITES),
             "sensor_name": "feet_ground_contact",
