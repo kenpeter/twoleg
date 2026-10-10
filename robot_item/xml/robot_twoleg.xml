@@ -329,7 +329,7 @@
           </body>
         </body>
         <body name="L_waist_link" pos="0.026 -0.001 -0.037449" quat="0.707106781 0 -0.707106781 0">
-          <joint name="L_hip_roll_test" type="hinge" axis="0 1 0" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-2.45 2.45" />
+          <joint name="L_hip_roll_test" type="hinge" axis="0 1 0" limited="true" range="0 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-2.45 2.45" />
           <body name="L_leg_top" pos="0.003249 -0.017500 -0.238500" quat="0.707107 0 0 0.707107">
             <body name="waist_L_link" pos="-0.01046 0.002834 0.238034" quat="0.707106781 0 0 -0.707106781">
               <body name="waist_servo_L_horn" pos="0.000034 0.000960 -0.000034" quat="0.707107 0 0.707107 0">
@@ -417,7 +417,7 @@
                   <geom name="L_knee_pivot_bearing_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
                 </body>
                 <body name="L_ankle_link" pos="-0.024500 0.024000 -0.062000">
-                  <joint name="L_ankle_test" type="hinge" axis="1 0 0" damping="0.05" frictionloss="0.03" armature="0.01" limited="true" range="-2.7 2.7" />
+                  <joint name="L_ankle_test" type="hinge" axis="1 0 0" damping="0.05" frictionloss="0.03" armature="0.01" limited="true" range="-0.85 0.85" />
                   <body name="L_ankle_pivot_shaft" pos="0.048500 0.000000 0.000000">
                     <geom name="L_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
                   </body>
@@ -436,7 +436,7 @@
                     <geom name="L_foot_visual" mesh="foot" class="visual" material="bracket" pos="-0.06175 -0.03175 -0.001" contype="0" conaffinity="0" />
                     <geom name="L_foot_collision" mesh="foot" class="collision" pos="-0.06175 -0.03175 -0.001" density="2700" contype="0" conaffinity="0" />
                     <site name="left_foot" pos="-1.13115597e-09 2.70113457e-09 -0.00100000006" />
-                    <geom name="left_foot_collision" type="box" size="0.0617500003 0.0317500029 0.005" pos="-1.13115597e-09 2.70113457e-09 0.00399999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
+                    <geom name="left_foot_collision" type="box" size="0.0617500003 0.0297500029 0.002" pos="-1.13115597e-09 2.70113457e-09 0.00099999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
                   </body>
                   <geom name="L_ankle" type="capsule" fromto="0 0 0 0.007000 -0.010000 -0.016750" size="0.018" density="0" contype="1" conaffinity="1" group="3" />
                 </body>
@@ -447,7 +447,7 @@
           </body>
         </body>
         <body name="R_waist_link" pos="0.026 -0.001 0.037449" quat="0.707106781 0 -0.707106781 0">
-          <joint name="R_hip_roll_test" type="hinge" axis="0 1 0" limited="true" range="-0.785398 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-2.45 2.45" />
+          <joint name="R_hip_roll_test" type="hinge" axis="0 1 0" limited="true" range="-0.785398 0" damping="0.05" frictionloss="0.02" armature="0.01" actuatorfrcrange="-2.45 2.45" />
           <body name="R_leg_top" pos="-0.003249 -0.017500 -0.238500" quat="0.707107 0 0 -0.707107">
             <body name="waist_R_link" pos="0.01046 0.002766 0.238034" quat="0.707106781 0 0 0.707106781">
               <body name="waist_servo_R_horn" pos="0.000034 0.000960 -0.000034" quat="0.707107 0 0.707107 0">
@@ -535,7 +535,7 @@
                   <geom name="R_knee_pivot_bearing_g" type="mesh" mesh="bearing_r" class="visual" material="steel" pos="0.004750 -0.001500 -0.004750" contype="0" conaffinity="0" />
                 </body>
                 <body name="R_ankle_link" pos="0.024500 0.024000 -0.062000">
-                  <joint name="R_ankle_test" type="hinge" axis="1 0 0" damping="0.05" frictionloss="0.03" armature="0.01" limited="true" range="-2.7 2.7" />
+                  <joint name="R_ankle_test" type="hinge" axis="1 0 0" damping="0.05" frictionloss="0.03" armature="0.01" limited="true" range="-0.85 0.85" />
                   <body name="R_ankle_pivot_shaft" pos="-0.048500 0.000000 0.000000">
                     <geom name="R_ankle_pivot_shaft_g" type="cylinder" size="0.002 0.003000" quat="0.7071068 0 -0.7071068 0" material="steel" contype="0" conaffinity="0" group="2" />
                   </body>
@@ -554,7 +554,7 @@
                     <geom name="R_foot_visual" mesh="foot_r" class="visual" material="bracket" pos="0.06175 -0.03175 -0.001" contype="0" conaffinity="0" />
                     <geom name="R_foot_collision" mesh="foot_r" class="collision" pos="0.06175 -0.03175 -0.001" density="2700" contype="0" conaffinity="0" />
                     <site name="right_foot" pos="1.13115595e-09 2.70113457e-09 -0.00100000006" />
-                    <geom name="right_foot_collision" type="box" size="0.0617500003 0.0317500029 0.005" pos="1.13115595e-09 2.70113457e-09 0.00399999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
+                    <geom name="right_foot_collision" type="box" size="0.0617500003 0.0297500029 0.002" pos="1.13115595e-09 2.70113457e-09 0.00099999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
                   </body>
                   <geom name="R_ankle" type="capsule" fromto="0 0 0 -0.007000 -0.010000 -0.016750" size="0.018" density="0" contype="1" conaffinity="1" group="3" />
                 </body>
