@@ -12,5 +12,7 @@ __pycache__/
 training/logs/
 training/runs/
 training/**/*.mp4
-training/**/MUJOCO_LOG.TXT
 training/latest_walk*.mp4
+
+# MuJoCo rewrites this on every model load; bare name matches at any depth
+MUJOCO_LOG.TXT
