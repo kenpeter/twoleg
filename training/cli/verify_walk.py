@@ -22,7 +22,7 @@ import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-import twoleg_rl.tasks.velocity.config.twoleg  # noqa: F401  (registers TwoLeg tasks)
+import twoleg_rl.register  # noqa: F401  (registers TwoLeg tasks)
 from mjlab.envs import ManagerBasedRlEnv
 from mjlab.rl import MjlabOnPolicyRunner, RslRlVecEnvWrapper
 from mjlab.tasks.registry import load_env_cfg, load_rl_cfg, load_runner_cls

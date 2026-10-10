@@ -1,1 +1,0 @@
-"""TwoLeg robot assets package."""

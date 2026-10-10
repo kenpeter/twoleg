@@ -26,8 +26,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import torch
 import mediapy as media
 
-from scripts.twoleg_gym_env import TwoLegGymEnv
-from scripts.train_ppo import build_config
+from cli.twoleg_gym_env import TwoLegGymEnv
+from cli.train_ppo import build_config
 
 try:
     from algorithms.ppo.model import PPO

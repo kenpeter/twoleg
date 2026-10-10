@@ -11,7 +11,7 @@ which exposes the rsl_rl VecEnv API: obs_dict, rewards, dones, infos). We run a
 single vectorized env (num_envs=1) and treat it as the one "worker" the Trainer
 expects. Actions are normalized in [-1, 1] and scaled by TWOLEG_ACTION_SCALE.
 
-Mirroring (left/right symmetry) is wired through twoleg_rl.utils.biped_mirroring
+Mirroring (left/right symmetry) is wired through twoleg_rl.biped_mirroring
 so the trainer's symmetry_augmentation option works.
 """
 
@@ -27,12 +27,12 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 
-import twoleg_rl.tasks.velocity.config.twoleg  # noqa: F401  (registers the task)
+import twoleg_rl.register  # noqa: F401  (registers the task)
 from mjlab.tasks.registry import load_env_cfg
 from mjlab.envs import ManagerBasedRlEnv
 from mjlab.rl import RslRlVecEnvWrapper
 
-from twoleg_rl.assets.robots.twoleg.twoleg_constants import TWOLEG_ACTION_SCALE
+from twoleg_rl.robot import TWOLEG_ACTION_SCALE
 
 
 class TwoLegGymEnv:
@@ -140,11 +140,11 @@ class TwoLegGymEnv:
     def _maybe_mirror_obs(self, obs_dict):
         if not self._mirror_active:
             return obs_dict
-        from twoleg_rl.utils.biped_mirroring import mirror_obs_dict
+        from twoleg_rl.biped_mirroring import mirror_obs_dict
         return mirror_obs_dict(obs_dict)
 
     def _mirror_action(self, actions_np):
-        from twoleg_rl.utils.biped_mirroring import mirror_action
+        from twoleg_rl.biped_mirroring import mirror_action
         return mirror_action(actions_np)
 
     # --- helpers ---------------------------------------------------------
@@ -190,7 +190,7 @@ class TwoLegGymEnv:
 # --- symmetry hook for torch-rl-algorithms SAC/PPO mirror augmentation ------
 def mirror_obs(obs, actions=None):
     """Left/right mirror of a flat obs/action batch (BipedRobot convention)."""
-    from twoleg_rl.utils import biped_mirroring
+    from twoleg_rl import biped_mirroring
 
     if isinstance(obs, dict):
         return {k: biped_mirroring.mirror_observation(v, 8) for k, v in obs.items()}
@@ -198,6 +198,6 @@ def mirror_obs(obs, actions=None):
 
 
 def mirror_action(actions):
-    from twoleg_rl.utils import biped_mirroring
+    from twoleg_rl import biped_mirroring
 
     return biped_mirroring.mirror_action(actions, 8)

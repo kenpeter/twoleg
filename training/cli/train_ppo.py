@@ -26,7 +26,7 @@ REPO = str(Path(__file__).resolve().parents[1])
 
 import torch
 
-from scripts.twoleg_gym_env import TwoLegGymEnv
+from cli.twoleg_gym_env import TwoLegGymEnv
 from config import NetworkConfig, NetworkType  # torch-rl-algorithms
 
 try:

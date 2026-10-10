@@ -16,7 +16,7 @@ from mjlab.utils.spec_config import CollisionCfg
 
 # Single source of truth for the robot model. The same file backs the viewer
 # (robot_item/view_part.sh), so physics edits must not be forked per consumer.
-TWOLEG_XML: Path = Path(__file__).resolve().parents[5] / "robot_item" / "xml" / "robot_twoleg.xml"
+TWOLEG_XML: Path = Path(__file__).resolve().parents[2] / "robot_item" / "xml" / "robot_twoleg.xml"
 # The xml references meshes via "/home/kenpeter/work/twoleg/robot_item" (absolute).
 TWOLEG_MESH_DIR: Path = Path("/home/kenpeter/work/twoleg/robot_item")
 

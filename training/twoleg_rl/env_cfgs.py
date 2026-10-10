@@ -9,7 +9,7 @@ mapping, and duck-scaled action scale differ.
 from mjlab.envs import ManagerBasedRlEnvCfg
 from mjlab.envs import mdp as envs_mdp
 from mjlab.envs.mdp.actions import JointPositionActionCfg
-from twoleg_rl.tasks.velocity.config.twoleg.dc_motor_action import (
+from twoleg_rl.dc_motor_action import (
     DCMotorEffortActionCfg,
 )
 from mjlab.managers.event_manager import EventTermCfg
@@ -20,10 +20,10 @@ from mjlab.tasks.velocity import mdp
 from mjlab.tasks.velocity.mdp import UniformVelocityCommandCfg
 from mjlab.tasks.velocity.mdp.rewards import self_collision_cost, soft_landing
 from src.tasks.velocity.mdp.rewards import feet_gait, stand_still, body_orientation_l2
-from twoleg_rl.tasks.velocity.config.twoleg.rewards import knee_flexion, both_feet_air, vertical_velocity_penalty, contact_continuity, com_height_cap, biped_torso_centering, biped_swing_height, joint_pos_reg
+from twoleg_rl.rewards import knee_flexion, both_feet_air, vertical_velocity_penalty, contact_continuity, com_height_cap, biped_torso_centering, biped_swing_height, joint_pos_reg
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
 
-from twoleg_rl.assets.robots.twoleg.twoleg_constants import (
+from twoleg_rl.robot import (
     TWOLEG_ACTION_SCALE,
     get_twoleg_robot_cfg,
     FOOT_SITES,

@@ -7,31 +7,31 @@ survivors are the duck robot asset (`twoleg.xml` + meshes at
 `/home/kenpeter/work/twoleg/robot_item`) and the rigorous human-gait eval idea.
 
 ## Layout
-- `twoleg_rl/assets/robots/twoleg/` — duck robot XML + constants (EntityCfg,
-  6 actuated joints: L/R hip/knee/ankle; foot sites `left_foot`/`right_foot`).
-- `twoleg_rl/tasks/velocity/config/twoleg/` — `TwoLeg-Velocity-Flat` / `TwoLeg-
-  Velocity-Rough` tasks, cloned from Unitree's `unitree_g1_flat_env_cfg`. The gait
-  shaper is `feet_gait` (phase-locked alternating contact, weight 0.5) — NOT
-  air-time rewards (those caused the one-foot flail). Plus `foot_clearance`,
-  `foot_slip`, `soft_landing`, `stand_still`, `body_orientation_l2`,
-  `self_collisions`, and duck `pose` stds.
-- `scripts/train_twoleg.py` — training entry (imports our task registration,
-  reuses Unitree's train flow; patches W&B for offline run).
-- `scripts/verify_walk.py` — headless rigorous human-gait eval (returns JSON
-  verdict WALKS / NO-WALK).
-- `scripts/loop_forever.sh` — durable loop: train one round -> verify -> continue
-  if NO-WALK, stop if WALKS.
+Everything lives flat under `twoleg_rl/` (max depth 2, plus `cli/`).
+- `twoleg_rl/robot.py` — robot asset wiring (EntityCfg, 8 actuated joints:
+  L/R hip_roll/hip/knee/ankle; foot sites `left_foot`/`right_foot`). The model
+  itself is the single source of truth at `robot_item/xml/robot_twoleg.xml`.
+- `twoleg_rl/env_cfgs.py`, `rewards.py`, `rl_cfg.py`, `dc_motor_action.py` —
+  `TwoLeg-Velocity-Flat` / `TwoLeg-Velocity-Rough`, cloned from Unitree's
+  `unitree_g1_flat_env_cfg`. The gait shaper is `feet_gait` (phase-locked
+  alternating contact, weight 0.5) — NOT air-time rewards (those caused the
+  one-foot flail). Plus `foot_clearance`, `foot_slip`, `soft_landing`,
+  `stand_still`, `body_orientation_l2`, `self_collisions`, and duck `pose` stds.
+- `twoleg_rl/register.py` — registers both tasks with mjlab. Import it for its
+  side effect before `load_env_cfg`.
+- `twoleg_rl/cli/train_twoleg.py` — training entry (imports our task
+  registration, reuses Unitree's train flow; patches W&B for offline run).
+- `twoleg_rl/cli/verify_walk.py` — headless rigorous human-gait eval (returns
+  JSON verdict WALKS / NO-WALK).
 
 ## Run
 ```
 cd /home/kenpeter/work/twoleg/training
 # one training round
-uv run --no-sync python scripts/train_twoleg.py TwoLeg-Velocity-Flat \
+uv run --no-sync python twoleg_rl/cli/train_twoleg.py TwoLeg-Velocity-Flat \
   --env.scene.num-envs 4096 --agent.max-iterations 1000
 # eval a checkpoint
-uv run --no-sync python scripts/verify_walk.py --ckpt logs/.../model_NNNN.pt
-# non-stop loop
-bash scripts/loop_forever.sh
+uv run --no-sync python twoleg_rl/cli/verify_walk.py --ckpt logs/.../model_NNNN.pt
 ```
 
 ## Framework
