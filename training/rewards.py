@@ -295,3 +295,26 @@ def foot_separation(
             gate = (cmd_mag > command_threshold).float()
             cost = cost * gate
     return cost
+
+
+def torso_height(
+    env: "ManagerBasedRlEnv",
+    asset_cfg: "SceneEntityCfg",  # noqa: F821
+    target_height: float = 0.25,
+    min_height: float = 0.12,
+) -> torch.Tensor:
+    """Continuous anti-fall reward: penalize the torso dropping toward the floor.
+
+    Unlike termination_penalty (which only fires once the robot has already fallen
+    and the episode ended), this charges a smooth cost EVERY step the torso COM
+    height falls below ``target_height``, ramping to full penalty at
+    ``min_height``. This gives the policy a dense gradient to stay up — a hard
+    fall (torso near the ground) is maximally penalized, a slight dip is lightly
+    penalized. The user's "but fall down -> reward" fix: make falling expensive
+    *while it happens*, not just at episode end.
+    """
+    asset = env.scene[asset_cfg.name]
+    h = asset.data.body_com_pos_w[:, asset_cfg.body_ids, 2].squeeze(-1)  # [N]
+    # cost in [0,1]: 0 at/above target, 1 at/below min
+    cost = torch.clamp((target_height - h) / (target_height - min_height), min=0.0, max=1.0)
+    return cost

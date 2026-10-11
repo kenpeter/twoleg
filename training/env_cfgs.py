@@ -28,6 +28,7 @@ from rewards import (
     foot_separation,
     joint_pos_reg,
     knee_flexion,
+    torso_height,
     termination_penalty,
     vertical_velocity_penalty,
 )
@@ -275,7 +276,7 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # anti-hop terms so a true hop still costs more than a step.
     cfg.rewards["feet_air_time"] = RewardTermCfg(
         func=mdp.rewards.feet_air_time,
-        weight=3.0,
+        weight=5.5,
         params={"sensor_name": "feet_ground_contact",
                 "threshold_min": 0.05, "threshold_max": 0.5,
                 "command_name": "twist", "command_threshold": 0.05},
@@ -307,6 +308,19 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         weight=-2.0,
         params={"asset_cfg": SceneEntityCfg("robot", body_names=(TORSO_BODY,))},
     )
+    # ANTI-FALL (continuous). termination_penalty only fires at episode end; this
+    # charges EVERY step the torso COM drops below target_height, ramping to full at
+    # min_height. Dense gradient to stay up — a hard fall is maximally penalized
+    # mid-fall, not just when the episode terminates. Tunable by the loop.
+    cfg.rewards["torso_height"] = RewardTermCfg(
+        func=torso_height,
+        weight=-3.0,
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names=(TORSO_BODY,)),
+            "target_height": 0.25,
+            "min_height": 0.12,
+        },
+    )
 
     # Terminal penalty, weight aligned to BipedRobot's measured -10.0. Charging
     # the episode end makes early termination expensive rather than free, which
@@ -314,6 +328,33 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     cfg.rewards["termination_penalty"] = RewardTermCfg(
         func=termination_penalty,
         weight=-10.0,
+    )
+
+    # === BipedRobot alignment (max-align pass) ===
+    # ang_vel_xy_l2 (-0.05): penalize body roll/pitch RATE -> catches a fall starting
+    # (tipping angular velocity) before the torso actually drops. Maps to BipedRobot's
+    # ang_vel_xy_l2. Uses mjlab body_angular_velocity_penalty on the torso.
+    cfg.rewards["ang_vel_xy_l2"] = RewardTermCfg(
+        func=mdp.rewards.body_angular_velocity_penalty,
+        weight=-0.05,
+        params={"asset_cfg": SceneEntityCfg("robot", body_names=(TORSO_BODY,))},
+    )
+    # action_rate_l2 (-0.01 in BipedRobot; mjlab default -0.05). Smooths jerky motor
+    # commands -> stability. Keep BipedRobot's -0.01 to match their tuning.
+    cfg.rewards["action_rate_l2"] = RewardTermCfg(
+        func=mdp.action_rate_l2,
+        weight=-0.01,
+    )
+    # dof_torques_l2 (-2e-3): penalize excessive joint torques (mjlab has
+    # joint_torques_l2, the direct equivalent). Energy efficiency / smoothness.
+    cfg.rewards["dof_torques_l2"] = RewardTermCfg(
+        func=mdp.joint_torques_l2,
+        weight=-2.0e-3,
+    )
+    # dof_pos_limits (-1.0): penalize joints crossing soft limits. mjlab joint_pos_limits.
+    cfg.rewards["dof_pos_limits"] = RewardTermCfg(
+        func=mdp.joint_pos_limits,
+        weight=-1.0,
     )
 
     # Unitree drops foot_swing_height from the active set (its base class term
