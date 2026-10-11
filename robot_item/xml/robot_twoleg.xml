@@ -432,13 +432,13 @@
                     <geom name="L_servo_visual" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027 -0.0215" contype="0" conaffinity="0" />
                     <geom name="L_servo_collision" mesh="servo" class="collision" pos="-0.009752 -0.027 -0.0215" density="1600" contype="0" conaffinity="0" />
                   </body>
-                  <body name="L_foot" pos="0.007000 -0.010000 -0.016750">
+                  <body name="L_foot" pos="0.060000 -0.010000 -0.016750">
                     <geom name="L_foot_visual" mesh="foot" class="visual" material="bracket" pos="-0.06175 -0.03175 -0.001" contype="0" conaffinity="0" />
                     <geom name="L_foot_collision" mesh="foot" class="collision" pos="-0.06175 -0.03175 -0.001" density="2700" contype="0" conaffinity="0" />
                     <site name="left_foot" pos="-1.13115597e-09 2.70113457e-09 -0.00100000006" />
                     <geom name="left_foot_collision" type="box" size="0.0617500003 0.0297500029 0.002" pos="-1.13115597e-09 2.70113457e-09 0.00099999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
                   </body>
-                  <geom name="L_ankle" type="capsule" fromto="0 0 0 0.007000 -0.010000 -0.016750" size="0.018" density="0" contype="1" conaffinity="1" group="3" />
+                  <geom name="L_ankle" type="capsule" fromto="0 0 0 0.060000 -0.010000 -0.016750" size="0.018" density="0" contype="1" conaffinity="1" group="3" />
                 </body>
                 <geom name="L_shank" type="capsule" fromto="0 0 0 -0.024500 0.024000 -0.062000" size="0.018" density="0" contype="1" conaffinity="1" group="3" />
               </body>
@@ -550,13 +550,13 @@
                     <geom name="R_servo_visual" mesh="servo_r" class="visual" material="dark" pos="0.009752 -0.027 -0.0215" contype="0" conaffinity="0" />
                     <geom name="R_servo_collision" mesh="servo_r" class="collision" pos="0.009752 -0.027 -0.0215" density="1600" contype="0" conaffinity="0" />
                   </body>
-                  <body name="R_foot" pos="-0.007000 -0.010000 -0.016750">
+                  <body name="R_foot" pos="-0.060000 -0.010000 -0.016750">
                     <geom name="R_foot_visual" mesh="foot_r" class="visual" material="bracket" pos="0.06175 -0.03175 -0.001" contype="0" conaffinity="0" />
                     <geom name="R_foot_collision" mesh="foot_r" class="collision" pos="0.06175 -0.03175 -0.001" density="2700" contype="0" conaffinity="0" />
                     <site name="right_foot" pos="1.13115595e-09 2.70113457e-09 -0.00100000006" />
                     <geom name="right_foot_collision" type="box" size="0.0617500003 0.0297500029 0.002" pos="1.13115595e-09 2.70113457e-09 0.00099999994" contype="1" conaffinity="1" density="0" rgba="0.9 0.2 0.9 1" />
                   </body>
-                  <geom name="R_ankle" type="capsule" fromto="0 0 0 -0.007000 -0.010000 -0.016750" size="0.018" density="0" contype="1" conaffinity="1" group="3" />
+                  <geom name="R_ankle" type="capsule" fromto="0 0 0 -0.060000 -0.010000 -0.016750" size="0.018" density="0" contype="1" conaffinity="1" group="3" />
                 </body>
                 <geom name="R_shank" type="capsule" fromto="0 0 0 0.024500 0.024000 -0.062000" size="0.018" density="0" contype="1" conaffinity="1" group="3" />
               </body>

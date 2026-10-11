@@ -85,12 +85,17 @@ def reflect_and_edit(eval_out: dict) -> str:
     if n.get("torso_low_frac", 0) > 0.1:
         target, delta = "torso_height", -1.0
         note = "torso dropping / falling -> strengthen torso_height anti-fall"
-    elif n.get("feet_collide_frac", 0) > 0.5:
+    elif n.get("feet_collide_frac", 0) > 0.3:
         target, delta = "foot_separation", -1.0
-        note = "feet still colliding -> strengthen foot_separation"
-    elif n.get("speed", 1) < 0.05 or n.get("double_support", 0) > 0.85:
-        target, delta = "feet_air_time", +0.5
-        note = "no forward motion / stuck double-support -> boost feet_air_time"
+        note = "feet still colliding -> strengthen foot_separation (widen stance)"
+    elif n.get("foot_sep_y", 1) < 0.10:
+        target, delta = "foot_separation", -0.5
+        note = "feet too close laterally -> strengthen foot_separation"
+    elif n.get("speed", 1) < 0.05 and n.get("double_support", 0) > 0.85:
+        # only nudge air-time a little; large boosts re-collapse the feet into a
+        # triangle (in-place hop). Cap the increment.
+        target, delta = "feet_air_time", +0.3
+        note = "no forward motion -> small feet_air_time nudge (capped to avoid triangle)"
     elif n.get("upright_frac", 1) < 0.5:
         target, delta = "body_orientation_l2", -1.0
         note = "not upright -> strengthen body_orientation_l2"

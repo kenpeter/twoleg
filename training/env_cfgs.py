@@ -234,8 +234,8 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         params={
             "asset_cfg": SceneEntityCfg("robot", joint_names=(r".*_test",)),
             "default_joint_pos": {
-                "L_hip": 0.2, "L_knee": -0.4, "L_ankle": 0.2, "L_hip_roll": 0.0,
-                "R_hip": 0.2, "R_knee": -0.4, "R_ankle": 0.2, "R_hip_roll": 0.0,
+                "L_hip": 0.45, "L_knee": -0.4, "L_ankle": 0.2, "L_hip_roll": 0.0,
+                "R_hip": 0.45, "R_knee": -0.4, "R_ankle": 0.2, "R_hip_roll": 0.0,
             },
             "sigma": 0.25,
         },
@@ -276,7 +276,7 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # anti-hop terms so a true hop still costs more than a step.
     cfg.rewards["feet_air_time"] = RewardTermCfg(
         func=mdp.rewards.feet_air_time,
-        weight=5.5,
+        weight=6.0,
         params={"sensor_name": "feet_ground_contact",
                 "threshold_min": 0.05, "threshold_max": 0.5,
                 "command_name": "twist", "command_threshold": 0.05},
@@ -288,10 +288,10 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # keep the feet apart. Tunable by the loop (negative weight).
     cfg.rewards["foot_separation"] = RewardTermCfg(
         func=foot_separation,
-        weight=-1.5,
+        weight=-3.0,
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=FOOT_BODIES),
-            "min_gap": 0.06,
+            "min_gap": 0.10,
             "command_name": "twist",
             "command_threshold": 0.1,
         },
