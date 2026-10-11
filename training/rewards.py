@@ -263,3 +263,35 @@ def termination_penalty(env, asset_cfg=None):
     del asset_cfg
     tm = env.termination_manager
     return (tm.terminated & ~tm.time_outs).float()
+
+
+def foot_separation(
+    env: "ManagerBasedRlEnv",
+    asset_cfg: "SceneEntityCfg",  # noqa: F821
+    min_gap: float = 0.06,
+    command_name: str | None = None,
+    command_threshold: float = 0.1,
+) -> torch.Tensor:
+    """Penalize the two feet coming too close in the horizontal plane.
+
+    The iw biped has feet whose soles collide when the gait collapses both feet
+    to the midline (measured NO-WALK: double_support~0.94, feet palms touching).
+    This term charges a smooth cost whenever the L/R foot-body centers move closer
+    than ``min_gap`` in X (forward) or Y (mediolateral), forcing the gait to keep
+    the feet apart instead of stacking them. Unlike feet_clearance (which only
+    watches vertical height), this catches mediolateral crossing directly.
+    """
+    asset = env.scene[asset_cfg.name]
+    # body_com_pos_w[:, body_ids] -> [N, 2, 3]  (center-of-mass pos; sole center for a foot body)
+    pos = asset.data.body_com_pos_w[:, asset_cfg.body_ids]  # [N, 2, 3]
+    l, r = pos[:, 0, :2], pos[:, 1, :2]  # X,Y per foot  [N,2]
+    dist_xy = torch.norm(l - r, dim=-1)  # [N]
+    # smooth cost: ramps up as gap drops below min_gap
+    cost = torch.clamp(min_gap - dist_xy, min=0.0) / min_gap  # [N] in [0,1]
+    if command_name is not None:
+        cmd = env.command_manager.get_command(command_name)
+        if cmd is not None:
+            cmd_mag = torch.norm(cmd[:, :3], dim=-1)
+            gate = (cmd_mag > command_threshold).float()
+            cost = cost * gate
+    return cost

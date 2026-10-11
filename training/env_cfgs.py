@@ -25,6 +25,7 @@ from rewards import (
     both_feet_air,
     com_height_cap,
     contact_continuity,
+    foot_separation,
     joint_pos_reg,
     knee_flexion,
     termination_penalty,
@@ -191,27 +192,33 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         weight=-3.0,
         params={"scale": 5.0},
     )
-    # STRUCTURAL anti-hop: forbid the root from rising above the duck's walking
-    # envelope. Standing root height is 0.044 m; a bounce launches to ~0.96 m
-    # (measured 87% flight). Capping root_z above 0.12 m with a quadratic
-    # penalty makes launching physically unrewarding — the policy MUST stay
-    # grounded to score, so stepping (not springing) is the optimum. This is the
-    # term that the velocity/|vz| nudges alone could not beat for a 1.26 kg duck.
+    # STRUCTURAL anti-hop: forbid the root from rising above the robot's walking
+    # envelope. Our standing root_z is 0.251 m; a bounce launches well above.
+    # Capping root_z above 0.35 m with a quadratic penalty makes launching
+    # physically unrewarding — stepping (not springing) stays the optimum.
+    # Raised from 0.12 -> 0.35 so normal standing/walking is NOT penalized
+    # (the old 0.12 cap fought the 0.251 spawn height and killed standing).
     cfg.rewards["com_height_cap"] = RewardTermCfg(
         func=com_height_cap,
         weight=-1.0,
-        params={"cap": 0.12, "scale": 10.0},
+        params={"cap": 0.35, "scale": 10.0},
     )
-    # FORWARD-VELOCITY TRACKING — the actual locomotion driver. Without this the
-    # policy only learns to stand (anti-hop + stand_still favor stillness). This
-    # rewards matching the commanded base linear velocity (xy). Weight 1.5 sits
-    # above feet_gait (0.15) to clearly drive movement, but below the -3.0 anti-
-    # hop terms so a launch still costs more per step than a walking episode's
-    # forward reward. std=0.35 matches BipedRobot's tuning.
+    # FORWARD-VELOCITY TRACKING — the actual locomotion driver. Bumped from
+    # 1.5 to 2.0 (BipedRobot value) and std 0.35->0.25 so the policy is pulled
+    # harder into motion. Below the -3.0 anti-hop terms so a launch still costs
+    # more per step than a walking episode's forward reward.
     cfg.rewards["track_lin_vel"] = RewardTermCfg(
         func=mdp.rewards.track_linear_velocity,
-        weight=1.5,
-        params={"std": 0.35, "command_name": "twist"},
+        weight=2.0,
+        params={"std": 0.25, "command_name": "twist"},
+    )
+    # ANGULAR-VELOCITY TRACKING (BipedRobot: +1.0) — rewards yaw tracking and
+    # damps roll/pitch spin; helps the policy hold a stable heading while walking.
+    cfg.rewards["track_ang_vel"] = RewardTermCfg(
+        func=mdp.rewards.track_angular_velocity,
+        weight=1.0,
+        params={"std": 0.25, "command_name": "twist",
+                "asset_cfg": SceneEntityCfg("robot", body_names=(TORSO_BODY,))},
     )
     # STANDING-POSE REGULARIZATION — the balance scaffold. The iw biped cannot
     # stand passively (zero torque topples in ~26 steps; random torque in ~1).
@@ -261,24 +268,43 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
             "sigma": 1.0,
         },
     )
-    cfg.rewards["biped_swing_height"] = RewardTermCfg(
-        func=biped_swing_height,
-        # Aligned to BipedRobot's swing_foot_height, their one ACTIVE gait
-        # shaper at 1.5 (config/config.yaml:69). Their other three
-        # (step_length, knee_bend_touchdown, torso_centering) ship at 0.0.
-        weight=1.5,
+    # GAIT DRIVER (BipedRobot feet_air_time: +1.0). This was MISSING — without
+    # it the policy learns a static squat (verified: double_support 94%, speed 0,
+    # alternation 0). Rewards single-stance air time ~0.5s, which forces a
+    # lift-swing-land cycle and breaks the freeze. Must stay below the -3.0
+    # anti-hop terms so a true hop still costs more than a step.
+    cfg.rewards["feet_air_time"] = RewardTermCfg(
+        func=mdp.rewards.feet_air_time,
+        weight=3.0,
+        params={"sensor_name": "feet_ground_contact",
+                "threshold_min": 0.05, "threshold_max": 0.5,
+                "command_name": "twist", "command_threshold": 0.05},
+    )
+    # FEET-SEPARATION (user-observed: the two foot soles collide / cross at the
+    # midline). feet_clearance only watches vertical height, so it does NOT catch
+    # mediolateral crossing. This charges a smooth cost whenever the L/R foot-body
+    # centers come closer than min_gap in the horizontal plane, forcing the gait to
+    # keep the feet apart. Tunable by the loop (negative weight).
+    cfg.rewards["foot_separation"] = RewardTermCfg(
+        func=foot_separation,
+        weight=-1.5,
         params={
-            "asset_cfg": SceneEntityCfg("robot", site_names=FOOT_SITES),
-            "sensor_name": "feet_ground_contact",
+            "asset_cfg": SceneEntityCfg("robot", body_names=FOOT_BODIES),
+            "min_gap": 0.06,
             "command_name": "twist",
             "command_threshold": 0.1,
-            "min_height": 0.05,
-            "max_height": 0.15,
         },
     )
+    # Torque regularization dropped: mjlab's reward set has no torque-L2 term
+    # (BipedRobot's dof_torques_l2 comes from Isaac Lab rewards). Not needed —
+    # the gait freeze is fixed by feet_air_time, not torque smoothing.
+
+    # UPRIGHT (BipedRobot flat_orientation_l2: -2.0). Bumped from -1.0 -> -2.0
+    # so the torso stays vertical; verify showed upright_frac=1.0 already, so a
+    # stronger pull is safe and reinforces the gait.
     cfg.rewards["body_orientation_l2"] = RewardTermCfg(
         func=body_orientation_l2,
-        weight=-1.0,
+        weight=-2.0,
         params={"asset_cfg": SceneEntityCfg("robot", body_names=(TORSO_BODY,))},
     )
 
