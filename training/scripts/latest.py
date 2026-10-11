@@ -9,6 +9,10 @@ Two jobs, in this order:
   record  render training/latest_walk.mp4 from that same newest checkpoint,
           unless latest_walk.json already names it and the clip still decodes.
 
+Checkpoints are found both directly under <log-root>/<experiment>/ and inside
+<log-root>/<experiment>/<run>/, so a run that is mid-training and an already
+collapsed experiment directory both resolve.
+
 Usage:
   uv run --no-sync python scripts/latest.py              # prune to 1, then record
   uv run --no-sync python scripts/latest.py --keep 3     # keep the 3 newest
@@ -43,7 +47,7 @@ def ckpt_iter(path: Path) -> int:
 
 def all_ckpts(log_root: Path) -> list[tuple[int, Path]]:
     found = []
-    for ck in log_root.glob("*/*/model_*.pt"):
+    for ck in set(log_root.glob("*/model_*.pt")) | set(log_root.glob("*/*/model_*.pt")):
         try:
             found.append((ckpt_iter(ck), ck))
         except ValueError:

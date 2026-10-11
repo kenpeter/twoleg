@@ -34,7 +34,7 @@ import sys
 from pathlib import Path
 root = Path("logs/rsl_rl")
 best = None
-for ck in root.glob("*/*/model_*.pt"):
+for ck in set(root.glob("*/model_*.pt")) | set(root.glob("*/*/model_*.pt")):
     try:
         it = int(ck.stem.rsplit("_", 1)[1])
     except ValueError:
