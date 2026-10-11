@@ -295,3 +295,75 @@ replacement.
 **measured** state as of this commit: the stance holds (0.74 deg tilt over
 20 s standalone, `upright_frac` 1.00 over 600 steps in the real runtime). No
 PPO iteration has been run against this model yet.
+
+## Latest model and clip (2026-10-11)
+
+The experiment keeps exactly one model and one clip. No per-run directory tree
+of videos.
+
+```
+training/latest_model.pt     symlink to the newest model_*.pt anywhere under logs/rsl_rl
+training/latest_walk.mp4     10 s deterministic rollout of that same checkpoint
+training/latest_walk.json    sidecar: checkpoint path, iteration, duration, render time
+```
+
+```
+cd /home/kenpeter/work/twoleg/training
+.venv/bin/python scripts/latest.py             # prune to 1 model, refresh the clip
+.venv/bin/python scripts/latest.py --dry-run   # show exactly what would be deleted
+.venv/bin/python scripts/latest.py --keep 3    # keep the 3 newest instead
+.venv/bin/python scripts/latest.py --no-prune  # refresh the clip only
+```
+
+`scripts/train_loop.sh` calls this after every training round, so the tree
+collapses on its own while training runs. It keeps a run directory only while
+that directory still holds a tensorboard event file, which is where the training
+curves live; a directory left with neither a checkpoint nor events is removed.
+
+**measured** 2026-10-11: pruning cut 32 checkpoints to 1, keeping
+`fresh500/2026-10-11_13-13-11/model_1500.pt`, and took `logs/rsl_rl` from 160 MB to
+26 MB. Checkpoint order is numeric on the `model_<iter>` suffix, so `model_1500`
+beats `model_1008` and `model_900`.
+
+Framing is set on `env_cfg.viewer` *before* the env is constructed, because
+`OffscreenRenderer._setup_camera()` runs exactly once at renderer construction.
+Changing `cfg.viewer` afterwards is silently ignored: every frame comes out at
+the default `distance=3.0`, where the robot is roughly 40 px tall and no gait is
+readable. Shipped defaults are `distance=1.2`, `lookat=(0, 0, 0.20)`,
+`elevation=-15`, 640x480.
+
+**measured** cost: ~885 s to render one 10 s clip, and the cost is physics, not
+video. `env.step` takes ~1.6 s while `env.render()` takes 3-5 ms, and the step
+cost is the same on `cpu` and `cuda:0` and the same at `num_envs` 1, 16, 64 and
+256. So resolution is free, simulated duration is not, and no device or batch
+setting makes this faster. The cause is the same warp-1.18.0 launch overhead that
+puts training at ~50 s per iteration.
+
+`scripts/train_loop.sh` keeps training alive across restarts. Each round resumes
+from the numerically newest checkpoint, and it exits after three consecutive
+rounds that fail to advance the iteration counter, so a broken environment stops
+the loop instead of spinning it.
+
+Four facts this encodes, each learned from a wrong video or a wrong pick:
+
+- **measured**: checkpoint order must be numeric on the `model_<iter>` suffix. A
+  plain lexicographic sort returns `model_900` ahead of `model_1008` when both
+  live in the same run. The same trap sits inside mjlab itself:
+  `get_checkpoint_path` resolves `load_run` and `load_checkpoint` as regexes and
+  picks the highest alphabetical match, so a bare `--agent.resume True` can load
+  `model_900.pt` while `model_1100.pt` sits in the same run.
+- **measured**: `record_clip.py` pins `LOGS` to `logs/rsl_rl/twoleg_velocity`,
+  which is not where runs are written, and a relative `--out` given from
+  `training/` resolves to `training/training/` and fails only after the whole
+  rollout is rendered. `latest.py` therefore passes absolute `--ckpt` and
+  `--out` and never relies on that discovery path.
+- **measured**: an H.264 High-profile stream with B-frames decodes cleanly under
+  `ffmpeg` and still fails to open in a browser or a basic player. Output is
+  pinned to baseline profile, level 3.0, no B-frames, `yuv420p`, `+faststart`.
+- **measured**: a launch that outlives the tool call needs `setsid ... < /dev/null
+  > log 2>&1 & disown`. A plain `nohup ... &` was killed at the 90 s tool timeout
+  along with its whole process group, taking the training run with it.
+
+Renders are serial because the per-step cost is launch-bound, not compute-bound:
+it does not improve with more envs, more cores of arithmetic, or a faster device.
+Nothing measured here says separate processes would help.

@@ -13,6 +13,8 @@ training/logs/
 training/runs/
 training/**/*.mp4
 training/latest_walk*.mp4
+training/latest_walk.json
+training/latest_model.pt
 
 # MuJoCo rewrites this on every model load; bare name matches at any depth
 MUJOCO_LOG.TXT

@@ -42,11 +42,25 @@ from mjlab.rl import MjlabOnPolicyRunner  # noqa: E402
 
 LOGS = ROOT / "logs" / "rsl_rl" / "twoleg_velocity"
 
+# Plain players reject High profile / B-frame H.264 outright, so pin the stream to
+# the most conservative shape that still decodes everywhere.
+BROWSER_SAFE_ARGS = [
+    "-profile:v", "baseline",
+    "-level", "3.0",
+    "-bf", "0",
+    "-pix_fmt", "yuv420p",
+    "-movflags", "+faststart",
+]
+
+
+def ckpt_iter(path):
+    return int(path.stem.rsplit("_", 1)[1])
+
 
 def newest_ckpt():
     runs = sorted([p for p in LOGS.iterdir() if p.is_dir()], reverse=True)
     for run in runs:
-        pts = sorted(run.glob("model_*.pt"), reverse=True)
+        pts = sorted(run.glob("model_*.pt"), key=ckpt_iter, reverse=True)
         if pts:
             return pts[0]
     raise SystemExit(f"No checkpoints found under {LOGS}")
@@ -58,6 +72,11 @@ def main():
     ap.add_argument("--out", default=str(ROOT / "latest_walk.mp4"))
     ap.add_argument("--secs", type=float, default=5.0)
     ap.add_argument("--task", default="TwoLeg-Velocity-Flat")
+    ap.add_argument("--cam-distance", type=float, default=1.2)
+    ap.add_argument("--cam-lookat-z", type=float, default=0.20)
+    ap.add_argument("--cam-elevation", type=float, default=-15.0)
+    ap.add_argument("--width", type=int, default=640)
+    ap.add_argument("--height", type=int, default=480)
     args = ap.parse_args()
 
     ckpt = Path(args.ckpt) if args.ckpt else newest_ckpt()
@@ -67,6 +86,13 @@ def main():
     # this warp version; rendering still works headless via MUJOCO_GL=egl).
     env_cfg = load_env_cfg(args.task)
     env_cfg.scene.num_envs = 1
+    # OffscreenRenderer._setup_camera runs once at construction, so viewer fields
+    # changed later never reach a frame. They must be set before the env exists.
+    env_cfg.viewer.distance = args.cam_distance
+    env_cfg.viewer.lookat = (0.0, 0.0, args.cam_lookat_z)
+    env_cfg.viewer.elevation = args.cam_elevation
+    env_cfg.viewer.width = args.width
+    env_cfg.viewer.height = args.height
     device = "cpu"
     env = ManagerBasedRlEnv(cfg=env_cfg, device=device, render_mode="rgb_array")
     env_wrapped = RslRlVecEnvWrapper(env, clip_actions=False)
@@ -103,7 +129,7 @@ def main():
     env.close()
     if roll:
         clip = [f if f.dtype == np.uint8 else (np.clip(f, 0, 1) * 255).astype(np.uint8) for f in roll]
-        media.write_video(args.out, clip, fps=fps)
+        media.write_video(args.out, clip, fps=fps, ffmpeg_args=BROWSER_SAFE_ARGS)
         print(f"[record] wrote {len(clip)} frames ({len(clip)/fps:.1f}s) -> {args.out}")
     else:
         print("[record] no frames captured (renderer produced None)")
