@@ -15,9 +15,10 @@ from mjlab.entity import EntityArticulationInfoCfg, EntityCfg
 from mjlab.utils.spec_config import CollisionCfg
 
 # Single source of truth for the robot model. The same file backs the viewer
-# (robot_item/view_part.sh), so physics edits must not be forked per consumer.
+# (robot_item/xml/view_part.sh), so physics edits must not be forked per consumer.
 TWOLEG_XML: Path = Path(__file__).resolve().parents[1] / "robot_item" / "xml" / "robot_twoleg.xml"
-# The xml references meshes via "/home/kenpeter/work/twoleg/robot_item" (absolute).
+# The xml resolves meshes itself via meshdir="..", relative to robot_item/xml.
+# Nothing reads this constant; it is here as a record of where the meshes are.
 TWOLEG_MESH_DIR: Path = Path("/home/kenpeter/work/twoleg/robot_item")
 
 # Foot site / body names used by the gait rewards + contact sensor.

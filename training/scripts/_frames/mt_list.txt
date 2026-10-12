@@ -1,0 +1,8 @@
+file '/home/kenpeter/work/twoleg/training/scripts/_frames/mt00.png'
+file '/home/kenpeter/work/twoleg/training/scripts/_frames/mt01.png'
+file '/home/kenpeter/work/twoleg/training/scripts/_frames/mt02.png'
+file '/home/kenpeter/work/twoleg/training/scripts/_frames/mt03.png'
+file '/home/kenpeter/work/twoleg/training/scripts/_frames/mt04.png'
+file '/home/kenpeter/work/twoleg/training/scripts/_frames/mt05.png'
+file '/home/kenpeter/work/twoleg/training/scripts/_frames/mt06.png'
+file '/home/kenpeter/work/twoleg/training/scripts/_frames/mt07.png'

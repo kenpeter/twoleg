@@ -4,16 +4,16 @@
 # Single model root: robot_item/xml/. The RL training model and the viewer
 # both read robot_item/xml/robot_twoleg.xml from here.
 #
-#   ./robot_item/tools/view_part.sh                      # main model (robot_twoleg.xml)
-#   ./robot_item/tools/view_part.sh --list               # every model, with nq/nu/nkey/mass
-#   ./robot_item/tools/view_part.sh robot_twoleg         # by name fragment
-#   ./robot_item/tools/view_part.sh robot_item/left_arm # by path fragment
-#   ./robot_item/tools/view_part.sh 舵机                  # part folder -> that part's model.xml
-#   ./robot_item/tools/view_part.sh 3                    # by number from --list
-#   ./robot_item/tools/view_part.sh robot_twoleg STAND   # ... posed at a keyframe (name or index)
+#   ./robot_item/xml/view_part.sh                      # main model (robot_twoleg.xml)
+#   ./robot_item/xml/view_part.sh --list               # every model, with nq/nu/nkey/mass
+#   ./robot_item/xml/view_part.sh robot_twoleg         # by name fragment
+#   ./robot_item/xml/view_part.sh robot_item/left_arm # by path fragment
+#   ./robot_item/xml/view_part.sh 舵机                  # part folder -> that part's model.xml
+#   ./robot_item/xml/view_part.sh 3                    # by number from --list
+#   ./robot_item/xml/view_part.sh robot_twoleg STAND   # ... posed at a keyframe (name or index)
 #
-# Windowed only. EGL and OSMesa both fail on this NVIDIA setup, so rendering
-# a PNG without a display is not supported here.
+# Needs mujoco and glfw. It lives in training/.venv; this script finds it. If you
+# want a still PNG instead of a window, MUJOCO_GL=egl works headless here.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
@@ -22,10 +22,18 @@ export PYTHONWARNINGS=ignore
 export PYTHONUNBUFFERED=1   # keep prompts visible when stdout is a pipe
 
 # launch_passive needs mjpython on macOS; plain python elsewhere.
-PYBIN="python"
-[[ "$(uname -s)" == "Darwin" ]] && PYBIN="mjpython"
+if [[ -x training/.venv/bin/python ]]; then
+  PYBIN=training/.venv/bin/python
+elif [[ "$(uname -s)" == "Darwin" ]] && command -v mjpython >/dev/null; then
+  PYBIN=mjpython
+elif command -v python3 >/dev/null && python3 -c 'import mujoco, glfw' 2>/dev/null; then
+  PYBIN=python3
+else
+  echo "error: no interpreter with mujoco and glfw. Expected training/.venv/bin/python" >&2
+  exit 1
+fi
 
-uv run --offline --with mujoco "$PYBIN" - "$@" <<'PY' 2> >(grep -v -E "libdecor|libEGL|pci id|dri2 screen|No plugins found|no decorations|^$" >&2)
+"$PYBIN" - "$@" <<'PY' 2> >(grep -v -E "libdecor|libEGL|pci id|dri2 screen|No plugins found|no decorations|^$" >&2)
 import glob
 import os
 import sys
@@ -107,7 +115,7 @@ def show_list(found):
     for i, f in enumerate(found, 1):
         print(f"  {i:2}) {f:<52} {probe(f)}")
     print("  " + "-" * 96)
-    print("  open one : ./robot_item/tools/view_part.sh <number|fragment> [keyframe]\n")
+    print("  open one : ./robot_item/xml/view_part.sh <number|fragment> [keyframe]\n")
 
 
 def resolve(sel, found):
