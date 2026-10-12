@@ -45,6 +45,9 @@ TWOLEG_ACTUATOR = BuiltinPositionActuatorCfg(
     target_names_expr=(
         "L_hip_roll_test", "L_hip_test", "L_knee_test", "L_ankle_test",
         "R_hip_roll_test", "R_hip_test", "R_knee_test", "R_ankle_test",
+        "head_test",
+        "L_hand_1", "L_hand_2", "L_hand_3",
+        "R_hand_1", "R_hand_2", "R_hand_3",
     ),
     stiffness=21.1,
     damping=0.0,
@@ -67,6 +70,13 @@ TWOLEG_ACTION_SCALE: dict[str, float] = {
     "R_hip_test": 0.25,
     "R_knee_test": 0.25,
     "R_ankle_test": 0.25,
+    "head_test": 0.25,
+    "L_hand_1": 0.25,
+    "L_hand_2": 0.25,
+    "L_hand_3": 0.25,
+    "R_hand_1": 0.25,
+    "R_hand_2": 0.25,
+    "R_hand_3": 0.25,
 }
 
 
@@ -103,6 +113,10 @@ def get_twoleg_robot_cfg() -> EntityCfg:
             ".*_knee_test": 0.0,
             ".*_ankle_test": -0.5,
             ".*_hip_roll_test": 0.0,
+            "head_test": 0.0,
+            ".*_hand_1": 0.0,
+            ".*_hand_2": 0.0,
+            ".*_hand_3": 0.0,
         },
         joint_vel={".*": 0.0},
     )

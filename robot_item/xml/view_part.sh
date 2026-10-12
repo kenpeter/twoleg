@@ -62,6 +62,9 @@ DEFAULT_XML = f"{MODEL_DIR}/chest_both_arms_legs.xml"
 POSE_TARGETS = (
     "L_hip_roll_test", "L_hip_test", "L_knee_test", "L_ankle_test",
     "R_hip_roll_test", "R_hip_test", "R_knee_test", "R_ankle_test",
+    "head_test",
+    "L_hand_1", "L_hand_2", "L_hand_3",
+    "R_hand_1", "R_hand_2", "R_hand_3",
 )
 
 
