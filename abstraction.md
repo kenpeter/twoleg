@@ -281,7 +281,7 @@ more than running out the clock.
 ## TwoLeg stack (2026-10-10)
 
 TwoLeg trains with mjlab 1.2 + MuJoCo Warp + rsl_rl PPO on an 8-actuator
-(4-per-leg) model compiled from `robot_item/xml/robot_twoleg.xml`, on-policy.
+(4-per-leg) model compiled from `robot_item/xml/chest_both_arms_legs.xml`, on-policy.
 The model is the single source of truth for both the viewer and the trainer;
 it is declared `nu=0` in XML because mjlab injects one
 `BuiltinPositionActuatorCfg` over 8 targets (mjlab appends actuators rather

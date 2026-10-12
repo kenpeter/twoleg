@@ -1,6 +1,6 @@
 """Static kinematic showcase of the TwoLeg XML (no dynamics -> cannot topple).
 
-Loads robot_twoleg.xml directly with mujoco, sets the standing keyframe on the
+Loads chest_both_arms_legs.xml directly with mujoco, sets the standing keyframe on the
 legs (locked), and animates the head + hands so the viewer can SEE all 15 DOF
 move. Because we override qpos every frame (kinematic hold), the robot holds a
 perfect two-foot stance for the whole clip -- this is a model showcase, not a
@@ -16,7 +16,7 @@ import numpy as np
 import mujoco
 import imageio.v2 as imageio
 
-XML_PATH = os.path.join(os.path.dirname(__file__), "..", "robot_item", "xml", "robot_twoleg.xml")
+XML_PATH = os.path.join(os.path.dirname(__file__), "..", "robot_item", "xml", "chest_both_arms_legs.xml")
 
 # Keyframe: legs held at the designed standing pose (mirrors robot.py STANDING_KEYFRAME
 # minus head/hands which we animate). Ankle -0.5, hips/knees 0, hip_roll 0.

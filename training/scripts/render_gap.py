@@ -11,7 +11,7 @@ import imageio.v2 as imageio
 import mujoco
 import numpy as np
 
-XML = os.environ.get("XML", "/home/kenpeter/work/twoleg/robot_item/xml/robot_twoleg.xml")
+XML = os.environ.get("XML", "/home/kenpeter/work/twoleg/robot_item/xml/chest_both_arms_legs.xml")
 OUT = sys.argv[1] if len(sys.argv) > 1 else "/tmp/opencode/gap"
 CAMS = ("top", "front", "iso")
 src = open(XML).read().replace('meshdir=".."', 'meshdir="/home/kenpeter/work/twoleg/robot_item"')

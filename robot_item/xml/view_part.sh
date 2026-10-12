@@ -2,15 +2,15 @@
 # View any MuJoCo XML in the repo in the live viewer.
 #
 # Single model root: robot_item/xml/. The RL training model and the viewer
-# both read robot_item/xml/robot_twoleg.xml from here.
+# both read robot_item/xml/chest_both_arms_legs.xml from here.
 #
-#   ./robot_item/xml/view_part.sh                      # main model (robot_twoleg.xml)
+#   ./robot_item/xml/view_part.sh                      # main model (chest_both_arms_legs.xml)
 #   ./robot_item/xml/view_part.sh --list               # every model, with nq/nu/nkey/mass
-#   ./robot_item/xml/view_part.sh robot_twoleg         # by name fragment
+#   ./robot_item/xml/view_part.sh chest_both_arms_legs         # by name fragment
 #   ./robot_item/xml/view_part.sh robot_item/left_arm # by path fragment
 #   ./robot_item/xml/view_part.sh 舵机                  # part folder -> that part's model.xml
 #   ./robot_item/xml/view_part.sh 3                    # by number from --list
-#   ./robot_item/xml/view_part.sh robot_twoleg STAND   # ... posed at a keyframe (name or index)
+#   ./robot_item/xml/view_part.sh chest_both_arms_legs STAND   # ... posed at a keyframe (name or index)
 #
 # Needs mujoco and glfw. It lives in training/.venv; this script finds it. If you
 # want a still PNG instead of a window, MUJOCO_GL=egl works headless here.
@@ -54,7 +54,7 @@ import mujoco.viewer
 MODEL_DIR = "robot_item/xml"          # the one model root
 PART_ROOT = "robot_item"             # CAD part folders, each with its own model.xml
 MODEL_DIRS = (MODEL_DIR,)
-DEFAULT_XML = f"{MODEL_DIR}/robot_twoleg.xml"
+DEFAULT_XML = f"{MODEL_DIR}/chest_both_arms_legs.xml"
 
 # The single source of truth declares no actuators (nu=0) because mjlab injects
 # its own at env build. The viewer has no such step, so add them here; without
@@ -134,7 +134,7 @@ def resolve(sel, found):
     sys.exit(
         f"error: '{sel}' is ambiguous:\n  "
         + "\n  ".join(hits)
-        + "\n  narrow it with a path fragment, e.g. 'twoleg/robot_twoleg' or 'robot_item/robot_twoleg'"
+        + "\n  narrow it with a path fragment, e.g. 'twoleg/chest' or 'robot_item/chest'"
     )
 
 

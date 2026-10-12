@@ -13,7 +13,7 @@ import sys
 import mujoco
 import numpy as np
 
-DEFAULT = "/home/kenpeter/work/twoleg/robot_item/xml/robot_twoleg.xml"
+DEFAULT = "/home/kenpeter/work/twoleg/robot_item/xml/chest_both_arms_legs.xml"
 
 
 def geom_verts(m, d, g):

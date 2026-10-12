@@ -10,7 +10,7 @@ survivors are the duck robot asset (`twoleg.xml` + meshes at
 Everything lives flat under `twoleg_rl/` — one level, no subdirectories.
 - `twoleg_rl/robot.py` — robot asset wiring (EntityCfg, 8 actuated joints:
   L/R hip_roll/hip/knee/ankle; foot sites `left_foot`/`right_foot`). The model
-  itself is the single source of truth at `robot_item/xml/robot_twoleg.xml`.
+  itself is the single source of truth at `robot_item/xml/chest_both_arms_legs.xml`.
 - `twoleg_rl/env_cfgs.py`, `rewards.py`, `rl_cfg.py`, `dc_motor_action.py` —
   `TwoLeg-Velocity-Flat` / `TwoLeg-Velocity-Rough`, cloned from Unitree's
   `unitree_g1_flat_env_cfg`. The gait shaper is `feet_gait` (phase-locked

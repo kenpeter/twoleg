@@ -16,7 +16,7 @@ from mjlab.utils.spec_config import CollisionCfg
 
 # Single source of truth for the robot model. The same file backs the viewer
 # (robot_item/xml/view_part.sh), so physics edits must not be forked per consumer.
-TWOLEG_XML: Path = Path(__file__).resolve().parents[1] / "robot_item" / "xml" / "robot_twoleg.xml"
+TWOLEG_XML: Path = Path(__file__).resolve().parents[1] / "robot_item" / "xml" / "chest_both_arms_legs.xml"
 # The xml resolves meshes itself via meshdir="..", relative to robot_item/xml.
 # Nothing reads this constant; it is here as a record of where the meshes are.
 TWOLEG_MESH_DIR: Path = Path("/home/kenpeter/work/twoleg/robot_item")
@@ -77,7 +77,7 @@ def get_spec() -> "mujoco.MjSpec":
 
 
 def get_twoleg_robot_cfg() -> EntityCfg:
-    """Build the TwoLeg entity config from robot_twoleg.xml."""
+    """Build the TwoLeg entity config from chest_both_arms_legs.xml."""
     # Spawn height: the lowest colliding geom (the foot boxes) bottoms out at
     # -0.2510 m with the root at the world origin, so the root starts 0.251 m up
     # or the contact solver ejects the robot on step 0.
