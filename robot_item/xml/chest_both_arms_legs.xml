@@ -329,7 +329,7 @@
       <geom name="horn_s3_f_R" type="cylinder" size="0.0016 0.004" pos="-0.019500 -0.007000 0.002750" quat="0.707107 0.707107 -0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
     </body>
   </body>
-    <body name="leg_left" pos="-0.066500 -0.018500 -0.250000" quat="0.707107 0 0 0.707107">
+    <body name="leg_left" pos="-0.064000 -0.018500 -0.250000" quat="0.707107 0 0 0.707107">
     <joint name="L_hip_roll_test" type="hinge" axis="1.000000 0.000000 0.000000" limited="true" range="0 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" pos="0.014500 -0.007200 0.238000" actuatorfrcrange="-2.45 2.45" />
 
 
@@ -468,7 +468,7 @@
         </body>
     </body>
 
-    <body name="leg_right" pos="0.066500 -0.018500 -0.250000" quat="0.707107 0 0 -0.707107">
+    <body name="leg_right" pos="0.064000 -0.018500 -0.250000" quat="0.707107 0 0 -0.707107">
     <joint name="R_hip_roll_test" type="hinge" axis="-1.000000 0.000000 0.000000" limited="true" range="-0.785398 0" damping="0.05" frictionloss="0.02" armature="0.01" pos="-0.014500 -0.007200 0.238000" actuatorfrcrange="-2.45 2.45" />
 
 
