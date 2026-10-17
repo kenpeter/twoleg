@@ -100,9 +100,15 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # default). Zero action holds the standing pose -> the robot can actually
     # stand, and the policy learns balance/deviations. (Torque control could not
     # hold a pose, so the robot toppled in 1 step and never learned.)
+    #
+    # ALL 15 XML joints are actuated: 8 legs + head + 6 arm joints. The XML is
+    # the source of truth for what exists; actuating everything keeps the
+    # action space consistent with robot.TWOLEG_ACTUATOR (15 entries) and the
+    # reward terms that read joint_pos with a 15-wide layout. Restricting to
+    # legs-only silently desynced those (8 actions vs 15 joint slice -> crash).
     cfg.actions["joint_pos"] = JointPositionActionCfg(
         entity_name="robot",
-        actuator_names=(r"^(L|R)_(hip_roll|hip|knee|ankle)_test$",),
+        actuator_names=(r".*_test$", r"^(L|R)_hand_[123]$"),
         scale=0.3,
         use_default_offset=True,
     )
@@ -366,11 +372,21 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     # std_standing from these dicts keyed by joint regex; with no match they
     # resolve to an empty std tensor and crash at compute time. Mirror Unitree
     # G1: looser std on hip/knee/ankle (natural stride), tighter elsewhere.
+    # NOTE: these regexes must cover EVERY actuated joint. The `pose` reward
+    # resolves each dict against the asset's joint list and builds a std tensor
+    # of that width; any joint left unmatched silently drops out, so the tensor
+    # came out 8-wide while joint_pos is 15-wide -> shape crash at compute time.
+    # Head + the 6 arm joints are actuated too (see actions["joint_pos"]), so
+    # they need entries here.
     duck_pose_std = {
         r".*hip_roll_test.*": 0.5,
         r".*hip_test.*": 0.5,
         r".*knee_test.*": 0.5,
         r".*ankle_test.*": 0.15,
+        # Head and arms are not part of the stride: hold them near the default
+        # pose (tight std) so the policy cannot flail them to farm reward.
+        r".*head_test.*": 0.15,
+        r".*hand_[123].*": 0.15,
     }
     cfg.rewards["pose"].params["std_standing"] = {".*": 0.05}
     cfg.rewards["pose"].params["std_walking"] = duck_pose_std
