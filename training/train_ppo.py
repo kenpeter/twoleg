@@ -17,7 +17,9 @@ Run:
 
 from __future__ import annotations
 
+import os
 import sys
+import threading
 import argparse
 from pathlib import Path
 
@@ -52,10 +54,18 @@ def build_config(actions, hidden=(256, 256), lr=3e-4, steps=2_000_000, num_envs=
             "steps": steps,
             "epoch_steps": epoch_steps,
             "checkpoint_path": str(Path(REPO) / "logs" / "twoleg_ppo"),
-            "save_steps": 10_000,
+            # Checkpoint every ~25 min of wall-clock (at ~1.3 s/iter) instead of
+            # every ~3.6 h, so there is always a recent model to evaluate.
+            "save_steps": 1_000,
             "test_episodes": 1,
             "show_progress": True,
-            "replace_checkpoint": False,
+            # Keep ONLY the newest checkpoint. The trainer names saves
+            # `step_<N>`, so with replace_checkpoint=True each new save deletes
+            # any file starting with the same prefix before writing -- i.e. the
+            # previous checkpoint is removed, not accumulated. Without this,
+            # a 2M-step run at save_steps=1000 would pile up 2000 checkpoints
+            # (~4.5 MB each -> ~9 GB) on disk.
+            "replace_checkpoint": True,
             "log": True,
             "log_dir": str(Path(REPO) / "logs" / "twoleg_ppo" / "tb"),
             "log_name": "twoleg_ppo",
@@ -99,6 +109,10 @@ def main():
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--enable_mirroring", action="store_true")
     ap.add_argument("--model_path", type=str, default=None)
+    ap.add_argument("--resume", action="store_true",
+                    help="Resume from checkpoint_path/trainer_state "
+                         "(weights + optimizer state), continuing from the "
+                         "saved step count instead of restarting at 0.")
     ap.add_argument("--play", action="store_true")
     args = ap.parse_args()
 
@@ -126,7 +140,60 @@ def main():
         return
 
     print(f"[twoleg PPO] device={device} steps={args.steps} hidden={hidden}")
-    model.train(steps=args.steps)
+
+    ckpt_root = cfg["train"]["checkpoint_path"]
+    state_dir = os.path.join(ckpt_root, "trainer_state")
+    state_file = os.path.join(state_dir, "trainer_state.pt")
+
+    resumed_from = None
+    if args.resume:
+        if not os.path.exists(state_file):
+            raise SystemExit(
+                f"[twoleg PPO] --resume given but no trainer state at {state_file}.\n"
+                f"Run once without --resume to create one."
+            )
+        model.agent.load_train_state(state_file)
+        resumed_from = state_file
+        print(f"[twoleg PPO] RESUMED from {resumed_from}")
+
+    # NOTE: PPO.save_trainer_state() looks convenient but is BROKEN -- it calls
+    # self.trainer.* and this PPO wrapper has no `.trainer` attribute
+    # (AttributeError: 'PPO' object has no attribute 'trainer'). The reachable
+    # path is model.agent.{save,load}_train_state(), which saves model weights
+    # AND optimizer state -- exactly what a true resume needs. It takes the
+    # full file path and appends ".pt" itself, so strip the extension.
+    def _save_state() -> None:
+        model.agent.save_train_state(os.path.splitext(state_file)[0])
+
+    # Keep the resume state fresh on a timer. The library only writes it on
+    # KeyboardInterrupt, which misses SIGKILL, OOM, crashes and timeouts.
+    _stop = threading.Event()
+
+    def _snapshot_loop(interval_s: float = 600.0) -> None:
+        while not _stop.wait(interval_s):
+            try:
+                _save_state()
+                print("[twoleg PPO] periodic resume state saved", flush=True)
+            except Exception as e:  # noqa: BLE001
+                print(f"[twoleg PPO] periodic snapshot failed: {e}", flush=True)
+
+    snapshotter = threading.Thread(target=_snapshot_loop, daemon=True)
+    snapshotter.start()
+
+    try:
+        model.train(steps=args.steps)
+    except BaseException:
+        # Anything that kills the loop (Ctrl-C, crash, timeout) still writes a
+        # resumeable snapshot so progress is not lost.
+        print("\n[twoleg PPO] interrupted - saving resume state ...", flush=True)
+        try:
+            _save_state()
+            print(f"[twoleg PPO] resume state saved to {state_file}", flush=True)
+        except Exception as e:  # noqa: BLE001
+            print(f"[twoleg PPO] could not save resume state: {e}", flush=True)
+        raise
+    finally:
+        _stop.set()
 
 
 if __name__ == "__main__":
