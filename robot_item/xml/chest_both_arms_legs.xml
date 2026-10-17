@@ -150,27 +150,27 @@
       <geom name="chest_servo_R_horn_s2" type="cylinder" size="0.0016 0.004" pos="0.007000 -0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
       <geom name="chest_servo_R_horn_s3" type="cylinder" size="0.0016 0.004" pos="-0.007000 -0.007000 0.000000" quat="0.7071068 0.7071068 0 0" material="dark" contype="0" conaffinity="0" group="2" />
     </body>
-    <body name="waist_servo_L" pos="-0.059300 -0.004000 -0.012000" quat="0.5 0.5 0.5 -0.5">
+    <body name="waist_servo_L" pos="-0.039300 -0.004000 -0.012000" quat="0.5 0.5 0.5 -0.5">
       <geom name="waist_servo_L_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027000 -0.021500" />
       <geom name="waist_servo_L_c" mesh="servo" class="collision" material="dark" pos="-0.009752 -0.027000 -0.021500" density="1600" contype="0" conaffinity="0" />
     </body>
 
-    <body name="waist_servo_R" pos="0.059300 -0.004000 -0.012000" quat="0.5 0.5 -0.5 0.5">
+    <body name="waist_servo_R" pos="0.039300 -0.004000 -0.012000" quat="0.5 0.5 -0.5 0.5">
       <geom name="waist_servo_R_v" mesh="servo" class="visual" material="dark" pos="-0.009752 -0.027000 -0.021500" />
       <geom name="waist_servo_R_c" mesh="servo" class="collision" material="dark" pos="-0.009752 -0.027000 -0.021500" density="1600" contype="0" conaffinity="0" />
     </body>
 
 
-    <body name="waist_pivot_shaft_L" pos="-0.069749 0.015000 -0.011500">
+    <body name="waist_pivot_shaft_L" pos="-0.046800 0.015000 -0.011500">
       <geom name="waist_pivot_shaft_L_g" type="cylinder" size="0.002 0.012000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2" />
     </body>
-    <body name="waist_pivot_bearing_L" pos="-0.069749 0.027500 -0.011500">
+    <body name="waist_pivot_bearing_L" pos="-0.046800 0.027500 -0.011500">
       <geom name="waist_pivot_bearing_L_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" />
     </body>
-    <body name="waist_pivot_shaft_R" pos="0.069749 0.015000 -0.011500">
+    <body name="waist_pivot_shaft_R" pos="0.046800 0.015000 -0.011500">
       <geom name="waist_pivot_shaft_R_g" type="cylinder" size="0.002 0.012000" quat="0.7071068 0.7071068 0 0" material="steel" contype="0" conaffinity="0" group="2" />
     </body>
-    <body name="waist_pivot_bearing_R" pos="0.069749 0.027500 -0.011500">
+    <body name="waist_pivot_bearing_R" pos="0.046800 0.027500 -0.011500">
       <geom name="waist_pivot_bearing_R_g" type="mesh" mesh="bearing" class="visual" material="steel" pos="-0.004750 -0.001500 -0.004750" />
     </body>
 
@@ -329,7 +329,7 @@
       <geom name="horn_s3_f_R" type="cylinder" size="0.0016 0.004" pos="-0.019500 -0.007000 0.002750" quat="0.707107 0.707107 -0.000000 -0.000000" material="dark" contype="0" conaffinity="0" group="2" />
     </body>
   </body>
-    <body name="leg_left" pos="-0.064000 -0.018500 -0.250000" quat="0.707107 0 0 0.707107">
+    <body name="leg_left" pos="-0.044000 -0.018500 -0.250000" quat="0.707107 0 0 0.707107">
     <joint name="L_hip_roll_test" type="hinge" axis="1.000000 0.000000 0.000000" limited="true" range="0 0.785398" damping="0.05" frictionloss="0.02" armature="0.01" pos="0.014500 -0.007200 0.238000" actuatorfrcrange="-2.45 2.45" />
 
 
@@ -468,7 +468,7 @@
         </body>
     </body>
 
-    <body name="leg_right" pos="0.064000 -0.018500 -0.250000" quat="0.707107 0 0 -0.707107">
+    <body name="leg_right" pos="0.044000 -0.018500 -0.250000" quat="0.707107 0 0 -0.707107">
     <joint name="R_hip_roll_test" type="hinge" axis="-1.000000 0.000000 0.000000" limited="true" range="-0.785398 0" damping="0.05" frictionloss="0.02" armature="0.01" pos="-0.014500 -0.007200 0.238000" actuatorfrcrange="-2.45 2.45" />
 
 
