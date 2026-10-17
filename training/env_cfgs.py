@@ -62,6 +62,20 @@ def unitree_twoleg_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
 
     cfg.scene.entities = {"robot": get_twoleg_robot_cfg()}
 
+    # The base velocity recipe leaves terrain_scan's frame as an unset
+    # placeholder: ObjRef(type="body", name="", entity="robot") -- the comment
+    # there even says "Set per-robot." Nobody did, so it resolved to the body
+    # name "robot/" and every rough-terrain build died with
+    #   KeyError: "Invalid name 'robot/'. Valid names: ['robot/L_ankle_link', ...]"
+    # Point it at the torso so the height scan rides on the robot's trunk.
+    # RayCastSensorCfg is a pydantic-ish model (not a dataclass), so there is no
+    # _replace(); its `frame` field is mutable and can be assigned in place.
+    for s in cfg.scene.sensors or ():
+        if getattr(s, "name", None) == "terrain_scan":
+            frame = getattr(s, "frame", None)
+            if frame is not None and getattr(frame, "name", None) == "":
+                frame.name = TORSO_BODY
+
     feet_ground_cfg = ContactSensorCfg(
         name="feet_ground_contact",
         primary=ContactMatch(
