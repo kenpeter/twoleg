@@ -143,6 +143,7 @@ def main():
 
     ckpt_root = cfg["train"]["checkpoint_path"]
     state_dir = os.path.join(ckpt_root, "trainer_state")
+    os.makedirs(state_dir, exist_ok=True)
     state_file = os.path.join(state_dir, "trainer_state.pt")
 
     resumed_from = None

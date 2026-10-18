@@ -1,0 +1,1 @@
+{"schemaVersion":1,"updatedAt":1792301696957,"ledger":{"bytes":0,"limitBytes":4194304,"pressurePct":0,"band":"ok"},"checkpoint":null,"recovery":{"source":"legacy-ledger","at":1792301696956,"ok":true},"lastUncertainty":null,"counts":{"activeOwners":0,"pendingAdvisories":0,"lateTerminals":0,"orphanWorktreeOwners":0},"maintenance":null}

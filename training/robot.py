@@ -138,7 +138,7 @@ def get_twoleg_robot_cfg() -> EntityCfg:
             # the default True disables every NON-matching geom, so a second
             # entry that matches nothing wipes what the first one enabled.
             CollisionCfg(
-                geom_names_expr=(r".*_foot_collision$",),
+                geom_names_expr=(r"^(left|right)_foot_collision$",),
                 condim=3,
                 conaffinity=1,
                 contype=1,

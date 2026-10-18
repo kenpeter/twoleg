@@ -1,0 +1,100 @@
+{
+  "version": 3,
+  "writtenAt": 1792296195866,
+  "workflowSchema": "exact-task-v1",
+  "toolAggregates": {
+    "glob": {
+      "tool": "glob",
+      "count": 2,
+      "successCount": 2,
+      "failureCount": 0,
+      "totalDuration": 124
+    },
+    "grep": {
+      "tool": "grep",
+      "count": 6,
+      "successCount": 6,
+      "failureCount": 0,
+      "totalDuration": 1367
+    },
+    "question": {
+      "tool": "question",
+      "count": 1,
+      "successCount": 1,
+      "failureCount": 0,
+      "totalDuration": 73728
+    },
+    "read": {
+      "tool": "read",
+      "count": 15,
+      "successCount": 15,
+      "failureCount": 0,
+      "totalDuration": 127
+    },
+    "shell": {
+      "tool": "shell",
+      "count": 38,
+      "successCount": 38,
+      "failureCount": 0,
+      "totalDuration": 10411
+    },
+    "write": {
+      "tool": "write",
+      "count": 1,
+      "successCount": 1,
+      "failureCount": 0,
+      "totalDuration": 5
+    }
+  },
+  "activeAgent": {
+    "ses_eb2f681ebffecdEuzjvKMD2aip": "build"
+  },
+  "delegationChains": {},
+  "agentSessions": {
+    "ses_eb2f681ebffecdEuzjvKMD2aip": {
+      "agentName": "build",
+      "lastToolCallTime": 1792296195866,
+      "lastAgentEventTime": 1792296191399,
+      "delegationActive": false,
+      "activeInvocationId": 8,
+      "lastInvocationIdByAgent": {
+        "architect": 8
+      },
+      "windows": {},
+      "lastCompactionHint": 0,
+      "architectWriteCount": 4,
+      "lastCoderDelegationTaskId": null,
+      "currentTaskId": null,
+      "turboMode": false,
+      "leanTurboActive": false,
+      "epicModeActive": false,
+      "gateLog": {},
+      "reviewerCallCount": {},
+      "lastGateFailure": null,
+      "partialGateWarningsIssuedForTask": [],
+      "completionGateWarnedForTask": [],
+      "selfFixAttempted": false,
+      "selfCodingWarnedAtCount": 0,
+      "catastrophicPhaseWarnings": [],
+      "lastPhaseCompleteTimestamp": 0,
+      "lastPhaseCompletePhase": 0,
+      "phaseAgentsDispatched": [],
+      "lastCompletedPhaseAgentsDispatched": [],
+      "qaSkipCount": 0,
+      "qaSkipTaskIds": [],
+      "pendingAdvisoryMessages": [],
+      "taskWorkflowStates": {},
+      "scopeViolationDetected": false,
+      "model_fallback_index": 0,
+      "modelFallbackExhausted": false,
+      "coderRevisions": 0,
+      "revisionLimitHit": false,
+      "fullAutoMode": false,
+      "fullAutoInteractionCount": 0,
+      "fullAutoDeadlockCount": 0,
+      "fullAutoLastQuestionHash": null,
+      "sessionRehydratedAt": 0,
+      "cachedCohortId": "bacca63a89c3"
+    }
+  }
+}
